@@ -1,0 +1,9 @@
+Developing a REST-API to query immunedb through implementation of the ADC API 
+
+immunedb (immunedb.com) is a pipeline developed to store and analyse high-throughput B and T cell sequencing data. 
+In order to expand the abilities of iReceptor to iReceptorPlus and also to make immunedb data and tools accessible and reachable to more scientists and research groups, we developed a new REST-API for immunedb which enables immunedb to be a repository that responses to queries and especially ADC API queries.Therefore we implemented the AIRR Data Commons (ADC) API, which provides two primary endpoints for querying and retrieving AIRR-seq data: the Repertoire (the metadata) and the Rearrangement endpoints.
+
+The new immunedb API will not only allow programmatic access to query and download AIRR-seq data but will also provide an additional clone relationship endpoint that can help build further developments of the ADC API.
+
+
+
