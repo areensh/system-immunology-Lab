@@ -1,1 +1,45 @@
 
+performing queries on multipe immunedb databases for minimal amounts of relevant data:
+
+use case: (from the interactive stats document)
+
+https://docs.google.com/document/d/16OZhEh7C7mUvaCi_4VotwCSce-SJ3lL64H3zHkWjhnM/edit?usp=sharing
+
+Approaches:
+- Multiple mysql_connect - not very efficient , PHP not python
+- In case multiple DB are on the same host we can use Keep one connection open and call mysql_select_db()
+- MySQL Connector/Python
+
+
+first Steps: 
+
+1.Connect to two databases on the same host
+2.Connect to two databases on two different hosts : influenza on clash and systemAli
+3.Connect to 10+ databases , add Queen/elvis
+4.API Queries on basic fields in stat table
+5.Make more complicated queries ( map issues )
+
+already Implemented in the stat API:
+1. Connectivity to multiple immunedb databases, on the same host and on different hosts
+2. Performing very basic simple queries on stat tables.
+
+in progress:
+
+1. Performing complicated queries on large number of immunedb databases, including optimisation of response time.
+2. Retrieving additional data and information about the database (eg. clone definition, alignment tool, germilines, last update and ect.)
+3. immunedb tool for visualization of the output
+4. output info about how many db where queried and how many returned response 
+5.
+
+
+examples endpoints:
+/irplus/v1/repertoire/{repertoire_id}/stats
+/irplus/v1/repertoire/{repertoire_id}/clone/stats
+/irplus/v1/repertoire/{repertoire_id}/stats/rearrangements
+/irplus/v1/repertoire/{repertoire_id}/stats/clones
+
+questions to disscus:
+1. Do we care about live updates?
+2. What happens when a database doesn’t have the information? (missing info about tissues)
+3. 
+
