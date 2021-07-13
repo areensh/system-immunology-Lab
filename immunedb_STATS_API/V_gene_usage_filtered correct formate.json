@@ -1,0 +1,77 @@
+{
+  "Info":{
+    "title":"iReceptorPlus Statistics API",
+    "version":"0.3.0",
+    "description":"metadata for Statistics API for the iReceptor Plus platform",
+    "contact":{
+      "name":"NULL",
+      "url":"null",
+      "email":"null"
+    }
+  },
+  "Result":[
+    {
+    "study": {
+        "study_name": "lp15"
+      },
+      "subject": {
+        "subject_id": ["2","3","4","5","6","8"]
+      },
+
+      "repertoires":{
+        "repertoire_id":"2",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","blood","SPL","ILN","ILE"]
+      },
+    
+      "repertoires":{
+        "repertoire_id":"3",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","blood","SPL"]
+      },
+    
+      "repertoires":{
+        "repertoire_id":"4",
+        "tissue" : ["BM","Colon","Ileum","ILN","Jejunum","Lung","MLN","blood","SPL"]
+      },
+    
+      "repertoires":{
+        "repertoire_id":"5",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","blood","SPL","ILE"]
+      },
+    
+      "repertoires":{
+        "repertoire_id":"6",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","blood","SPL"]
+      },
+    
+      "repertoires":{
+        "repertoire_id":"8",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","blood","SPL"]
+      },
+  }
+  {
+      "study": {
+        "study_name": "influenza"
+      },
+      "subject": {
+        "subject_id": ["1","2","3"]
+      },
+    
+      "repertoires":{
+        "repertoire_id":"1",
+        "tissue" : []
+      }
+    ,
+    
+      "repertoires":{
+        "repertoire_id":"2",
+        "tissue" : []
+      },
+    
+      "repertoires":{
+        "repertoire_id":"3",
+        "tissue" : []
+      },
+  }
+
+  ]
+}

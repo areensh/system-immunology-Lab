@@ -1,0 +1,191 @@
+{
+  "Info":{
+    "title":"iReceptorPlus Statistics API",
+    "version":"0.3.0",
+    "description":"metadata for Statistics API for the iReceptor Plus platform",
+    "contact":{
+      "name":"NULL",
+      "url":"null",
+      "email":"null"
+    }
+  },
+  "Result":[
+    {
+      "repertoires":{
+        "repertoire_id":"lp15-2",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","PBL","SPL","ILN","ILE"]
+      }
+      
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"lp15-3",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","PBL","SPL"]
+      }
+      
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"lp15-4",
+        "tissue" : ["BM","Colon","Ileum","ILN","Jejunum","Lung","MLN","PBL","SPL"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"lp15-5",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","PBL","SPL","ILE"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"lp15-6",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","PBL","SPL"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"lp15-8",
+        "tissue" : ["BM","Colon","Ileum","Jejunum","Lung","MLN","PBL","SPL"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"influenza-1",
+        "tissue" : []
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"influenza-2",
+        "tissue" : []
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"influenza-3",
+        "tissue" : []
+      }
+      
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ppg_shlomchik2-1",
+        "tissue" : ["PBL","Ile","SPL"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ppg_shlomchik2-2",
+        "tissue" : ["PBL","Ile","SPL"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ppg_shlomchik2-3",
+        "tissue" : ["PBL","Ile","SPL"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ms-1",
+        "tissue" : ["Cervical lymph node","Brain lesion"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ms-2",
+        "tissue" : ["Cervical lymph node","Brain lesion"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ms-3",
+        "tissue" : ["Cervical lymph node","Brain lesion"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"ms-4",
+        "tissue" : ["Cervical lymph node","Choroid plexus","Brain lesion","Pia mater"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-3",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-4",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-5",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-6",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-7",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-8",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-9",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-10",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-14",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-15",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-16",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-17",
+        "tissue" : ["blood"]
+      }
+    },
+    {
+      "repertoires":{
+        "repertoire_id":"covidpublished-18",
+        "tissue" : ["blood"]
+      }
+    }
+  ]
+}
