@@ -91,41 +91,60 @@ meta_long_list <- lapply(json_all$Result, function(entry) {
 df_meta_long <- bind_rows(meta_long_list)
 df_meta_long$study <- sub("-.*", "", df_meta_long$repertoire_id)
 
-# Count subjects with reported (non-NA) values per metadata field per study
-df_meta_avail <- df_meta_long %>%
-  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications")) %>%
+# For each study: count subjects per metadata value, colored by metadata type
+df_meta_vals <- df_meta_long %>%
+  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications", "Age minimum")) %>%
   filter(meta_value != "NA" & !is.na(meta_value)) %>%
-  distinct(repertoire_id, study, meta_key) %>%
-  count(study, meta_key, name = "n_subjects")
+  distinct(repertoire_id, study, meta_key, meta_value) %>%
+  count(study, meta_key, meta_value, name = "n_subjects")
 
-# Nicer labels for metadata fields
-meta_labels <- c(
-  "Age minimum" = "Age",
+# Nicer labels for metadata types
+meta_type_labels <- c(
   "cell_subset" = "Cell Subset",
   "disease_stage" = "Disease Stage",
   "sex" = "Sex",
   "tissue" = "Tissue"
 )
 
-df_meta_avail$meta_label <- ifelse(
-  df_meta_avail$meta_key %in% names(meta_labels),
-  meta_labels[df_meta_avail$meta_key],
-  df_meta_avail$meta_key
+df_meta_vals$meta_type <- ifelse(
+  df_meta_vals$meta_key %in% names(meta_type_labels),
+  meta_type_labels[df_meta_vals$meta_key],
+  df_meta_vals$meta_key
 )
 
-p0 <- ggplot(df_meta_avail,
-  aes(x = reorder(study, -n_subjects, sum), y = n_subjects, fill = meta_label)) +
-  geom_col(position = "stack", color = "white", linewidth = 0.3) +
-  geom_text(aes(label = n_subjects),
-    position = position_stack(vjust = 0.5), size = 4.5, fontface = "bold") +
+# Combine type + value for the label
+df_meta_vals$label <- paste0(df_meta_vals$meta_type, ": ", df_meta_vals$meta_value)
+
+# Order studies by total subjects
+study_order <- df_meta_vals %>%
+  group_by(study) %>%
+  summarise(total = sum(n_subjects)) %>%
+  arrange(-total) %>%
+  pull(study)
+
+df_meta_vals$study <- factor(df_meta_vals$study, levels = study_order)
+
+# Color palette by metadata type
+type_colors <- c(
+  "Tissue" = "#66c2a5",
+  "Disease Stage" = "#8da0cb",
+  "Sex" = "#e78ac3",
+  "Cell Subset" = "#fc8d62"
+)
+
+p0 <- ggplot(df_meta_vals,
+  aes(x = study, y = n_subjects, fill = meta_type)) +
+  geom_col(position = "stack", color = "white", linewidth = 0.4) +
+  geom_text(aes(label = meta_value),
+    position = position_stack(vjust = 0.5), size = 4, fontface = "bold") +
   labs(
-    title = "Available Metadata Fields per Dataset",
-    x = "Dataset", y = "# Subjects with Reported Value", fill = "Metadata Field"
+    title = "Metadata Composition per Dataset",
+    x = "Dataset", y = "# Subjects", fill = "Metadata Type"
   ) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = type_colors) +
   theme(legend.position = "bottom")
 
-ggsave(file.path(output_dir, "00_metadata_per_dataset.png"), p0, width = 13, height = 8, dpi = 200)
+ggsave(file.path(output_dir, "00_metadata_per_dataset.png"), p0, width = 14, height = 9, dpi = 200)
 cat("Saved: 00_metadata_per_dataset.png\n")
 
 # ============================================================
