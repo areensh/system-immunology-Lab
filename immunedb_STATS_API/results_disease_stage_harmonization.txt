@@ -1,0 +1,69 @@
+Results: Disease Stage Heterogeneity and Harmonization
+=======================================================
+
+1. Raw Disease Stage Labels Across Studies
+------------------------------------------
+
+Examination of disease stage annotations across the six datasets with
+reported disease information revealed substantial heterogeneity in
+labeling conventions (Figure 07a). A total of 13 distinct disease stage
+labels were used across the datasets, reflecting differences in clinical
+classification schemes between studies.
+
+The Severe end of the spectrum was represented by two labels: "severe"
+(n=20, from CD1 and CD3) and "Early phase hypoxaemia" (n=7, from CD2).
+Mild disease was labeled as "mild" (n=39, CD1) or "non-severe" (n=2,
+CD3). Moderate disease appeared only in CD2 under two labels: "Early
+phase-Stable" (n=8) and "Early phase-Improving" (n=1).
+
+The recovery spectrum showed the greatest label diversity, with five
+distinct labels originating from different studies: "Recovering post-ICU"
+(n=1), "Recovering post-ICU -Improving" (n=1), "Recovering without
+ICU-Improving" (n=1) from CD2; "Recovered" (n=5) from CVX2; and "COVID
+recovered" (n=4) from CVX1. Healthy subjects were labeled as "healthy"
+(n=9, from CD3 and HC1), and COVID-naive subjects as "COVID Naive"
+(n=8, CVX1).
+
+This heterogeneity is a direct consequence of independent study designs
+and highlights the challenge — and necessity — of metadata harmonization
+when assembling cross-study cohorts.
+
+2. Harmonized Disease Categories
+---------------------------------
+
+To enable meaningful cross-study comparison, the 13 raw labels were
+mapped into six harmonized categories representing a clinical severity
+spectrum (Figure 07b):
+
+  Severe (n=27):
+    - "severe" (n=20) — CD1, CD3
+    - "Early phase hypoxaemia" (n=7) — CD2
+
+  Mild (n=41):
+    - "mild" (n=39) — CD1
+    - "non-severe" (n=2) — CD3
+
+  Moderate (n=9):
+    - "Early phase-Stable" (n=8) — CD2
+    - "Early phase-Improving" (n=1) — CD2
+
+  Recovered (n=12):
+    - "Recovered" (n=5) — CVX2
+    - "COVID recovered" (n=4) — CVX1
+    - "Recovering post-ICU" (n=1) — CD2
+    - "Recovering post-ICU -Improving" (n=1) — CD2
+    - "Recovering without ICU-Improving" (n=1) — CD2
+
+  Healthy (n=9):
+    - "healthy" (n=9) — CD3 (3), HC1 (6)
+
+  COVID Naive (n=8):
+    - "COVID Naive" (n=8) — CVX1
+
+The harmonization preserves the original labels as traceable sub-categories
+while enabling aggregation across the clinical spectrum. The Mild category
+is predominantly from a single study (CD1, 39/41), whereas Severe,
+Recovered, and Healthy draw from multiple independent datasets, providing
+more robust representation. The Recovered category, despite its small total
+(n=12), spans three independent studies and five original labels, reflecting
+the diversity of recovery trajectories captured across the federated data.

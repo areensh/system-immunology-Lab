@@ -1,0 +1,64 @@
+Metadata Availability Across Datasets
+======================================
+
+Figure 00 presents the availability of four metadata fields — Cell Subset,
+Disease Stage, Sex, and Tissue — across seven datasets in the iReceptor
+database. A total of 121 subject records were retrieved.
+
+Dataset Overview:
+- CD1 (Covid19_db3): 51 subjects (PMID: 37153628)
+- CD2 (covid_db2): 19 subjects (PMID: 33384691)
+- CD3 (covid19): 13 subjects (PMID: 32669287)
+- CVX1 (vaccine2): 12 subjects (PMID: 34648302)
+- CVX2 (covid_vaccine_new): 5 subjects (PMID: 33858945)
+- HC1 (lp16_Igblast): 6 subjects (PMID: 28829438)
+- GT1 (sykesIgblast2020): 15 subjects (PMID: 38014202)
+
+Note: Two experimental controls (Fb, Water) in CVX2 and three subjects
+(D159, D154, Hu-1) in HC1 were excluded from all analyses. D159 and D154
+are unpublished, and Hu-1 is a water control.
+
+Completeness by Dataset:
+
+CD2 and CVX1 had the most complete metadata, with all subjects reporting
+Disease Stage, Sex, and Tissue. Neither dataset reported Cell Subset
+information.
+
+CD1 (n=51) had near-complete metadata. Disease Stage and Tissue were
+reported for all 51 subjects. Age was missing for 2 subjects (Cov7 and
+Cov1), and Sex was missing for 1 subject (Cov1). Cell Subset was not
+reported.
+
+CD3 (n=13) had notable gaps. Age was missing for the 3 healthy controls
+(H3, H4, H8), and Sex was not reported for any of the 13 subjects. Cell
+Subset was also unreported. Disease Stage and Tissue (blood) were complete.
+
+HC1 (n=6) is a healthy multi-tissue dataset. All 6 subjects had Disease
+Stage (healthy) and Tissue reported, with samples spanning up to 10 tissue
+types per subject (BM, SPL, PBL, MLN, Lung, Jejunum, Ileum, Colon, ILN,
+ILE). All 6 subjects had Age and Sex reported.
+
+CVX2 (n=5) had complete metadata across all five fields for all subjects,
+including Cell Subset (Spike+ Mem B and Non-Spike B) and Tissue (PBL).
+
+GT1 (n=15) lacked Disease Stage and Sex metadata entirely. Age and Tissue
+were reported for all 15 subjects. Cell Subset was reported for all 15
+subjects.
+
+Completeness by Metadata Field:
+
+Tissue and Disease Stage were the most consistently reported fields.
+Tissue was available for all 121 subjects. Disease Stage was reported for
+106 of 121 subjects (87.6%), missing only in GT1 (15 subjects).
+
+Age was reported for 113 of 121 subjects (93.4%). Missing entries were
+concentrated in the healthy control subjects: H3, H4, H8 in CD3; and
+Cov7 and Cov1 in CD1.
+
+Sex was reported for 93 of 121 subjects (76.9%). The entire CD3 dataset
+(13 subjects) and GT1 (15 subjects) lacked sex information.
+
+Cell Subset was the least reported field, available for only 20 of 121
+subjects (16.5%). Three datasets reported it: CVX2 (5 subjects), HC1
+(not reported after exclusions), and GT1 (15 subjects). The COVID-19
+disease datasets (CD1, CD2, CD3) did not include cell subset annotations.
