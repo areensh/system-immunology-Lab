@@ -1,0 +1,63 @@
+Metadata Availability Across Datasets
+======================================
+
+Figure 00 presents the availability of five metadata fields — Age, Cell Subset,
+Disease Stage, Sex, and Tissue — across the six datasets in the iReceptor
+database. A total of 111 subject records were retrieved from six datasets.
+
+Dataset Overview:
+- Covid19_db3: 51 subjects (PMID: 37153628)
+- covid_db2: 19 subjects (PMID: 33384691)
+- covid19: 13 subjects (PMID: 32669287)
+- vaccine2: 12 subjects (PMID: 34648302)
+- lp16_Igblast: 9 subjects (PMID: 28829438)
+- covid_vaccine_new: 7 subjects (PMID: 33858945), including 2 controls (Fb, Water)
+
+Completeness by Dataset:
+
+covid_db2 and vaccine2 had the most complete metadata, with all subjects
+reporting Age, Disease Stage, Sex, and Tissue. Neither dataset reported
+Cell Subset information.
+
+Covid19_db3 (n=51) had near-complete metadata. Disease Stage and Tissue were
+reported for all 51 subjects. Age was missing for 2 subjects (Cov7 and Cov1),
+and Sex was missing for 1 subject (Cov1). Cell Subset was not reported for any
+subject in this dataset.
+
+covid19 (n=13) had notable gaps. Age was missing for the 3 healthy controls
+(H3, H4, H8), and Sex was not reported for any of the 13 subjects. Cell Subset
+was also unreported across the entire dataset. Disease Stage and Tissue (blood)
+were complete.
+
+lp16_Igblast (n=9) is a healthy multi-tissue dataset. All 9 subjects had
+Disease Stage (healthy) and Tissue reported, with samples spanning up to 10
+tissue types per subject (BM, SPL, PBL, MLN, Lung, Jejunum, Ileum, Colon, ILN,
+ILE). Age was missing for 3 subjects (D159, D154, Hu-1), and Sex was missing
+for the same 3 subjects. Cell Subset was reported for only 1 subject (D159),
+who had 19 distinct B cell subpopulations characterized.
+
+covid_vaccine_new (n=7) included 5 patient subjects and 2 experimental controls
+(Fb and Water). The 5 patient subjects (IHCV2020-005, -019, -020, -022, -029)
+had complete metadata across all five fields, including Cell Subset (Spike+ Mem B
+and Non-Spike B) and Tissue (PBL). The 2 controls had only a study title recorded
+and were missing all other metadata fields.
+
+Completeness by Metadata Field:
+
+Tissue and Disease Stage were the most consistently reported fields, available
+for all subjects in every dataset (111/111 subjects each, excluding the 2
+controls in covid_vaccine_new).
+
+Age was reported for 102 of 111 subjects (91.9%). Missing entries were
+concentrated in the healthy control subjects: H3, H4, H8 in covid19; Cov7 and
+Cov1 in Covid19_db3; and D159, D154, Hu-1 in lp16_Igblast.
+
+Sex was reported for 92 of 111 subjects (82.9%). The entire covid19 dataset
+(13 subjects) lacked sex information, and 3 subjects in lp16_Igblast and 1 in
+Covid19_db3 were also missing this field.
+
+Cell Subset was the least reported field, available for only 6 of 111 subjects
+(5.4%). Only 2 datasets reported it: covid_vaccine_new (5 subjects with Spike+
+Mem B and Non-Spike B populations) and lp16_Igblast (1 subject with 19 B cell
+subpopulations). The four COVID-19 disease/vaccine datasets did not include
+cell subset annotations.
