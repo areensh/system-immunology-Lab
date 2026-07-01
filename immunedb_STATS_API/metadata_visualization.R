@@ -22,7 +22,20 @@ records <- lapply(json_data$Result, function(entry) {
 df <- bind_rows(records)
 
 # Extract study (dataset) from repertoire_id prefix
-df$study <- sub("-.*", "", df$repertoire_id)
+df$study_raw <- sub("-.*", "", df$repertoire_id)
+
+# Map to informative short titles based on paper PMIDs
+study_labels <- c(
+  "covid19"           = "Nielsen 2020\n(Acute COVID-19)",
+  "covid_vaccine_new" = "Goel 2021\n(Vaccine + Recovery)",
+  "covid_db2"         = "Galson 2020\n(Longitudinal COVID-19)",
+  "Covid19_db3"       = "Kim 2021\n(Mild vs Severe)",
+  "vaccine2"          = "Cho 2021\n(Naive vs Recovered Vaccine)"
+)
+
+df$study <- ifelse(df$study_raw %in% names(study_labels),
+                   study_labels[df$study_raw],
+                   df$study_raw)
 
 # Clean columns
 df$age <- as.numeric(df$`Age minimum`)
@@ -67,6 +80,60 @@ output_dir <- "plots"
 dir.create(output_dir, showWarnings = FALSE)
 
 # ============================================================
+# LEVEL 0: Metadata type breakdown per study (from ALL metadata)
+# ============================================================
+
+json_all <- fromJSON("metadata_ALL.json", simplifyDataFrame = FALSE)
+
+records_all <- lapply(json_all$Result, function(entry) {
+  rep <- entry$repertoire
+  keys <- trimws(rep$meta_key)
+  vals <- trimws(rep$meta_value)
+  len <- length(keys)
+  if (length(vals) < len) vals <- c(vals, rep(NA, len - length(vals)))
+  if (length(vals) > len) vals <- vals[seq_len(len)]
+  row <- setNames(as.list(vals), keys)
+  row$repertoire_id <- rep$repertoire_id
+  row
+})
+
+df_all <- bind_rows(records_all)
+df_all$study_raw <- sub("-.*", "", df_all$repertoire_id)
+df_all$study <- ifelse(df_all$study_raw %in% names(study_labels),
+                       study_labels[df_all$study_raw],
+                       df_all$study_raw)
+
+meta_cols <- c("tissue", "cell_subset")
+meta_cols <- meta_cols[meta_cols %in% names(df_all)]
+
+if (length(meta_cols) > 0) {
+  df_meta_long <- df_all %>%
+    select(repertoire_id, study, all_of(meta_cols)) %>%
+    pivot_longer(cols = all_of(meta_cols), names_to = "metadata_type", values_to = "value") %>%
+    mutate(value = ifelse(is.na(value) | value == "NA", "Not reported", value))
+
+  p0 <- df_meta_long %>%
+    count(study, metadata_type, value) %>%
+    ggplot(aes(x = value, y = n, fill = study)) +
+    geom_col(position = "dodge") +
+    geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 3) +
+    facet_wrap(~metadata_type, scales = "free_x") +
+    labs(
+      title = "Subjects by Sample Metadata Type per Study",
+      x = "Metadata Value", y = "# Subjects", fill = "Study"
+    ) +
+    scale_fill_brewer(palette = "Set2") +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+      legend.position = "bottom",
+      legend.text = element_text(size = 8)
+    )
+
+  ggsave(file.path(output_dir, "00_metadata_type_breakdown.png"), p0, width = 14, height = 7, dpi = 150)
+  cat("Saved: 00_metadata_type_breakdown.png\n")
+}
+
+# ============================================================
 # LEVEL 1: Subjects per study (dataset)
 # ============================================================
 
@@ -75,10 +142,10 @@ p1 <- df %>%
   ggplot(aes(x = reorder(study, -n), y = n, fill = study)) +
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n), vjust = -0.3, size = 4) +
-  labs(title = "Number of Subjects per Dataset", x = "Dataset", y = "# Subjects") +
+  labs(title = "Number of Subjects per Study", x = "Study", y = "# Subjects") +
   scale_fill_brewer(palette = "Set2")
 
-ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 9, height = 6, dpi = 150)
+ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 12, height = 6, dpi = 150)
 cat("Saved: 01_subjects_per_dataset.png\n")
 
 # ============================================================
