@@ -5,12 +5,13 @@ Results: Metadata-Driven Cohort Assembly via Cross-Study Querying
 -------------------
 
 Using the iReceptor Statistics API, we queried metadata across seven immune
-repertoire datasets stored in a federated database system. A total of 126
+repertoire datasets stored in a federated database system. A total of 124
 subject records were retrieved (Figure 01). The largest dataset was Covid19_db3
 (n=51, PMID: 37153628), followed by covid_db2 (n=19, PMID: 33384691),
 sykesIgblast2020 (n=15, PMID: 38014202), covid19 (n=13, PMID: 32669287),
 vaccine2 (n=12, PMID: 34648302), lp16_Igblast (n=9, PMID: 28829438), and
-covid_vaccine_new (n=7, PMID: 33858945).
+covid_vaccine_new (n=5, PMID: 33858945). Two experimental controls (Fb and
+Water) in the covid_vaccine_new dataset were excluded as non-subject entries.
 
 2. Metadata Availability
 ------------------------
@@ -20,6 +21,8 @@ across all datasets: Tissue, Sex, Disease Stage, Cell Subset, and Age
 (Figure 00). Tissue and Disease Stage were the most consistently reported
 fields. Cell Subset was the sparsest, reported for only 21 of 126 subjects
 across three datasets (covid_vaccine_new, lp16_Igblast, sykesIgblast2020).
+Note: the two experimental controls (Fb and Water) in covid_vaccine_new were
+excluded from all analyses.
 
 3. Selection of Key Clinical Variables
 --------------------------------------
@@ -32,13 +35,12 @@ These fields offer the best combination of coverage and clinical relevance:
     sykesIgblast2020 lacked this field entirely). This field enables
     stratification of subjects across a clinical severity spectrum.
 
-  - Age was reported for 115 of 126 subjects (91.3%). Missing values were
+  - Age was reported for 113 of 124 subjects (91.1%). Missing values were
     concentrated among specific subjects: H3, H4, H8 in covid19 (healthy
-    controls); Cov7 and Cov1 in Covid19_db3; D159, D154, and Hu-1 in
-    lp16_Igblast; and the two experimental controls (Fb, Water) in
-    covid_vaccine_new.
+    controls); Cov7 and Cov1 in Covid19_db3; and D159, D154, and Hu-1 in
+    lp16_Igblast.
 
-  - Sex was reported for 107 of 126 subjects (84.9%). The entire covid19
+  - Sex was reported for 105 of 124 subjects (84.7%). The entire covid19
     dataset (13 subjects) lacked sex information, as did sykesIgblast2020
     (15 subjects), and 3 subjects in lp16_Igblast (D159, D154, Hu-1).
 

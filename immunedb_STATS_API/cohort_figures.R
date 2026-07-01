@@ -14,6 +14,7 @@ meta_long_list <- lapply(json_all$Result, function(entry) {
 })
 
 df <- bind_rows(meta_long_list)
+df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
 df$study <- sub("-.*", "", df$repertoire_id)
 
 theme_set(theme_minimal(base_size = 16) + theme(

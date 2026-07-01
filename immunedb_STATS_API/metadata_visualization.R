@@ -19,6 +19,7 @@ records <- lapply(json_data$Result, function(entry) {
 })
 
 df <- bind_rows(records)
+df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
 
 # Use database name as study label
 df$study <- sub("-.*", "", df$repertoire_id)
@@ -89,6 +90,7 @@ meta_long_list <- lapply(json_all$Result, function(entry) {
 })
 
 df_meta_long <- bind_rows(meta_long_list)
+df_meta_long <- df_meta_long %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
 df_meta_long$study <- sub("-.*", "", df_meta_long$repertoire_id)
 
 # For each study: count subjects per metadata value, colored by metadata type
