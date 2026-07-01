@@ -15,7 +15,7 @@ study_labels <- c(
 relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
 
 # --- Parse JSON ---
-json_data <- fromJSON("metadata_sex_disease_age_subject.json", simplifyDataFrame = FALSE)
+json_data <- fromJSON("data/metadata_sex_disease_age_subject.json", simplifyDataFrame = FALSE)
 
 records <- lapply(json_data$Result, function(entry) {
   rep <- entry$repertoire
@@ -85,7 +85,7 @@ dir.create(output_dir, showWarnings = FALSE)
 # LEVEL 0: Metadata availability per dataset (stacked bar)
 # ============================================================
 
-json_all <- fromJSON("metadata_ALL.json", simplifyDataFrame = FALSE)
+json_all <- fromJSON("data/metadata_ALL.json", simplifyDataFrame = FALSE)
 
 meta_long_list <- lapply(json_all$Result, function(entry) {
   rep <- entry$repertoire
