@@ -158,11 +158,7 @@ df_meta_type_count$meta_type <- ifelse(
   df_meta_type_count$meta_key
 )
 
-study_order_0 <- df_meta_long %>%
-  distinct(repertoire_id, study) %>%
-  count(study) %>%
-  arrange(-n) %>%
-  pull(study)
+study_order_0 <- c("CD1", "CD2", "CD3", "CVX1", "CVX2", "HC1", "GT1")
 df_meta_type_count$study <- factor(df_meta_type_count$study, levels = study_order_0)
 
 p0 <- ggplot(df_meta_type_count,
@@ -186,7 +182,8 @@ df_all_subjects <- df_meta_long %>%
 
 p1 <- df_all_subjects %>%
   count(study) %>%
-  ggplot(aes(x = reorder(study, -n), y = n, fill = study)) +
+  mutate(study = factor(study, levels = study_order_0)) %>%
+  ggplot(aes(x = study, y = n, fill = study)) +
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
   labs(x = "Dataset", y = "# Subjects") +
