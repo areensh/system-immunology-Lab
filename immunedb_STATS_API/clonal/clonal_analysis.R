@@ -30,13 +30,13 @@ theme_set(theme_minimal(base_size = 13) +
     axis.text.x = element_text(angle = 45, hjust = 1)
   ))
 
-output_dir <- "plots/clonal"
+output_dir <- "plots"
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # ============================================================
 # 1. CLONE COUNT
 # ============================================================
-cc_raw <- fromJSON("clone_count.json", simplifyDataFrame = FALSE)
+cc_raw <- fromJSON("data/clone_count.json", simplifyDataFrame = FALSE)
 
 cc_df <- do.call(rbind, lapply(cc_raw$Result, function(entry) {
   rep <- entry$repertoire
@@ -178,7 +178,7 @@ cat("Clone size plots saved.\n")
 # ============================================================
 # 3. TOP X CLONE RATIO (fraction of total copies)
 # ============================================================
-tx_raw <- fromJSON("topX_copies.json", simplifyDataFrame = FALSE)
+tx_raw <- fromJSON("data/topX_copies.json", simplifyDataFrame = FALSE)
 
 tx_df <- do.call(rbind, lapply(tx_raw$Result, function(entry) {
   rep <- entry$repertoire

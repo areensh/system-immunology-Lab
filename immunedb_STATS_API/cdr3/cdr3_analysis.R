@@ -27,10 +27,10 @@ theme_set(theme_minimal(base_size = 13) +
     axis.text.x = element_text(angle = 45, hjust = 1)
   ))
 
-output_dir <- "plots/cdr3"
+output_dir <- "plots"
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
-raw <- fromJSON("CDR3_length.json", simplifyDataFrame = FALSE)
+raw <- fromJSON("data/CDR3_length.json", simplifyDataFrame = FALSE)
 
 df <- do.call(rbind, lapply(raw$Result, function(entry) {
   rep <- entry$repertoire

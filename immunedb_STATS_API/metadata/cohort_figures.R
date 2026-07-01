@@ -14,7 +14,7 @@ study_labels <- c(
 )
 relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
 
-json_all <- fromJSON("metadata_ALL.json", simplifyDataFrame = FALSE)
+json_all <- fromJSON("data/metadata_ALL.json", simplifyDataFrame = FALSE)
 
 meta_long_list <- lapply(json_all$Result, function(entry) {
   rep <- entry$repertoire
