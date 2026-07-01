@@ -153,7 +153,10 @@ cat("Saved: 00_metadata_per_dataset.png\n")
 # LEVEL 1: Subjects per study (dataset)
 # ============================================================
 
-p1 <- df %>%
+df_all_subjects <- df_meta_long %>%
+  distinct(repertoire_id, study)
+
+p1 <- df_all_subjects %>%
   count(study) %>%
   ggplot(aes(x = reorder(study, -n), y = n, fill = study)) +
   geom_col(show.legend = FALSE) +
