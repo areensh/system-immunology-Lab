@@ -3,6 +3,17 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+study_labels <- c(
+  "Covid19_db3"       = "CD1",
+  "covid_db2"         = "CD2",
+  "covid19"           = "CD3",
+  "vaccine2"          = "VX1",
+  "covid_vaccine_new" = "CVX1",
+  "lp16_Igblast"      = "HC1",
+  "sykesIgblast2020"  = "IG1"
+)
+relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
+
 # --- Parse JSON ---
 json_data <- fromJSON("metadata_sex_disease_age_subject.json", simplifyDataFrame = FALSE)
 
@@ -21,8 +32,7 @@ records <- lapply(json_data$Result, function(entry) {
 df <- bind_rows(records)
 df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
 
-# Use database name as study label
-df$study <- sub("-.*", "", df$repertoire_id)
+df$study <- relabel(sub("-.*", "", df$repertoire_id))
 
 # Clean columns
 df$age <- as.numeric(df$`Age minimum`)
@@ -91,7 +101,7 @@ meta_long_list <- lapply(json_all$Result, function(entry) {
 
 df_meta_long <- bind_rows(meta_long_list)
 df_meta_long <- df_meta_long %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
-df_meta_long$study <- sub("-.*", "", df_meta_long$repertoire_id)
+df_meta_long$study <- relabel(sub("-.*", "", df_meta_long$repertoire_id))
 
 # For each study: count subjects per metadata value, colored by metadata type
 df_meta_vals <- df_meta_long %>%

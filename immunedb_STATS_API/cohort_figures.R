@@ -3,6 +3,17 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+study_labels <- c(
+  "Covid19_db3"       = "CD1",
+  "covid_db2"         = "CD2",
+  "covid19"           = "CD3",
+  "vaccine2"          = "VX1",
+  "covid_vaccine_new" = "CVX1",
+  "lp16_Igblast"      = "HC1",
+  "sykesIgblast2020"  = "IG1"
+)
+relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
+
 json_all <- fromJSON("metadata_ALL.json", simplifyDataFrame = FALSE)
 
 meta_long_list <- lapply(json_all$Result, function(entry) {
@@ -15,7 +26,7 @@ meta_long_list <- lapply(json_all$Result, function(entry) {
 
 df <- bind_rows(meta_long_list)
 df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
-df$study <- sub("-.*", "", df$repertoire_id)
+df$study <- relabel(sub("-.*", "", df$repertoire_id))
 
 theme_set(theme_minimal(base_size = 16) + theme(
   plot.title = element_text(face = "bold", hjust = 0.5, size = 18),
@@ -96,8 +107,8 @@ df_disease$disease_category <- case_when(
 )
 
 df_disease$source_type <- ifelse(
-  df_disease$study == "lp16_Igblast",
-  "Non-COVID (lp16_Igblast)",
+  df_disease$study == "HC1",
+  "Non-COVID (HC1)",
   "COVID datasets"
 )
 
@@ -111,10 +122,10 @@ p5 <- ggplot(df_spectrum, aes(x = disease_category, y = n, fill = source_type)) 
   geom_text(aes(label = n), position = position_stack(vjust = 0.5),
             size = 5.5, fontface = "bold") +
   labs(title = "Disease Spectrum Coverage: Cross-Study Cohort Assembly",
-       subtitle = "Healthy controls from lp16_Igblast complement COVID-19 datasets",
+       subtitle = "Healthy controls from HC1 complement COVID-19 datasets",
        x = "Disease Category", y = "# Subjects", fill = "Source") +
   scale_fill_manual(values = c("COVID datasets" = "#fc8d62",
-                               "Non-COVID (lp16_Igblast)" = "#66c2a5")) +
+                               "Non-COVID (HC1)" = "#66c2a5")) +
   theme(legend.position = "bottom",
         plot.subtitle = element_text(hjust = 0.5, size = 14, color = "grey30"))
 
@@ -125,15 +136,14 @@ cat("Saved: 05_disease_spectrum_coverage.png\n")
 # FIGURE 6: Final assembled cohort
 # ============================================================
 
-selected_studies <- c("covid19", "covid_db2", "Covid19_db3", "vaccine2",
-                      "covid_vaccine_new", "lp16_Igblast")
+selected_studies <- c("CD1", "CD2", "CD3", "VX1", "CVX1", "HC1")
 
 df_cohort <- df_disease %>% filter(study %in% selected_studies)
 df_cohort_summary <- df_cohort %>% count(disease_category, study, name = "n")
 
 study_colors <- c(
-  "Covid19_db3" = "#66c2a5", "covid_db2" = "#fc8d62", "covid19" = "#8da0cb",
-  "vaccine2" = "#e78ac3", "covid_vaccine_new" = "#a6d854", "lp16_Igblast" = "#ffd92f"
+  "CD1" = "#66c2a5", "CD2" = "#fc8d62", "CD3" = "#8da0cb",
+  "VX1" = "#e78ac3", "CVX1" = "#a6d854", "HC1" = "#ffd92f"
 )
 
 p6 <- ggplot(df_cohort_summary, aes(x = disease_category, y = n, fill = study)) +
