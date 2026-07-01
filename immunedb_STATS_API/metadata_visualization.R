@@ -7,8 +7,8 @@ study_labels <- c(
   "Covid19_db3"       = "CD1",
   "covid_db2"         = "CD2",
   "covid19"           = "CD3",
-  "vaccine2"          = "VX1",
-  "covid_vaccine_new" = "CVX1",
+  "vaccine2"          = "CVX1",
+  "covid_vaccine_new" = "CVX2",
   "lp16_Igblast"      = "HC1",
   "sykesIgblast2020"  = "IG1"
 )

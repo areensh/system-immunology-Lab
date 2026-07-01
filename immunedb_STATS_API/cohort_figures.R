@@ -7,8 +7,8 @@ study_labels <- c(
   "Covid19_db3"       = "CD1",
   "covid_db2"         = "CD2",
   "covid19"           = "CD3",
-  "vaccine2"          = "VX1",
-  "covid_vaccine_new" = "CVX1",
+  "vaccine2"          = "CVX1",
+  "covid_vaccine_new" = "CVX2",
   "lp16_Igblast"      = "HC1",
   "sykesIgblast2020"  = "IG1"
 )
@@ -136,14 +136,14 @@ cat("Saved: 05_disease_spectrum_coverage.png\n")
 # FIGURE 6: Final assembled cohort
 # ============================================================
 
-selected_studies <- c("CD1", "CD2", "CD3", "VX1", "CVX1", "HC1")
+selected_studies <- c("CD1", "CD2", "CD3", "CVX1", "CVX2", "HC1")
 
 df_cohort <- df_disease %>% filter(study %in% selected_studies)
 df_cohort_summary <- df_cohort %>% count(disease_category, study, name = "n")
 
 study_colors <- c(
   "CD1" = "#66c2a5", "CD2" = "#fc8d62", "CD3" = "#8da0cb",
-  "VX1" = "#e78ac3", "CVX1" = "#a6d854", "HC1" = "#ffd92f"
+  "CVX1" = "#e78ac3", "CVX2" = "#a6d854", "HC1" = "#ffd92f"
 )
 
 p6 <- ggplot(df_cohort_summary, aes(x = disease_category, y = n, fill = study)) +
