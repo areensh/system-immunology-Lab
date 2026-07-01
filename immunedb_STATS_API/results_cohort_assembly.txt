@@ -1,0 +1,100 @@
+Results: Metadata-Driven Cohort Assembly via Cross-Study Querying
+=================================================================
+
+1. Dataset Overview
+-------------------
+
+Using the iReceptor Statistics API, we queried metadata across seven immune
+repertoire datasets stored in a federated database system. A total of 126
+subject records were retrieved (Figure 01). The largest dataset was Covid19_db3
+(n=51, PMID: 37153628), followed by covid_db2 (n=19, PMID: 33384691),
+sykesIgblast2020 (n=15, PMID: 38014202), covid19 (n=13, PMID: 32669287),
+vaccine2 (n=12, PMID: 34648302), lp16_Igblast (n=9, PMID: 28829438), and
+covid_vaccine_new (n=7, PMID: 33858945).
+
+2. Metadata Availability
+------------------------
+
+To assess the scope of available annotations, we examined five metadata fields
+across all datasets: Tissue, Sex, Disease Stage, Cell Subset, and Age
+(Figure 00). Tissue and Disease Stage were the most consistently reported
+fields. Cell Subset was the sparsest, reported for only 21 of 126 subjects
+across three datasets (covid_vaccine_new, lp16_Igblast, sykesIgblast2020).
+
+3. Selection of Key Clinical Variables
+--------------------------------------
+
+Among the available metadata fields, three were identified as most suitable
+for cross-study clinical comparison: Disease Stage, Age, and Sex (Figure 04).
+These fields offer the best combination of coverage and clinical relevance:
+
+  - Disease Stage was reported for all subjects in 6 of 7 datasets (only
+    sykesIgblast2020 lacked this field entirely). This field enables
+    stratification of subjects across a clinical severity spectrum.
+
+  - Age was reported for 115 of 126 subjects (91.3%). Missing values were
+    concentrated among specific subjects: H3, H4, H8 in covid19 (healthy
+    controls); Cov7 and Cov1 in Covid19_db3; D159, D154, and Hu-1 in
+    lp16_Igblast; and the two experimental controls (Fb, Water) in
+    covid_vaccine_new.
+
+  - Sex was reported for 107 of 126 subjects (84.9%). The entire covid19
+    dataset (13 subjects) lacked sex information, as did sykesIgblast2020
+    (15 subjects), and 3 subjects in lp16_Igblast (D159, D154, Hu-1).
+
+Cell Subset and Tissue were excluded as stratification variables. Cell Subset
+was too sparse for meaningful cross-study comparison. Tissue was nearly
+uniform across COVID datasets (blood/peripheral blood), providing no
+discriminatory power.
+
+4. Disease Spectrum Coverage and Cohort Assembly
+------------------------------------------------
+
+To construct a cohort spanning the full clinical spectrum of COVID-19, we
+harmonized disease stage labels across studies into six broad categories:
+Healthy, COVID Naive, Mild, Moderate, Severe, and Recovered. The raw disease
+stage labels were mapped as follows:
+
+  Healthy:    "healthy" (covid19, lp16_Igblast)
+  COVID Naive: "COVID Naive" (vaccine2)
+  Mild:       "mild" (Covid19_db3), "non-severe" (covid19)
+  Moderate:   "Early phase-Stable", "Early phase-Improving" (covid_db2)
+  Severe:     "severe" (Covid19_db3, covid19), "Early phase hypoxaemia" (covid_db2)
+  Recovered:  "Recovered" (covid_vaccine_new), "COVID recovered" (vaccine2),
+              "Recovering post-ICU", "Recovering without ICU" (covid_db2)
+
+Figure 05 reveals a critical insight: the COVID-19 datasets alone provided
+only 3 healthy controls (from covid19). This is insufficient for robust
+comparison against disease groups. However, the lp16_Igblast dataset — a
+non-COVID immune repertoire study of healthy donors — contributed 9 additional
+healthy subjects with reported age (6/9) and sex (6/9) data. By including
+lp16_Igblast, the healthy control group increased from 3 to 12 subjects,
+demonstrating the strength of cross-study metadata querying: the ability to
+identify and incorporate complementary datasets that fill gaps in any
+individual study's design.
+
+The sykesIgblast2020 dataset (n=15) was excluded from the assembled cohort
+because it lacked Disease Stage and Sex metadata, making it unsuitable for
+the chosen stratification variables.
+
+5. Assembled Cohort
+--------------------
+
+The final cohort comprises 109 subjects from 6 datasets, spanning the full
+disease spectrum (Figure 06):
+
+  - Healthy:     12 subjects (9 from lp16_Igblast, 3 from covid19)
+  - COVID Naive:  8 subjects (vaccine2)
+  - Mild:        41 subjects (39 from Covid19_db3, 2 from covid19)
+  - Moderate:     9 subjects (covid_db2)
+  - Severe:      27 subjects (12 Covid19_db3, 8 covid19, 7 covid_db2)
+  - Recovered:   12 subjects (5 covid_vaccine_new, 4 vaccine2, 3 covid_db2)
+
+Three disease categories — Severe, Recovered, and Healthy — are represented
+by subjects from multiple independent studies, strengthening the
+generalizability of downstream comparisons. The Mild category is dominated by
+Covid19_db3 (39/41), while Moderate and COVID Naive each come from a single
+study.
+
+This assembled cohort was then used for demographic characterization and
+cross-tabulation analyses of disease stage by age and sex.
