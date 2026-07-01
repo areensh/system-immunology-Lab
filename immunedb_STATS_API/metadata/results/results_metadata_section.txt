@@ -1,62 +1,166 @@
 ============================================================
-RESULTS — Metadata Overview
+RESULTS — Metadata-Driven Cohort Assembly
 ============================================================
 
-To characterize the scope and composition of the datasets analyzed using IS-API, we first examined the metadata associated with all participants across the five COVID-19 related studies. A total of 100 participants were included from five independent datasets: Covid19_db3 (n=51), covid_db2 (n=19), covid19 (n=13), vaccine2 (n=12), and covid_vaccine_new (n=5) (Figure 1).
+1. Dataset Overview and Metadata Availability
+----------------------------------------------
 
-Participants were classified into six disease categories based on their reported disease stage: Mild (n=41), Severe (n=27), Recovered (n=12), Moderate (n=9), COVID Naive (n=8), and Healthy (n=3) (Figure 2). The Mild category includes 39 participants labeled as "mild" and 2 labeled as "non-severe." The Severe category includes 20 participants labeled as "severe" and 7 with "Early phase hypoxaemia." Together, the Mild and Severe categories constitute the largest groups, representing 68% of the cohort, providing sufficient statistical power for comparisons between these two disease states. The Moderate category (n=9) comprises participants from the covid_db2 dataset whose disease stage was described as "Early phase-Stable" (n=8) or "Early phase-Improving" (n=1), representing an intermediate clinical presentation. The Recovered group (n=12) includes individuals who had recovered from COVID-19 infection prior to sample collection, drawn from three datasets: covid_vaccine_new (n=5), vaccine2 (n=4), and covid_db2 (n=3). The COVID Naive group (n=8) consists of individuals with no prior SARS-CoV-2 infection, all from the vaccine2 dataset.
+Using the iReceptor Statistics API, we queried metadata across seven
+immune repertoire datasets stored in a federated database system. A total
+of 121 subject records were retrieved from seven independent datasets:
+CD1 (n=51), CD2 (n=19), GT1 (n=15), CD3 (n=13), CVX1 (n=12), HC1 (n=6),
+and CVX2 (n=5) (Figure 1). Two experimental controls (Fb, Water) in CVX2
+and three subjects (D159, D154, Hu-1) in HC1 were excluded as non-subject
+or unpublished entries.
 
-The sex distribution across all participants revealed 52 males, 34 females, and 14 participants for whom sex data were not available (Figure 3). The participants with missing sex data originate from the covid19 dataset (n=13) and one participant from Covid19_db3 (n=1). When examining sex distribution across disease categories, males were overrepresented in the Severe group (14 males vs. 5 females, with 8 participants of unknown sex), whereas the Mild group showed a nearly equal sex distribution (19 males, 19 females, with 3 of unknown sex) (Figure 4). This male predominance in severe COVID-19 cases is consistent with findings reported in the broader epidemiological literature.
+We examined five metadata fields across all datasets: Tissue, Disease
+Stage, Sex, Cell Subset, and Age (Figure 2). Tissue and Disease Stage were
+the most consistently reported fields. CD2 and CVX1 had the most complete
+metadata, with all subjects reporting Disease Stage, Sex, and Tissue. CD3
+(n=13) lacked sex annotations entirely, and GT1 (n=15) lacked both Disease
+Stage and Sex. Cell Subset was reported for only 20 of 121 subjects,
+limited to CVX2 and GT1. Age was available for 113 of 121 subjects (93.4%),
+with missing values concentrated among the 3 healthy controls in CD3 and
+2 subjects in CD1.
 
-Age data were available for 95 of the 100 participants, with ages ranging from 18 to 87.4 years (median = 48 years, mean = 47.7 years) (Figure 5a). Participants were grouped into four age categories: 18-30 years (n=25), 31-50 years (n=26), 51-65 years (n=25), and 66+ years (n=19) (Figure 5b). Examining the distribution of age groups across disease categories revealed that the Severe group contains a higher proportion of older participants, while the COVID Naive and Recovered groups are predominantly composed of younger individuals (Figure 5c). Furthermore, participants in the Severe group were notably older (median age 61 years) compared to those in the Mild group (median age 48.5 years) (Figure 6). This age-severity association is consistent with the well-documented increased risk of severe COVID-19 outcomes in older individuals.
+2. Disease Stage Heterogeneity
+-------------------------------
 
-The composition of each dataset by disease category is shown in Figure 7. Covid19_db3 comprises predominantly Mild and Severe cases, covid_db2 consists entirely of Moderate and Severe cases, while vaccine2 contributes the COVID Naive and Recovered groups.
+Examination of disease stage annotations across the six datasets with
+reported disease information revealed substantial heterogeneity in labeling
+conventions (Figure 3). A total of 13 distinct disease stage labels were
+used across 106 subjects (excluding GT1, which lacked disease stage data).
+The Severe end of the spectrum was represented by "severe" (n=20, from CD1
+and CD3) and "Early phase hypoxaemia" (n=7, CD2). Mild disease was labeled
+as "mild" (n=39, CD1) or "non-severe" (n=2, CD3). Moderate disease appeared
+only in CD2 under "Early phase-Stable" (n=8) and "Early phase-Improving"
+(n=1). The recovery spectrum showed the greatest label diversity, with five
+distinct labels originating from three studies: "Recovered" (n=5, CVX2),
+"COVID recovered" (n=4, CVX1), "Recovering post-ICU" (n=1), "Recovering
+post-ICU -Improving" (n=1), and "Recovering without ICU-Improving" (n=1,
+all CD2). Healthy subjects were labeled as "healthy" in both CD3 (n=3) and
+HC1 (n=6), and COVID-naive subjects as "COVID Naive" (n=8, CVX1).
 
-The cross-tabulation of all three metadata variables -- disease category, age group, and sex -- revealed that the Severe-Male-66+ and Mild-Male-31-50 subgroups were among the most populated combinations (Figure 8). Conversely, the Healthy group (n=3) lacked both age and sex annotations, limiting its utility as a control group. The COVID Naive and Recovered groups, while smaller in sample size, provide important reference points for interpreting disease-associated changes in BCR repertoire characteristics.
+3. Cross-Study Cohort Assembly
+-------------------------------
 
-Taken together, this metadata overview demonstrates both the strengths and limitations of the assembled dataset. The expanded cohort of 100 participants across five studies represents a substantial improvement over previous analyses, particularly for comparisons between Mild and Severe disease. However, the uneven distribution of metadata across datasets -- particularly the absence of sex data in the covid19 cohort and the limited size of the Healthy control group -- must be considered when interpreting subsequent biological analyses. Participants with missing metadata for the variable of interest were excluded from the respective downstream analyses.
+To construct a cohort spanning the full clinical spectrum of COVID-19, we
+harmonized the 13 raw disease stage labels into six broad categories:
+Healthy, COVID Naive, Mild, Moderate, Severe, and Recovered. GT1 was
+excluded from the cohort because it lacked Disease Stage and Sex metadata,
+making it unsuitable for the chosen stratification variables.
+
+A critical gap emerged during this process: the COVID-19 datasets alone
+provided only 3 healthy controls, all from CD3 — a number insufficient
+for robust comparison against disease groups. However, this is precisely
+where cross-study metadata querying demonstrates its strength. By querying
+disease stage metadata across all available datasets, we identified that
+the HC1 dataset — a non-COVID immune repertoire study — contained 6
+additional healthy donors with complete age and sex annotations (Figure 4).
+Incorporating HC1 as the primary source of healthy controls, and excluding
+the 3 CD3 healthy subjects (which also lacked age and sex data), the
+assembled cohort comprises 103 subjects from 6 datasets spanning the full
+disease spectrum.
+
+The harmonized disease categories with their contributing datasets and
+original labels are shown in Figure 5:
+
+  Mild (n=41):       "mild" (n=39, CD1), "non-severe" (n=2, CD3)
+  Severe (n=27):     "severe" (n=20, CD1/CD3), "Early phase hypoxaemia"
+                     (n=7, CD2)
+  Recovered (n=12):  "Recovered" (n=5, CVX2), "COVID recovered" (n=4,
+                     CVX1), "Recovering post-ICU" and variants (n=3, CD2)
+  Moderate (n=9):    "Early phase-Stable" (n=8), "Early phase-Improving"
+                     (n=1, both CD2)
+  COVID Naive (n=8): "COVID Naive" (n=8, CVX1)
+  Healthy (n=6):     "healthy" (n=6, HC1)
+
+The Mild and Severe categories constitute the two largest groups (68/103,
+66%), providing sufficient statistical power for pairwise comparisons.
+Three disease categories — Severe, Recovered, and Healthy — are represented
+by subjects from multiple independent studies, strengthening the
+generalizability of downstream analyses.
+
+4. Cohort Demographics
+-----------------------
+
+Age data were available for 101 of 103 subjects (2 missing from CD1),
+with ages ranging from 18 to 87.4 years (median = 48, mean = 47.6)
+(Figure 6). Sex was reported for 92 of 103 subjects; 57 males and 35
+females. The 11 subjects with missing sex data originate from CD3 (n=10)
+and CD1 (n=1).
+
+Males were overrepresented in the Severe group (14 males vs. 5 females,
+with 8 of unknown sex), whereas the Mild group showed an equal sex
+distribution (19 males, 19 females, 3 unknown). The COVID Naive group
+was evenly split (4 males, 4 females), and the Healthy group from HC1
+consisted of 5 males and 1 female.
+
+Participants with Severe disease were notably older (median age 61 years)
+compared to those with Mild disease (median 48.5 years), consistent with
+the well-documented association between age and COVID-19 severity. The
+COVID Naive group was the youngest (median 20 years), and the Recovered
+group was also relatively young (median 30.5 years), while the Moderate
+group was older (median 51.7 years).
+
+Participants with missing metadata for a given variable were excluded from
+the respective downstream analyses.
 
 
 ============================================================
 FIGURE CAPTIONS
 ============================================================
 
-Figure 1. Distribution of participants across datasets.
-Bar chart showing the number of participants contributed by each of the five COVID-19 related studies included in the analysis. Covid19_db3 contributes the largest cohort (n=51), followed by covid_db2 (n=19), covid19 (n=13), vaccine2 (n=12), and covid_vaccine_new (n=5), for a total of 100 participants.
+Figure 1. Distribution of subjects across datasets.
+Bar chart showing the number of subjects contributed by each of the seven
+datasets included in the analysis: CD1 (n=51), CD2 (n=19), GT1 (n=15),
+CD3 (n=13), CVX1 (n=12), HC1 (n=6), and CVX2 (n=5), for a total of 121
+subjects.
 
-Figure 2. Distribution of participants by disease category.
-Participants were classified into six disease categories based on their reported disease stage: Mild (n=41), Severe (n=27), Recovered (n=12), Moderate (n=9), COVID Naive (n=8), and Healthy (n=3).
+Figure 2. Metadata field availability per dataset.
+Grouped bar chart showing the number of subjects with reported values for
+five metadata types — Tissue, Disease Stage, Sex, Cell Subset, and Age —
+across all seven datasets. Tissue and Disease Stage are the most
+consistently reported fields. GT1 lacks Disease Stage and Sex; CD3 lacks
+Sex; Cell Subset is limited to CVX2 and GT1.
 
-Figure 3. Distribution of participants by sex.
-Males (n=52) outnumber females (n=34), with 14 participants lacking sex annotation. Missing sex data originate from the covid19 dataset (n=13) and one participant from Covid19_db3 (n=1).
+Figure 3. Raw disease stage labels across datasets.
+Stacked bar chart showing the distribution of the 13 original disease
+stage labels used across six datasets (excluding GT1, which lacked disease
+stage annotations). Each bar represents one disease stage label, colored
+by the contributing dataset. The heterogeneity of labels across studies
+motivates harmonization for cross-study comparison.
 
-Figure 4. Disease category stratified by sex.
-Grouped bar chart showing the number of male and female participants within each disease category. Males are overrepresented in the Severe group (14 males vs. 5 females, with 8 of unknown sex), while the Mild group shows a nearly equal sex ratio (19 males, 19 females, 3 unknown). Participants with unknown sex are shown separately.
+Figure 4. Disease spectrum coverage highlighting cross-study gap filling.
+Bar chart showing the number of subjects per harmonized disease category,
+distinguishing contributions from COVID-19 datasets (orange) and the
+non-COVID HC1 dataset (green). HC1 provides the sole source of healthy
+controls (n=6) in the assembled cohort, demonstrating the value of
+cross-study metadata querying for identifying complementary datasets.
+Three CD3 healthy subjects were excluded due to missing age and sex data.
 
-Figure 5. Age distribution of participants.
-(a) Histogram of participant ages (bin width = 5 years). The red dashed line indicates the median age (48 years). Ages range from 18 to 87.4 years. (b) Bar chart of participants grouped by age category: 18-30 (n=25), 31-50 (n=26), 51-65 (n=25), and 66+ (n=19). Five participants with missing age data are excluded. (c) Disease category stratified by age group. Grouped bar chart showing the number of participants in each age group within each disease category. The Severe group contains a higher proportion of participants aged 51-65 and 66+, while the COVID Naive and Recovered groups are predominantly composed of younger participants (18-30 and 31-50).
+Figure 5. Harmonized disease categories with original label provenance.
+Stacked bar chart of the six harmonized disease categories, with bars
+colored by contributing dataset and original disease stage labels annotated
+within each segment. This figure maps the 13 raw labels to 6 harmonized
+categories while preserving traceability to the source studies.
 
-Figure 6. Age distribution across disease categories.
-Boxplots showing the age distribution within each disease category, with individual data points overlaid. Participants with Severe disease tend to be older (median 61 years) compared to those with Mild disease (median 48.5 years), consistent with the established association between age and COVID-19 severity.
-
-Figure 7. Dataset composition by disease category.
-Stacked bar chart showing the disease category composition of each dataset. Covid19_db3 comprises predominantly Mild and Severe cases, covid_db2 consists entirely of Moderate and Severe cases, while vaccine2 contributes the COVID Naive and Recovered groups.
-
-Figure 8. Cross-tabulation of disease category, age group, and sex.
-Heatmap showing participant counts for each combination of disease category and age group, faceted by sex. Cell values indicate the number of participants in each subgroup. The Severe-Male-66+ and Mild-Male-31-50 subgroups are among the most populated combinations.
+Figure 6. Subject demographics by disease category.
+Scatter plot showing the age and sex distribution of subjects across
+harmonized disease categories, colored by dataset. Each point represents
+one subject; shape indicates sex (circle = male, triangle = female,
+cross = unknown). Subjects with Severe disease tend to be older (median
+61 years) and predominantly male, while COVID Naive and Recovered groups
+are younger. Of 103 subjects, 101 had reported age and 92 had reported sex.
 
 
 ============================================================
 FIGURE-TO-FILE MAPPING
 ============================================================
 
-Figure 1   -> 01_subjects_per_dataset.png
-Figure 2   -> 02a_subjects_per_disease_category.png
-Figure 3   -> 02b_subjects_per_sex.png
-Figure 4   -> 03a_disease_by_sex.png
-Figure 5a  -> 02c_age_distribution.png
-Figure 5b  -> 02d_subjects_per_age_group.png
-Figure 5c  -> 03b_disease_by_age_group.png
-Figure 6   -> 03d_age_by_disease_boxplot.png
-Figure 7   -> 03c_study_by_disease.png
-Figure 8   -> 03e_heatmap_disease_age_sex.png
+Figure 1  -> 01_subjects_per_dataset.png
+Figure 2  -> 00_metadata_per_dataset.png
+Figure 3  -> 02_disease_stage_raw.png
+Figure 4  -> 03_disease_spectrum_with_HC1.png
+Figure 5  -> 04_disease_harmonized_with_labels.png
+Figure 6  -> 05_demographics_scatter.png
