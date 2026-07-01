@@ -10,7 +10,7 @@ study_labels <- c(
   "vaccine2"          = "CVX1",
   "covid_vaccine_new" = "CVX2",
   "lp16_Igblast"      = "HC1",
-  "sykesIgblast2020"  = "IG1"
+  "sykesIgblast2020"  = "GT1"
 )
 relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
 
@@ -25,14 +25,18 @@ meta_long_list <- lapply(json_all$Result, function(entry) {
 })
 
 df <- bind_rows(meta_long_list)
-df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
+df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water",
+                                            "lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"))
 df$study <- relabel(sub("-.*", "", df$repertoire_id))
 
-theme_set(theme_minimal(base_size = 16) + theme(
-  plot.title = element_text(face = "bold", hjust = 0.5, size = 18),
-  axis.title = element_text(size = 15), axis.text = element_text(size = 13),
-  axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
-  legend.text = element_text(size = 13), legend.title = element_text(size = 14)
+theme_set(theme_minimal(base_size = 18) + theme(
+  plot.title = element_blank(),
+  axis.title = element_text(size = 17, face = "bold"),
+  axis.text = element_text(size = 15),
+  axis.text.x = element_text(angle = 30, hjust = 1, size = 15),
+  legend.text = element_text(size = 14),
+  legend.title = element_text(size = 15, face = "bold"),
+  strip.text = element_text(size = 16, face = "bold")
 ))
 
 # Total subjects per study
@@ -75,8 +79,7 @@ p4 <- ggplot(df_plot4, aes(x = study, y = n, fill = status)) +
   geom_text(aes(label = n), position = position_stack(vjust = 0.5),
             size = 4.5, fontface = "bold") +
   facet_wrap(~field_label, ncol = 1) +
-  labs(title = "Completeness of Key Clinical Variables per Dataset",
-       x = "Dataset", y = "# Subjects", fill = "") +
+  labs(x = "Dataset", y = "# Subjects", fill = "") +
   scale_fill_manual(values = c("Reported" = "#5B9BD5", "Missing" = "#D9D9D9")) +
   theme(legend.position = "bottom",
         strip.text = element_text(size = 15, face = "bold"))
@@ -121,13 +124,10 @@ p5 <- ggplot(df_spectrum, aes(x = disease_category, y = n, fill = source_type)) 
   geom_col(position = "stack", color = "white", linewidth = 0.4) +
   geom_text(aes(label = n), position = position_stack(vjust = 0.5),
             size = 5.5, fontface = "bold") +
-  labs(title = "Disease Spectrum Coverage: Cross-Study Cohort Assembly",
-       subtitle = "Healthy controls from HC1 complement COVID-19 datasets",
-       x = "Disease Category", y = "# Subjects", fill = "Source") +
+  labs(x = "Disease Category", y = "# Subjects", fill = "Source") +
   scale_fill_manual(values = c("COVID datasets" = "#fc8d62",
                                "Non-COVID (HC1)" = "#66c2a5")) +
-  theme(legend.position = "bottom",
-        plot.subtitle = element_text(hjust = 0.5, size = 14, color = "grey30"))
+  theme(legend.position = "bottom")
 
 ggsave("plots/05_disease_spectrum_coverage.png", p5, width = 13, height = 8, dpi = 200)
 cat("Saved: 05_disease_spectrum_coverage.png\n")
@@ -150,8 +150,7 @@ p6 <- ggplot(df_cohort_summary, aes(x = disease_category, y = n, fill = study)) 
   geom_col(position = "stack", color = "white", linewidth = 0.4) +
   geom_text(aes(label = n), position = position_stack(vjust = 0.5),
             size = 4.5, fontface = "bold") +
-  labs(title = "Assembled Cohort: Disease Categories by Contributing Dataset",
-       x = "Disease Category", y = "# Subjects", fill = "Dataset") +
+  labs(x = "Disease Category", y = "# Subjects", fill = "Dataset") +
   scale_fill_manual(values = study_colors) +
   theme(legend.position = "bottom")
 

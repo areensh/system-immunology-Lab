@@ -10,7 +10,7 @@ study_labels <- c(
   "vaccine2"          = "CVX1",
   "covid_vaccine_new" = "CVX2",
   "lp16_Igblast"      = "HC1",
-  "sykesIgblast2020"  = "IG1"
+  "sykesIgblast2020"  = "GT1"
 )
 relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
 
@@ -30,7 +30,8 @@ records <- lapply(json_data$Result, function(entry) {
 })
 
 df <- bind_rows(records)
-df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water"))
+df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine_new-Water",
+                                            "lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"))
 
 df$study <- relabel(sub("-.*", "", df$repertoire_id))
 
@@ -67,14 +68,14 @@ df$age_group <- cut(df$age,
   include.lowest = TRUE
 )
 
-theme_set(theme_minimal(base_size = 16) +
+theme_set(theme_minimal(base_size = 18) +
   theme(
-    plot.title = element_text(face = "bold", hjust = 0.5, size = 18),
-    axis.title = element_text(size = 15),
-    axis.text = element_text(size = 13),
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 13),
-    legend.text = element_text(size = 12),
-    legend.title = element_text(size = 13)
+    plot.title = element_blank(),
+    axis.title = element_text(size = 17, face = "bold"),
+    axis.text = element_text(size = 15),
+    axis.text.x = element_text(angle = 30, hjust = 1, size = 15),
+    legend.text = element_text(size = 14),
+    legend.title = element_text(size = 15, face = "bold")
   ))
 
 output_dir <- "plots"
@@ -144,15 +145,31 @@ type_colors <- c(
   "Cell Subset" = "#fc8d62"
 )
 
-p0 <- ggplot(df_meta_vals,
+df_meta_type_count <- df_meta_long %>%
+  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications", "Age minimum")) %>%
+  filter(meta_value != "NA" & !is.na(meta_value)) %>%
+  distinct(repertoire_id, study, meta_key) %>%
+  count(study, meta_key, name = "n_subjects")
+
+df_meta_type_count$meta_type <- ifelse(
+  df_meta_type_count$meta_key %in% names(meta_type_labels),
+  meta_type_labels[df_meta_type_count$meta_key],
+  df_meta_type_count$meta_key
+)
+
+study_order_0 <- df_meta_long %>%
+  distinct(repertoire_id, study) %>%
+  count(study) %>%
+  arrange(-n) %>%
+  pull(study)
+df_meta_type_count$study <- factor(df_meta_type_count$study, levels = study_order_0)
+
+p0 <- ggplot(df_meta_type_count,
   aes(x = study, y = n_subjects, fill = meta_type)) +
-  geom_col(position = "stack", color = "white", linewidth = 0.4) +
-  geom_text(aes(label = meta_value),
-    position = position_stack(vjust = 0.5), size = 4, fontface = "bold") +
-  labs(
-    title = "Metadata Composition per Dataset",
-    x = "Dataset", y = "# Subjects", fill = "Metadata Type"
-  ) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(aes(label = n_subjects),
+    position = position_dodge(width = 0.8), vjust = -0.3, size = 4.5, fontface = "bold") +
+  labs(x = "Dataset", y = "# Subjects", fill = "Metadata Type") +
   scale_fill_manual(values = type_colors) +
   theme(legend.position = "bottom")
 
@@ -171,7 +188,7 @@ p1 <- df_all_subjects %>%
   ggplot(aes(x = reorder(study, -n), y = n, fill = study)) +
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
-  labs(title = "Number of Subjects per Dataset", x = "Dataset", y = "# Subjects") +
+  labs(x = "Dataset", y = "# Subjects") +
   scale_fill_brewer(palette = "Set2")
 
 ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 12, height = 7, dpi = 200)
@@ -187,7 +204,7 @@ p2a <- df %>%
   ggplot(aes(x = reorder(disease_category, -n), y = n, fill = disease_category)) +
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
-  labs(title = "Number of Subjects per Disease Category", x = "Disease Category", y = "# Subjects") +
+  labs(x = "Disease Category", y = "# Subjects") +
   scale_fill_brewer(palette = "Set3")
 
 ggsave(file.path(output_dir, "02a_subjects_per_disease_category.png"), p2a, width = 11, height = 7, dpi = 200)
@@ -199,7 +216,7 @@ p2b <- df %>%
   ggplot(aes(x = sex_clean, y = n, fill = sex_clean)) +
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
-  labs(title = "Number of Subjects by Sex", x = "Sex", y = "# Subjects") +
+  labs(x = "Sex", y = "# Subjects") +
   scale_fill_manual(values = c("Male" = "#4A90D9", "Female" = "#E85D75", "NA/Unknown" = "#AAAAAA"))
 
 ggsave(file.path(output_dir, "02b_subjects_per_sex.png"), p2b, width = 8, height = 7, dpi = 200)
@@ -210,7 +227,7 @@ df_age <- df %>% filter(!is.na(age))
 
 p2c <- ggplot(df_age, aes(x = age)) +
   geom_histogram(binwidth = 5, fill = "#5B9BD5", color = "white", alpha = 0.85) +
-  labs(title = "Age Distribution of Subjects", x = "Age", y = "# Subjects") +
+  labs(x = "Age", y = "# Subjects") +
   geom_vline(aes(xintercept = median(age, na.rm = TRUE)),
     color = "red", linetype = "dashed", linewidth = 1
   )
@@ -225,7 +242,7 @@ p2d <- df %>%
   ggplot(aes(x = age_group, y = n, fill = age_group)) +
   geom_col(show.legend = FALSE) +
   geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
-  labs(title = "Subjects by Age Group", x = "Age Group", y = "# Subjects") +
+  labs(x = "Age Group", y = "# Subjects") +
   scale_fill_brewer(palette = "Blues")
 
 ggsave(file.path(output_dir, "02d_subjects_per_age_group.png"), p2d, width = 8, height = 7, dpi = 200)
@@ -241,7 +258,7 @@ p3a <- df %>%
   ggplot(aes(x = disease_category, y = n, fill = sex_clean)) +
   geom_col(position = "dodge") +
   geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 4.5) +
-  labs(title = "Disease Category by Sex", x = "Disease Category", y = "# Subjects", fill = "Sex") +
+  labs(x = "Disease Category", y = "# Subjects", fill = "Sex") +
   scale_fill_manual(values = c("Male" = "#4A90D9", "Female" = "#E85D75", "NA/Unknown" = "#AAAAAA"))
 
 ggsave(file.path(output_dir, "03a_disease_by_sex.png"), p3a, width = 12, height = 7, dpi = 200)
@@ -254,7 +271,7 @@ p3b <- df %>%
   ggplot(aes(x = disease_category, y = n, fill = age_group)) +
   geom_col(position = "dodge") +
   geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 4) +
-  labs(title = "Disease Category by Age Group", x = "Disease Category", y = "# Subjects", fill = "Age Group") +
+  labs(x = "Disease Category", y = "# Subjects", fill = "Age Group") +
   scale_fill_brewer(palette = "YlOrRd")
 
 ggsave(file.path(output_dir, "03b_disease_by_age_group.png"), p3b, width = 13, height = 7, dpi = 200)
@@ -265,7 +282,7 @@ p3c <- df %>%
   count(study, disease_category) %>%
   ggplot(aes(x = reorder(study, -n, sum), y = n, fill = disease_category)) +
   geom_col() +
-  labs(title = "Dataset Composition by Disease Category", x = "Dataset", y = "# Subjects", fill = "Disease\nCategory") +
+  labs(x = "Dataset", y = "# Subjects", fill = "Disease\nCategory") +
   scale_fill_brewer(palette = "Set3")
 
 ggsave(file.path(output_dir, "03c_study_by_disease.png"), p3c, width = 12, height = 7, dpi = 200)
@@ -276,7 +293,7 @@ p3d <- df_age %>%
   ggplot(aes(x = disease_category, y = age, fill = disease_category)) +
   geom_boxplot(alpha = 0.7, show.legend = FALSE) +
   geom_jitter(width = 0.2, alpha = 0.4, size = 2) +
-  labs(title = "Age Distribution by Disease Category", x = "Disease Category", y = "Age") +
+  labs(x = "Disease Category", y = "Age") +
   scale_fill_brewer(palette = "Set3")
 
 ggsave(file.path(output_dir, "03d_age_by_disease_boxplot.png"), p3d, width = 12, height = 7, dpi = 200)
@@ -291,7 +308,6 @@ p3e <- df %>%
   geom_text(aes(label = n), size = 5, fontface = "bold") +
   facet_wrap(~sex_clean) +
   labs(
-    title = "Subject Counts: Disease Category x Age Group x Sex",
     x = "Age Group", y = "Disease Category", fill = "Count"
   ) +
   scale_fill_gradient(low = "#FFF7BC", high = "#D95F0E") +
