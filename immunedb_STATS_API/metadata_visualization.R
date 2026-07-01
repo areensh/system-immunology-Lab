@@ -40,7 +40,7 @@ df$disease_category <- case_when(
   grepl("hypox|ICU", df$disease_stage, ignore.case = TRUE) ~ "Severe",
   grepl("Stable|Improving", df$disease_stage, ignore.case = TRUE) ~ "Moderate",
   grepl("case$", trimws(df$disease_stage)) ~ "Case (unspecified)",
-  grepl("vaccine", df$repertoire_id, ignore.case = TRUE) ~ "Vaccinated",
+  df$disease_stage == "NA" | is.na(df$disease_stage) ~ "NA/Unknown",
   TRUE ~ "Other"
 )
 
