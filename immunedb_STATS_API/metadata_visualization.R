@@ -34,12 +34,11 @@ df$subject <- df$subject_name
 df$disease_category <- case_when(
   grepl("healthy", df$disease_stage, ignore.case = TRUE) ~ "Healthy",
   grepl("naive", df$disease_stage, ignore.case = TRUE) ~ "COVID Naive",
-  grepl("recover", df$disease_stage, ignore.case = TRUE) ~ "COVID Recovered",
+  grepl("recover", df$disease_stage, ignore.case = TRUE) ~ "Recovered",
   grepl("severe", df$disease_stage, ignore.case = TRUE) ~ "Severe",
   grepl("mild|non-severe", df$disease_stage, ignore.case = TRUE) ~ "Mild",
   grepl("hypox|ICU", df$disease_stage, ignore.case = TRUE) ~ "Severe",
   grepl("Stable|Improving", df$disease_stage, ignore.case = TRUE) ~ "Moderate",
-  grepl("case$", trimws(df$disease_stage)) ~ "Case (unspecified)",
   df$disease_stage == "NA" | is.na(df$disease_stage) ~ "NA/Unknown",
   TRUE ~ "Other"
 )
