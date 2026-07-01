@@ -1,0 +1,70 @@
+Results: Disease Stage Heterogeneity and Harmonization
+=======================================================
+
+1. Raw Disease Stage Labels Across Studies
+------------------------------------------
+
+Examination of disease stage annotations across the six datasets with
+reported disease information revealed substantial heterogeneity in
+labeling conventions (Figure 07a). A total of 13 distinct disease stage
+labels were used across the datasets, reflecting differences in clinical
+classification schemes between studies.
+
+The Severe end of the spectrum was represented by three labels: "severe"
+(n=20, from Covid19_db3 and covid19) and "Early phase hypoxaemia" (n=7,
+from covid_db2). Mild disease was labeled as "mild" (n=39, Covid19_db3)
+or "non-severe" (n=2, covid19). Moderate disease appeared only in
+covid_db2 under two labels: "Early phase-Stable" (n=8) and "Early
+phase-Improving" (n=1).
+
+The recovery spectrum showed the greatest label diversity, with five
+distinct labels all originating from different studies: "Recovering
+post-ICU" (n=1), "Recovering post-ICU -Improving" (n=1), "Recovering
+without ICU-Improving" (n=1) from covid_db2; "Recovered" (n=5) from
+covid_vaccine_new; and "COVID recovered" (n=4) from vaccine2. Healthy
+subjects were labeled as "healthy" (n=12, from covid19 and lp16_Igblast),
+and COVID-naive subjects as "COVID Naive" (n=8, vaccine2).
+
+This heterogeneity is a direct consequence of independent study designs
+and highlights the challenge — and necessity — of metadata harmonization
+when assembling cross-study cohorts.
+
+2. Harmonized Disease Categories
+---------------------------------
+
+To enable meaningful cross-study comparison, the 13 raw labels were
+mapped into six harmonized categories representing a clinical severity
+spectrum (Figure 07b):
+
+  Severe (n=27):
+    - "severe" (n=20) — Covid19_db3, covid19
+    - "Early phase hypoxaemia" (n=7) — covid_db2
+
+  Mild (n=41):
+    - "mild" (n=39) — Covid19_db3
+    - "non-severe" (n=2) — covid19
+
+  Moderate (n=9):
+    - "Early phase-Stable" (n=8) — covid_db2
+    - "Early phase-Improving" (n=1) — covid_db2
+
+  Recovered (n=12):
+    - "Recovered" (n=5) — covid_vaccine_new
+    - "COVID recovered" (n=4) — vaccine2
+    - "Recovering post-ICU" (n=1) — covid_db2
+    - "Recovering post-ICU -Improving" (n=1) — covid_db2
+    - "Recovering without ICU-Improving" (n=1) — covid_db2
+
+  Healthy (n=12):
+    - "healthy" (n=12) — covid19 (3), lp16_Igblast (9)
+
+  COVID Naive (n=8):
+    - "COVID Naive" (n=8) — vaccine2
+
+The harmonization preserves the original labels as traceable sub-categories
+while enabling aggregation across the clinical spectrum. The Mild category
+is predominantly from a single study (Covid19_db3, 39/41), whereas Severe,
+Recovered, and Healthy draw from multiple independent datasets, providing
+more robust representation. The Recovered category, despite its small total
+(n=12), spans three independent studies and five original labels, reflecting
+the diversity of recovery trajectories captured across the federated data.
