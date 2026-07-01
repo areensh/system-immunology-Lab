@@ -26,11 +26,12 @@ df$study_raw <- sub("-.*", "", df$repertoire_id)
 
 # Map to informative short titles based on paper PMIDs
 study_labels <- c(
-  "covid19"           = "Nielsen 2020\n(Acute COVID-19)",
-  "covid_vaccine_new" = "Goel 2021\n(Vaccine + Recovery)",
+  "covid19"           = "Kuri-Cervantes 2020\n(Acute COVID-19)",
+  "covid_vaccine_new" = "Goel 2021a\n(Vaccine + Recovery)",
   "covid_db2"         = "Galson 2020\n(Longitudinal COVID-19)",
-  "Covid19_db3"       = "Kim 2021\n(Mild vs Severe)",
-  "vaccine2"          = "Cho 2021\n(Naive vs Recovered Vaccine)"
+  "Covid19_db3"       = "PMID:37153628\n(Mild vs Severe)",
+  "vaccine2"          = "Goel 2021b\n(Naive vs Recovered Vaccine)",
+  "lp16_Igblast"      = "Briney 2019\n(Healthy Multi-Tissue)"
 )
 
 df$study <- ifelse(df$study_raw %in% names(study_labels),
@@ -85,53 +86,98 @@ dir.create(output_dir, showWarnings = FALSE)
 
 json_all <- fromJSON("metadata_ALL.json", simplifyDataFrame = FALSE)
 
-records_all <- lapply(json_all$Result, function(entry) {
+# Parse into long format to handle duplicate keys (e.g. multiple tissues per subject)
+meta_long_list <- lapply(json_all$Result, function(entry) {
   rep <- entry$repertoire
+  rid <- rep$repertoire_id
   keys <- trimws(rep$meta_key)
   vals <- trimws(rep$meta_value)
-  len <- length(keys)
-  if (length(vals) < len) vals <- c(vals, rep(NA, len - length(vals)))
-  if (length(vals) > len) vals <- vals[seq_len(len)]
-  row <- setNames(as.list(vals), keys)
-  row$repertoire_id <- rep$repertoire_id
-  row
+  data.frame(
+    repertoire_id = rid,
+    meta_key = keys,
+    meta_value = vals,
+    stringsAsFactors = FALSE
+  )
 })
 
-df_all <- bind_rows(records_all)
-df_all$study_raw <- sub("-.*", "", df_all$repertoire_id)
-df_all$study <- ifelse(df_all$study_raw %in% names(study_labels),
-                       study_labels[df_all$study_raw],
-                       df_all$study_raw)
+df_meta_long <- bind_rows(meta_long_list)
+df_meta_long$study_raw <- sub("-.*", "", df_meta_long$repertoire_id)
+df_meta_long$study <- ifelse(df_meta_long$study_raw %in% names(study_labels),
+                             study_labels[df_meta_long$study_raw],
+                             df_meta_long$study_raw)
 
-meta_cols <- c("tissue", "cell_subset")
-meta_cols <- meta_cols[meta_cols %in% names(df_all)]
+# --- Figure 0a: Tissue types per study ---
+df_tissue <- df_meta_long %>%
+  filter(meta_key == "tissue") %>%
+  distinct(repertoire_id, study, meta_value) %>%
+  count(study, meta_value)
 
-if (length(meta_cols) > 0) {
-  df_meta_long <- df_all %>%
-    select(repertoire_id, study, all_of(meta_cols)) %>%
-    pivot_longer(cols = all_of(meta_cols), names_to = "metadata_type", values_to = "value") %>%
-    mutate(value = ifelse(is.na(value) | value == "NA", "Not reported", value))
+p0a <- ggplot(df_tissue, aes(x = meta_value, y = n, fill = study)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 3) +
+  labs(
+    title = "Sample Tissue Types per Study",
+    x = "Tissue", y = "# Subjects", fill = "Study"
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    legend.position = "bottom",
+    legend.text = element_text(size = 8)
+  )
 
-  p0 <- df_meta_long %>%
-    count(study, metadata_type, value) %>%
-    ggplot(aes(x = value, y = n, fill = study)) +
+ggsave(file.path(output_dir, "00a_tissue_per_study.png"), p0a, width = 14, height = 7, dpi = 150)
+cat("Saved: 00a_tissue_per_study.png\n")
+
+# --- Figure 0b: Cell subset per study (only studies with reported values) ---
+df_cell <- df_meta_long %>%
+  filter(meta_key == "cell_subset", meta_value != "NA") %>%
+  distinct(repertoire_id, study, meta_value) %>%
+  count(study, meta_value)
+
+if (nrow(df_cell) > 0) {
+  p0b <- ggplot(df_cell, aes(x = meta_value, y = n, fill = study)) +
     geom_col(position = "dodge") +
     geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 3) +
-    facet_wrap(~metadata_type, scales = "free_x") +
     labs(
-      title = "Subjects by Sample Metadata Type per Study",
-      x = "Metadata Value", y = "# Subjects", fill = "Study"
+      title = "Cell Subset Types per Study (excluding NA)",
+      x = "Cell Subset", y = "# Subjects", fill = "Study"
     ) +
     scale_fill_brewer(palette = "Set2") +
     theme(
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
       legend.position = "bottom",
       legend.text = element_text(size = 8)
     )
 
-  ggsave(file.path(output_dir, "00_metadata_type_breakdown.png"), p0, width = 14, height = 7, dpi = 150)
-  cat("Saved: 00_metadata_type_breakdown.png\n")
+  ggsave(file.path(output_dir, "00b_cell_subset_per_study.png"), p0b, width = 16, height = 7, dpi = 150)
+  cat("Saved: 00b_cell_subset_per_study.png\n")
 }
+
+# --- Figure 0c: Summary table - which metadata fields each study has ---
+df_meta_summary <- df_meta_long %>%
+  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications")) %>%
+  mutate(has_value = ifelse(meta_value == "NA" | is.na(meta_value), "Not reported", "Reported")) %>%
+  distinct(repertoire_id, study, meta_key, has_value) %>%
+  count(study, meta_key, has_value)
+
+p0c <- ggplot(df_meta_summary, aes(x = meta_key, y = n, fill = has_value)) +
+  geom_col(position = "stack") +
+  facet_wrap(~study, scales = "free_y", ncol = 2) +
+  geom_text(aes(label = n), position = position_stack(vjust = 0.5), size = 3) +
+  labs(
+    title = "Metadata Field Availability per Study",
+    x = "Metadata Field", y = "# Subjects", fill = ""
+  ) +
+  scale_fill_manual(values = c("Reported" = "#5B9BD5", "Not reported" = "#D9D9D9")) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    legend.position = "bottom",
+    strip.text = element_text(size = 9)
+  )
+
+ggsave(file.path(output_dir, "00c_metadata_availability.png"), p0c, width = 14, height = 10, dpi = 150)
+cat("Saved: 00c_metadata_availability.png\n")
 
 # ============================================================
 # LEVEL 1: Subjects per study (dataset)
