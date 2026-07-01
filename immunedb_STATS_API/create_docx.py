@@ -108,6 +108,7 @@ toc_items = [
     "   2.1 Clone Count",
     "   2.2 Clone Size",
     "   2.3 Top X Clone Fraction (Repertoire Dominance)",
+    "   2.4 CDR3 Length (Amino Acid)",
     "3. Summary of Key Findings",
 ]
 for item in toc_items:
@@ -359,6 +360,70 @@ add_figure(f'{clonal}/top10_by_disease_age.png',
 doc.add_page_break()
 
 # ============================================================
+# SECTION 2.4: CDR3 LENGTH
+# ============================================================
+cdr3 = "plots/cdr3"
+
+add_heading('2.4 CDR3 Length (Amino Acid)', level=2)
+add_body(
+    'CDR3 (Complementarity-Determining Region 3) length is a key structural feature of antibodies '
+    'that determines antigen-binding specificity. Longer CDR3 regions can access recessed epitopes '
+    'and are often associated with broadly neutralizing antibodies. Here we analyze the average '
+    'CDR3 length (in amino acids) of the top 10, 100, and 1,000 most expanded clones per repertoire.'
+)
+
+add_heading('2.4.1 CDR3 Length by Disease Category', level=3)
+add_table(
+    ['Disease Category', 'N', 'Top 10 (median)', 'Top 100 (median)', 'Top 1000 (median)'],
+    [
+        ['COVID Naive', '8', '15.0 AA', '16.8 AA', '17.4 AA'],
+        ['Mild', '38', '16.5 AA', '16.9 AA', '17.0 AA'],
+        ['Moderate', '9', '17.3 AA', '17.2 AA', '17.5 AA'],
+        ['Recovered', '12', '15.8 AA', '17.2 AA', '17.5 AA'],
+        ['Severe', '18', '17.6 AA', '17.4 AA', '17.2 AA'],
+    ]
+)
+add_bold_body('Key finding: ',
+    'Severe cases show the longest CDR3 in their top 10 clones (median 17.6 AA), while COVID Naive '
+    'show the shortest (median 15.0 AA). However, CDR3 lengths converge across disease categories '
+    'when considering the top 1000 clones (~17.0-17.5 AA), suggesting that the CDR3 length '
+    'differences are primarily driven by the most dominant clones.'
+)
+add_figure(f'{cdr3}/cdr3_by_disease.png',
+           'Figure 2.4.1. Average CDR3 length (AA) by disease category (faceted by clone tier).',
+           width=Inches(6))
+
+add_heading('2.4.2 CDR3 Length by Sex', level=3)
+add_body(
+    'CDR3 lengths are comparable between males (median 17.0 AA) and females (median 17.1 AA) '
+    'for the top 10 clones, with no meaningful sex-based differences observed.'
+)
+add_figure(f'{cdr3}/cdr3_by_sex.png',
+           'Figure 2.4.2. Average CDR3 length (AA) by sex.', width=Inches(5.5))
+
+add_heading('2.4.3 CDR3 Length by Age Group', level=3)
+add_figure(f'{cdr3}/cdr3_by_age.png',
+           'Figure 2.4.3. Average CDR3 length (AA) by age group.', width=Inches(5.5))
+
+add_heading('2.4.4 CDR3 Length (Top 10) by Disease x Sex', level=3)
+add_figure(f'{cdr3}/cdr3_top10_by_disease_sex.png',
+           'Figure 2.4.4. Average CDR3 length of top 10 clones by disease category and sex.')
+
+add_heading('2.4.5 CDR3 Length (Top 10) by Disease x Age', level=3)
+add_figure(f'{cdr3}/cdr3_top10_by_disease_age.png',
+           'Figure 2.4.5. Average CDR3 length of top 10 clones by disease category and age group.')
+
+add_heading('2.4.6 CDR3 Length Across Clone Tiers', level=3)
+add_body(
+    'This figure compares CDR3 lengths across the three clone tiers (Top 10, 100, 1000) '
+    'simultaneously, showing how the most dominant clones differ from the broader repertoire.'
+)
+add_figure(f'{cdr3}/cdr3_tiers_by_disease.png',
+           'Figure 2.4.6. CDR3 length across clone tiers by disease category.')
+
+doc.add_page_break()
+
+# ============================================================
 # SECTION 3: SUMMARY
 # ============================================================
 add_heading('3. Summary of Key Findings', level=1)
@@ -379,12 +444,16 @@ findings = [
      'Moderate disease shows the most oligoclonal repertoire (Top 10 clones = 22.6% of copies), '
      'while Mild cases are the most polyclonal (10.5%). This pattern is consistent with focused '
      'immune responses in more symptomatic disease.'),
-    ('5. Sex differences: ',
-     'Minimal differences in clone count or size between males and females across all disease categories.'),
-    ('6. Age effects: ',
+    ('5. CDR3 length: ',
+     'Severe cases have the longest CDR3 in their top 10 clones (median 17.6 AA), while COVID Naive '
+     'show the shortest (15.0 AA). CDR3 lengths converge across groups at the Top 1000 level (~17 AA), '
+     'indicating differences are driven by the most dominant expanded clones.'),
+    ('6. Sex differences: ',
+     'Minimal differences in clone count, size, or CDR3 length between males and females across all disease categories.'),
+    ('7. Age effects: ',
      'No strong age-dependent trends in clonal metrics were observed, though the age x disease '
      'confound (older patients in Severe group) limits interpretation.'),
-    ('7. Caveats: ',
+    ('8. Caveats: ',
      'Disease category confounds with study of origin. Differences in sequencing depth, library '
      'preparation, and sample timing across studies may contribute to observed variation. These '
      'results should be interpreted as exploratory.'),
@@ -402,7 +471,7 @@ footer = doc.add_paragraph()
 footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run = footer.add_run(
     'Generated from iReceptor AIRR Data Commons API data.\n'
-    'Analysis scripts: metadata_visualization.R, clonal_analysis.R'
+    'Analysis scripts: metadata_visualization.R, clonal_analysis.R, cdr3_analysis.R'
 )
 run.italic = True
 run.font.size = Pt(9)
