@@ -31,15 +31,17 @@ df$sex <- tolower(df$sex)
 df$subject <- df$subject_name
 
 # Normalize disease_stage into broad categories
+df$ds_trimmed <- trimws(df$disease_stage)
 df$disease_category <- case_when(
-  grepl("healthy", df$disease_stage, ignore.case = TRUE) ~ "Healthy",
-  grepl("naive", df$disease_stage, ignore.case = TRUE) ~ "COVID Naive",
-  grepl("recover", df$disease_stage, ignore.case = TRUE) ~ "Recovered",
-  grepl("severe", df$disease_stage, ignore.case = TRUE) ~ "Severe",
-  grepl("mild|non-severe", df$disease_stage, ignore.case = TRUE) ~ "Mild",
-  grepl("hypox|ICU", df$disease_stage, ignore.case = TRUE) ~ "Severe",
-  grepl("Stable|Improving", df$disease_stage, ignore.case = TRUE) ~ "Moderate",
-  df$disease_stage == "NA" | is.na(df$disease_stage) ~ "NA/Unknown",
+  grepl("healthy", df$ds_trimmed, ignore.case = TRUE) ~ "Healthy",
+  grepl("naive", df$ds_trimmed, ignore.case = TRUE) ~ "COVID Naive",
+  grepl("non-severe", df$ds_trimmed, ignore.case = TRUE) ~ "Mild",
+  grepl("^mild$", df$ds_trimmed, ignore.case = TRUE) ~ "Mild",
+  grepl("recover", df$ds_trimmed, ignore.case = TRUE) ~ "Recovered",
+  grepl("^severe$", df$ds_trimmed, ignore.case = TRUE) ~ "Severe",
+  grepl("hypox", df$ds_trimmed, ignore.case = TRUE) ~ "Severe",
+  grepl("Stable|Improving", df$ds_trimmed, ignore.case = TRUE) ~ "Moderate",
+  df$ds_trimmed == "NA" | is.na(df$ds_trimmed) ~ "NA/Unknown",
   TRUE ~ "Other"
 )
 
