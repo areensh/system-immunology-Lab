@@ -155,10 +155,10 @@ total_sum AS (
 )
 SELECT
     ts10.subject_id,
-    ts10.sum_10 AS total_sum_10,
-    ts100.sum_100 AS total_sum_100,
-    ts1000.sum_1000 AS total_sum_1000,
-    ts.total_sum AS total_sum,
+    MAX(ts10.sum_10) AS total_sum_10,
+    MAX(ts100.sum_100) AS total_sum_100,
+    MAX(ts1000.sum_1000) AS total_sum_1000,
+    MAX(ts.total_sum) AS total_sum,
     s.identifier,
     GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ', ') AS keey,
     GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ', ') AS valuee
