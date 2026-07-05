@@ -22,14 +22,11 @@ map_disease <- function(ds) {
 
 disease_order <- c("Severe", "Mild", "Moderate", "Recovered", "COVID Naive", "Healthy")
 
-orig_colors <- c(
-  "healthy"="#2ca02c", "COVID Naive"="#1f77b4",
-  "mild"="#aec7e8", "non-severe"="#6baed6",
-  "Early phase-Stable"="#e377c2", "Early phase-Improving"="#f7b6d2",
-  "severe"="#d62728", "Early phase hypoxaemia"="#ff7f0e",
-  "Recovered"="#bcbd22", "COVID recovered"="#dbdb8d",
-  "Recovering post-ICU"="#8c564b", "Recovering post-ICU -Improving"="#c49c94",
-  "Recovering without ICU-Improving"="#e7ba52"
+tier_colors <- c(
+  "Top 10"       = "#d62728",
+  "Top 11-100"   = "#ff7f0e",
+  "Top 101-1000" = "#2ca02c",
+  "Remaining"    = "#aec7e8"
 )
 
 sex_colors <- c("Male" = "#4A90D9", "Female" = "#E85D75")
@@ -44,12 +41,12 @@ compact_legend <- theme(
   legend.margin = margin(0, 0, 0, 0)
 )
 
-base_theme <- theme_minimal(base_size = 16) +
+base_theme <- theme_minimal(base_size = 14) +
   theme(
-    axis.title = element_text(size = 15),
-    axis.text = element_text(size = 13),
-    axis.text.x = element_text(angle = 30, hjust = 1),
-    strip.text = element_text(face = "bold", size = 14),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 10),
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 7),
+    strip.text = element_text(face = "bold", size = 13),
     plot.margin = margin(10, 15, 10, 15)
   ) +
   compact_legend
@@ -161,106 +158,99 @@ cat("After filtering:", nrow(df), "subjects\n")
 cat("\nPer disease:\n")
 df %>% count(disease_cat) %>% print()
 
-used_labels <- sort(unique(df$disease_raw))
-orig_colors_used <- orig_colors[names(orig_colors) %in% used_labels]
+# ---- Compute stacked tiers (non-overlapping) ----
+df <- df %>% mutate(
+  tier_top10     = top10_pct,
+  tier_11_100    = top100_pct - top10_pct,
+  tier_101_1000  = top1000_pct - top100_pct,
+  tier_remaining = 100 - top1000_pct
+)
 
-# ---- Pivot to long for faceted boxplots ----
-df_long <- df %>%
-  select(repertoire_id, disease_cat, disease_raw, sex_clean, age_group,
-         top10_pct, top100_pct, top1000_pct) %>%
-  pivot_longer(cols = c(top10_pct, top100_pct, top1000_pct),
-               names_to = "top_tier", values_to = "pct") %>%
-  mutate(top_tier = case_when(
-    top_tier == "top10_pct" ~ "Top 10",
-    top_tier == "top100_pct" ~ "Top 100",
-    top_tier == "top1000_pct" ~ "Top 1000"
-  )) %>%
-  mutate(top_tier = factor(top_tier, levels = c("Top 10", "Top 100", "Top 1000")))
+# Sort subjects by top10_pct within each disease category
+df <- df %>%
+  arrange(disease_cat, desc(top10_pct)) %>%
+  mutate(subj_order = row_number())
 
-# ============================================================
-# Fig 10: Top-X Clone Proportion by Disease Category
-# ============================================================
-p10 <- ggplot(df_long, aes(x = disease_cat, y = pct, fill = disease_cat)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
-  geom_jitter(aes(color = disease_raw), width = 0.2, alpha = 0.7, size = 2) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 4, color = "red") +
-  stat_summary(fun.data = function(x) {
-    m <- mean(x); s <- sd(x)
-    data.frame(y = m, ymin = m - s, ymax = m + s)
-  }, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
-  facet_wrap(~top_tier, nrow = 1) +
-  scale_fill_brewer(palette = "Set3", guide = "none") +
-  scale_color_manual(values = orig_colors_used, name = "Original Label") +
-  guides(color = guide_legend(nrow = 2, override.aes = list(size = 3))) +
-  labs(x = "Disease Category", y = "Proportion of Total Copies (%)")
-ggsave("plots/10_topX_proportion_by_disease.png", p10, width = 18, height = 8, dpi = 200)
-cat("\nFigure 10 saved.\n")
+# ---- Pivot to stacked long format ----
+make_stacked_long <- function(data) {
+  data %>%
+    select(repertoire_id, subj_order, disease_cat, disease_raw, sex_clean, age_group,
+           tier_top10, tier_11_100, tier_101_1000, tier_remaining) %>%
+    pivot_longer(cols = starts_with("tier_"),
+                 names_to = "tier", values_to = "pct") %>%
+    mutate(tier = case_when(
+      tier == "tier_top10"     ~ "Top 10",
+      tier == "tier_11_100"    ~ "Top 11-100",
+      tier == "tier_101_1000"  ~ "Top 101-1000",
+      tier == "tier_remaining" ~ "Remaining"
+    )) %>%
+    mutate(tier = factor(tier, levels = c("Remaining", "Top 101-1000", "Top 11-100", "Top 10")))
+}
+
+df_stacked <- make_stacked_long(df)
 
 # ============================================================
-# Fig 11: Top-X Clone Proportion by Age Group, faceted by Disease
+# Fig 10: Stacked Bar - TopX by Disease Category
+# ============================================================
+p10 <- ggplot(df_stacked,
+              aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  facet_grid(~ disease_cat, scales = "free_x", space = "free_x") +
+  scale_fill_manual(values = tier_colors, name = "Clone Tier") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, 100)) +
+  labs(x = NULL, y = "Fraction of Total Copies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 5))
+ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 22, height = 8, dpi = 200)
+cat("\nFigure 10 (stacked) saved.\n")
+
+# ============================================================
+# Fig 11: Stacked Bar - TopX by Age Group + Disease
 # ============================================================
 df_age_plot <- df %>% filter(!is.na(age_group))
+df_age_plot <- df_age_plot %>%
+  arrange(disease_cat, age_group, desc(top10_pct)) %>%
+  mutate(subj_order = row_number())
 
-df_age_long <- df_age_plot %>%
-  select(repertoire_id, disease_cat, disease_raw, age_group,
-         top10_pct, top100_pct, top1000_pct) %>%
-  pivot_longer(cols = c(top10_pct, top100_pct, top1000_pct),
-               names_to = "top_tier", values_to = "pct") %>%
-  mutate(top_tier = case_when(
-    top_tier == "top10_pct" ~ "Top 10",
-    top_tier == "top100_pct" ~ "Top 100",
-    top_tier == "top1000_pct" ~ "Top 1000"
-  )) %>%
-  mutate(top_tier = factor(top_tier, levels = c("Top 10", "Top 100", "Top 1000")))
+df_age_stacked <- make_stacked_long(df_age_plot)
 
-p11 <- ggplot(df_age_long, aes(x = age_group, y = pct, fill = age_group)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
-  geom_jitter(aes(color = disease_raw), width = 0.2, alpha = 0.7, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 4, color = "red") +
-  stat_summary(fun.data = function(x) {
-    m <- mean(x); s <- sd(x)
-    data.frame(y = m, ymin = m - s, ymax = m + s)
-  }, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
-  facet_grid(top_tier ~ disease_cat) +
-  scale_fill_manual(values = age_colors, guide = "none") +
-  scale_color_manual(values = orig_colors_used, name = "Original Label") +
-  guides(color = guide_legend(nrow = 2, override.aes = list(size = 3))) +
-  labs(x = "Age Group", y = "Proportion of Total Copies (%)")
-ggsave("plots/11_topX_proportion_by_age_disease.png", p11, width = 20, height = 14, dpi = 200)
-cat("Figure 11 saved.\n")
+p11 <- ggplot(df_age_stacked,
+              aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  facet_grid(~ disease_cat + age_group, scales = "free_x", space = "free_x") +
+  scale_fill_manual(values = tier_colors, name = "Clone Tier") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, 100)) +
+  labs(x = NULL, y = "Fraction of Total Copies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 3),
+        strip.text = element_text(size = 7),
+        panel.spacing.x = unit(0.3, "lines"))
+ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 32, height = 8, dpi = 200)
+cat("Figure 11 (stacked by age) saved.\n")
 
 # ============================================================
-# Fig 11b: Top-X Clone Proportion by Sex, faceted by Disease
+# Fig 11b: Stacked Bar - TopX by Sex + Disease
 # ============================================================
 df_sex_plot <- df %>% filter(!is.na(sex_clean))
+df_sex_plot <- df_sex_plot %>%
+  arrange(disease_cat, sex_clean, desc(top10_pct)) %>%
+  mutate(subj_order = row_number())
 
-df_sex_long <- df_sex_plot %>%
-  select(repertoire_id, disease_cat, disease_raw, sex_clean,
-         top10_pct, top100_pct, top1000_pct) %>%
-  pivot_longer(cols = c(top10_pct, top100_pct, top1000_pct),
-               names_to = "top_tier", values_to = "pct") %>%
-  mutate(top_tier = case_when(
-    top_tier == "top10_pct" ~ "Top 10",
-    top_tier == "top100_pct" ~ "Top 100",
-    top_tier == "top1000_pct" ~ "Top 1000"
-  )) %>%
-  mutate(top_tier = factor(top_tier, levels = c("Top 10", "Top 100", "Top 1000")))
+df_sex_stacked <- make_stacked_long(df_sex_plot)
 
-p11b <- ggplot(df_sex_long, aes(x = sex_clean, y = pct, fill = sex_clean)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
-  geom_jitter(aes(color = disease_raw), width = 0.2, alpha = 0.7, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 4, color = "red") +
-  stat_summary(fun.data = function(x) {
-    m <- mean(x); s <- sd(x)
-    data.frame(y = m, ymin = m - s, ymax = m + s)
-  }, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
-  facet_grid(top_tier ~ disease_cat) +
-  scale_fill_manual(values = sex_colors, guide = "none") +
-  scale_color_manual(values = orig_colors_used, name = "Original Label") +
-  guides(color = guide_legend(nrow = 2, override.aes = list(size = 3))) +
-  labs(x = "Sex", y = "Proportion of Total Copies (%)")
-ggsave("plots/11b_topX_proportion_by_sex_disease.png", p11b, width = 20, height = 14, dpi = 200)
-cat("Figure 11b saved.\n")
+p11b <- ggplot(df_sex_stacked,
+               aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  facet_grid(~ disease_cat + sex_clean, scales = "free_x", space = "free_x") +
+  scale_fill_manual(values = tier_colors, name = "Clone Tier") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, 100)) +
+  labs(x = NULL, y = "Fraction of Total Copies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 4),
+        strip.text = element_text(size = 9),
+        panel.spacing.x = unit(0.3, "lines"))
+ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 28, height = 8, dpi = 200)
+cat("Figure 11b (stacked by sex) saved.\n")
 
 # Summary stats
 cat("\n========== TOP-X CLONE PROPORTION SUMMARY ==========\n")
@@ -273,11 +263,4 @@ df %>%
     median_top1000_pct = round(median(top1000_pct), 2),
     .groups = "drop"
   ) %>%
-  print()
-
-cat("\nBy sex:\n")
-df %>% filter(!is.na(sex_clean)) %>%
-  group_by(disease_cat, sex_clean) %>%
-  summarise(n = n(), median_top10_pct = round(median(top10_pct), 2),
-            median_top100_pct = round(median(top100_pct), 2), .groups = "drop") %>%
   print()
