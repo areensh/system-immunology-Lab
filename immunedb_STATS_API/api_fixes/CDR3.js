@@ -19,28 +19,45 @@ for (const connection of connections) {
   let totaValue;
   let whereClauses = [];
     let SUMClauses =[];
-    let params = [];
+    let whereParams = [];
+    let sumParams = [];
 
     KeyName.forEach((key, index) => {
         const value = ValueName[index];
         if (value === 'ALL') {
             whereClauses.push(`(sm.key = ? AND sm.value != 'NA')`);
-            params.push(key);
+            whereParams.push(key);
         } else {
             whereClauses.push(`(sm.key = ? AND sm.value = ?)`);
-            params.push(key, value);
+            whereParams.push(key, value);
         }
     });
     KeyName.forEach((key, index) => {
         SUMClauses.push(`(sm.key = ?)`);
-        params.push(key);
+        sumParams.push(key);
     });
 
+    // filtered_samples CTE: find sample_ids that match ALL requested metadata.
+    // This restricts computation to only samples from the correct tissue/disease/etc.
+    const filteredSamplesCTE = `
+    filtered_samples AS (
+      SELECT sm.sample_id
+      FROM sample_metadata sm
+      WHERE (${whereClauses.join(' OR ')})
+      GROUP BY sm.sample_id
+      HAVING (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
+    )`;
 
-// FIX: Aggregate averages in a subquery BEFORE joining sample_metadata.
+    // params: CTE(where+sum) + outer(where+sum)
+    const params = [...whereParams, ...sumParams, ...whereParams, ...sumParams];
+
+
+// FIX v2: Filter clone_stats to only matching samples BEFORE ranking/aggregation,
+// so CDR3 averages are computed per-tissue (not across all tissues).
 if (statistics[0] == "topX_nt_AVG_CDR3_length"){
     query = `
-   WITH ranked_clones AS (
+    WITH ${filteredSamplesCTE},
+   ranked_clones AS (
     SELECT
         clones.id,
         clones.subject_id,
@@ -52,6 +69,7 @@ if (statistics[0] == "topX_nt_AVG_CDR3_length"){
         clones
     JOIN clone_stats on clones.id = clone_stats.clone_id
         where clones.functional=1 and sample_id is not null
+          AND clone_stats.sample_id IN (SELECT sample_id FROM filtered_samples)
 `
 if (connection.config.database == "sykesIgblast"){
     query += `AND clones.subject_id  not IN (12,13,11,14,15,22,19,18) `
@@ -136,7 +154,8 @@ HAVING
 
 if (statistics[0] == "topX_AA_AVG_CDR3_length"){
     query = `
-   WITH ranked_clones AS (
+    WITH ${filteredSamplesCTE},
+   ranked_clones AS (
     SELECT
         clones.id,
         clones.subject_id,
@@ -148,6 +167,7 @@ if (statistics[0] == "topX_AA_AVG_CDR3_length"){
         clones
     JOIN clone_stats on clones.id = clone_stats.clone_id
         where clones.functional=1 AND clone_stats.sample_id is not null
+          AND clone_stats.sample_id IN (SELECT sample_id FROM filtered_samples)
 `
 if (connection.config.database == "sykesIgblast"){
     query += `AND clones.subject_id  not IN (12,13,11,14,15,22,19,18) `
@@ -229,7 +249,7 @@ HAVING
 `;
 }
      const results = [];
-      const [rows] =  await connection.query(query, { replacements: params });
+      const [rows] =  await connection.query(query, params);
       results.push(...rows);
 
 
