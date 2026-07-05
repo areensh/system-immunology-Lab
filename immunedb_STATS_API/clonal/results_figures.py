@@ -1,7 +1,8 @@
 from docx import Document
-from docx.shared import Inches, Pt, RGBColor
+from docx.shared import Inches, Pt, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.section import WD_ORIENT
 import os
 
 BASE = "/home/user/system-immunology-Lab/immunedb_STATS_API"
@@ -18,18 +19,41 @@ for s in ['Heading 1', 'Heading 2', 'Heading 3']:
     doc.styles[s].font.name = 'Times New Roman'
     doc.styles[s].font.color.rgb = RGBColor(0, 0, 0)
 
-def add_figure(doc, path, caption, width=6.5):
+def add_landscape_section(doc):
+    new_section = doc.add_section(start_type=2)
+    new_section.orientation = WD_ORIENT.LANDSCAPE
+    new_section.page_width = Inches(11)
+    new_section.page_height = Inches(8.5)
+    new_section.left_margin = Inches(0.5)
+    new_section.right_margin = Inches(0.5)
+
+def add_portrait_section(doc):
+    new_section = doc.add_section(start_type=2)
+    new_section.orientation = WD_ORIENT.PORTRAIT
+    new_section.page_width = Inches(8.5)
+    new_section.page_height = Inches(11)
+    new_section.left_margin = Inches(1)
+    new_section.right_margin = Inches(1)
+
+def add_figure(doc, path, caption, width=7.0, landscape=False):
     if os.path.exists(path):
+        if landscape:
+            add_landscape_section(doc)
+            w = 10.0
+        else:
+            w = width
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = p.add_run()
-        run.add_picture(path, width=Inches(width))
+        run.add_picture(path, width=Inches(w))
         cap = doc.add_paragraph()
         cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = cap.add_run(caption)
         run.font.size = Pt(10)
         run.font.italic = True
         doc.add_paragraph()
+        if landscape:
+            add_portrait_section(doc)
 
 def add_table(doc, headers, rows, caption=None):
     if caption:
@@ -310,7 +334,8 @@ doc.add_paragraph(
 add_figure(doc, 'topX/plots/10_topX_stacked_by_disease.png',
            'Figure 21. Clonal dominance: fraction of total repertoire copies held by '
            'Top 10 (red), Top 11-100 (orange), Top 101-1000 (green), and remaining (blue) '
-           'clones per subject, faceted by disease category and sorted by Top 10 dominance.')
+           'clones per subject, faceted by disease category and sorted by Top 10 dominance.',
+           landscape=True)
 
 add_table(doc,
     ['Disease Category', 'n', 'Top 10 (%)', 'Top 100 (%)', 'Top 1000 (%)'],
@@ -332,7 +357,8 @@ doc.add_paragraph(
 )
 add_figure(doc, 'topX/plots/11_topX_stacked_by_age_disease.png',
            'Figure 22. Clonal dominance stacked bars per subject, faceted by disease '
-           'category and age group, sorted by Top 10 dominance.')
+           'category and age group, sorted by Top 10 dominance.',
+           landscape=True)
 
 doc.add_heading('4.3 Top-X Proportion by Sex and Disease', level=3)
 doc.add_paragraph(
@@ -340,7 +366,8 @@ doc.add_paragraph(
 )
 add_figure(doc, 'topX/plots/11b_topX_stacked_by_sex_disease.png',
            'Figure 23. Clonal dominance stacked bars per subject, faceted by disease '
-           'category and sex, sorted by Top 10 dominance.')
+           'category and sex, sorted by Top 10 dominance.',
+           landscape=True)
 
 add_table(doc,
     ['Disease Category', 'Sex', 'n', 'Top 10 (%)', 'Top 100 (%)'],
@@ -387,7 +414,8 @@ doc.add_paragraph(
 add_figure(doc, 'cdr3/plots/12_cdr3_length_by_disease.png',
            'Figure 24. Average CDR3 amino acid length per subject for Top 10 (red), '
            'Top 100 (orange), and Top 1000 (green) expanded clones, faceted by disease '
-           'category (columns) and clone tier (rows). Subjects sorted by Top 10 CDR3 length.')
+           'category (columns) and clone tier (rows). Subjects sorted by Top 10 CDR3 length.',
+           landscape=True)
 
 add_table(doc,
     ['Disease Category', 'n', 'Top 10 (AA)', 'Top 100 (AA)', 'Top 1000 (AA)'],
@@ -409,7 +437,8 @@ doc.add_paragraph(
 )
 add_figure(doc, 'cdr3/plots/13_cdr3_length_by_age_disease.png',
            'Figure 25. Average CDR3 AA length per subject, faceted by disease category, '
-           'age group (columns), and clone tier (rows).')
+           'age group (columns), and clone tier (rows).',
+           landscape=True)
 
 doc.add_heading('5.3 CDR3 Length by Sex and Disease', level=3)
 doc.add_paragraph(
@@ -417,7 +446,8 @@ doc.add_paragraph(
 )
 add_figure(doc, 'cdr3/plots/14_cdr3_length_by_sex_disease.png',
            'Figure 26. Average CDR3 AA length per subject, faceted by disease category, '
-           'sex (columns), and clone tier (rows).')
+           'sex (columns), and clone tier (rows).',
+           landscape=True)
 
 add_table(doc,
     ['Disease Category', 'Sex', 'n', 'Top 10 (AA)', 'Top 100 (AA)'],
