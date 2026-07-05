@@ -187,7 +187,7 @@ HAVING
 
 
      const results = [];
-      const [rows] = await connection.query(query, params);
+      const [rows] = await connection.query(query, { replacements: params });
       results.push(...rows);
 
 
