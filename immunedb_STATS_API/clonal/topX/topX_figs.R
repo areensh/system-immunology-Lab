@@ -3,7 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/cdr3")
+setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/topX")
 
 map_disease <- function(ds) {
   ds <- trimws(ds)
@@ -23,9 +23,10 @@ map_disease <- function(ds) {
 disease_order <- c("Severe", "Mild", "Moderate", "Recovered", "COVID Naive", "Healthy")
 
 tier_colors <- c(
-  "Top 10"   = "#d62728",
-  "Top 100"  = "#ff7f0e",
-  "Top 1000" = "#2ca02c"
+  "Top 10"       = "#d62728",
+  "Top 11-100"   = "#ff7f0e",
+  "Top 101-1000" = "#2ca02c",
+  "Remaining"    = "#aec7e8"
 )
 
 sex_colors <- c("Male" = "#4A90D9", "Female" = "#E85D75")
@@ -52,18 +53,20 @@ base_theme <- theme_minimal(base_size = 14) +
 
 theme_set(base_theme)
 
-# ---- Parse CDR3 JSON ----
-parse_cdr3 <- function(path) {
+# ---- Parse topX JSON ----
+parse_topX <- function(path) {
   raw <- fromJSON(path, simplifyDataFrame = FALSE)
   do.call(rbind, lapply(raw$Result, function(entry) {
     rep <- entry$repertoire
     keys <- trimws(rep$meta_key)
     vals <- trimws(rep$meta_value)
-    sv <- entry$statistics[[1]]$stats_value
+    stat <- entry$statistics[[1]]
+    total <- stat$total
+    sv <- stat$stats_value
 
-    top10_aa <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_10_AA")]]$count
-    top100_aa <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_100_AA")]]$count
-    top1000_aa <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_1000_AA")]]$count
+    top10 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_10")]]$count
+    top100 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_100")]]$count
+    top1000 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_1000")]]$count
 
     age_idx <- which(keys == "Age minimum")
     ds_idx <- which(keys == "disease_stage")
@@ -72,9 +75,13 @@ parse_cdr3 <- function(path) {
 
     data.frame(
       repertoire_id = rep$repertoire_id,
-      top10_aa = top10_aa,
-      top100_aa = top100_aa,
-      top1000_aa = top1000_aa,
+      total_copies = total,
+      top10 = top10,
+      top100 = top100,
+      top1000 = top1000,
+      top10_pct = round(top10 / total * 100, 2),
+      top100_pct = round(top100 / total * 100, 2),
+      top1000_pct = round(top1000 / total * 100, 2),
       age = if (length(age_idx)) as.numeric(vals[age_idx]) else NA_real_,
       disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
       sex = if (length(sex_idx)) vals[sex_idx] else NA_character_,
@@ -84,28 +91,15 @@ parse_cdr3 <- function(path) {
   }))
 }
 
-# Load disease+tissue (most subjects)
-df <- parse_cdr3("data/CDR3_tissue_disease.json")
+df <- parse_topX("data/topX_disease_tissue.json")
 
-# Add from sex file
-df_sex <- parse_cdr3("data/CDR3_sex_disease_tissue.json")
+df_sex <- parse_topX("data/topX_sex_disease_tissue.json")
 missing_sex <- df_sex %>% filter(!repertoire_id %in% df$repertoire_id)
 if (nrow(missing_sex) > 0) df <- bind_rows(df, missing_sex)
 
-# Add from age file
-df_age <- parse_cdr3("data/CDR3_age_disease_tissue.json")
-df <- df %>% left_join(df_age %>% select(repertoire_id, age) %>% distinct(),
-                        by = "repertoire_id", suffix = c("", ".age"))
-df$age <- ifelse(is.na(df$age), df$age.age, df$age)
-df$age.age <- NULL
+df_age <- parse_topX("data/topX_age_disease_tissue.json")
 
-# Merge sex from sex file
-df <- df %>% left_join(df_sex %>% select(repertoire_id, sex) %>% distinct(),
-                        by = "repertoire_id", suffix = c("", ".sex"))
-df$sex <- ifelse(is.na(df$sex), df$sex.sex, df$sex)
-df$sex.sex <- NULL
-
-cat("Total entries:", nrow(df), "\n")
+cat("Total rows before filtering:", nrow(df), "\n")
 
 # Study labels
 df$study <- sub("-.*", "", df$repertoire_id)
@@ -132,6 +126,24 @@ df <- df %>% filter(!repertoire_id %in% cd3_healthy)
 # Blood-only
 df <- df %>% filter(tissue %in% c("blood","PBL","Peripheral blood"))
 
+# Merge sex
+df_sex_blood <- df_sex %>%
+  filter(tissue %in% c("blood","PBL","Peripheral blood")) %>%
+  group_by(repertoire_id) %>%
+  summarise(sex = first(na.omit(sex)), .groups = "drop")
+df <- df %>% left_join(df_sex_blood, by = "repertoire_id", suffix = c("", ".sex"))
+df$sex <- ifelse(is.na(df$sex), df$sex.sex, df$sex)
+df$sex.sex <- NULL
+
+# Merge age
+df_age_blood <- df_age %>%
+  filter(tissue %in% c("blood","PBL","Peripheral blood")) %>%
+  group_by(repertoire_id) %>%
+  summarise(age = first(na.omit(age)), .groups = "drop")
+df <- df %>% left_join(df_age_blood, by = "repertoire_id", suffix = c("", ".age"))
+df$age <- ifelse(is.na(df$age), df$age.age, df$age)
+df$age.age <- NULL
+
 df$disease_cat <- factor(map_disease(df$disease_raw), levels = disease_order)
 df$sex_clean <- case_when(
   tolower(df$sex) %in% c("male") ~ "Male",
@@ -146,107 +158,109 @@ cat("After filtering:", nrow(df), "subjects\n")
 cat("\nPer disease:\n")
 df %>% count(disease_cat) %>% print()
 
-# Sort subjects by top10_aa within each disease category (descending)
+# ---- Compute stacked tiers (non-overlapping) ----
+df <- df %>% mutate(
+  tier_top10     = top10_pct,
+  tier_11_100    = top100_pct - top10_pct,
+  tier_101_1000  = top1000_pct - top100_pct,
+  tier_remaining = 100 - top1000_pct
+)
+
+# Sort subjects by top10_pct within each disease category
 df <- df %>%
-  arrange(disease_cat, desc(top10_aa)) %>%
+  arrange(disease_cat, desc(top10_pct)) %>%
   mutate(subj_order = row_number())
 
-# ---- Pivot to long for grouped bars ----
-make_cdr3_long <- function(data) {
+# ---- Pivot to stacked long format ----
+make_stacked_long <- function(data) {
   data %>%
     select(repertoire_id, subj_order, disease_cat, disease_raw, sex_clean, age_group,
-           top10_aa, top100_aa, top1000_aa) %>%
-    pivot_longer(cols = c(top10_aa, top100_aa, top1000_aa),
-                 names_to = "top_tier", values_to = "avg_cdr3_len") %>%
-    mutate(top_tier = case_when(
-      top_tier == "top10_aa" ~ "Top 10",
-      top_tier == "top100_aa" ~ "Top 100",
-      top_tier == "top1000_aa" ~ "Top 1000"
+           tier_top10, tier_11_100, tier_101_1000, tier_remaining) %>%
+    pivot_longer(cols = starts_with("tier_"),
+                 names_to = "tier", values_to = "pct") %>%
+    mutate(tier = case_when(
+      tier == "tier_top10"     ~ "Top 10",
+      tier == "tier_11_100"    ~ "Top 11-100",
+      tier == "tier_101_1000"  ~ "Top 101-1000",
+      tier == "tier_remaining" ~ "Remaining"
     )) %>%
-    mutate(top_tier = factor(top_tier, levels = c("Top 10", "Top 100", "Top 1000")))
+    mutate(tier = factor(tier, levels = c("Remaining", "Top 101-1000", "Top 11-100", "Top 10")))
 }
 
-df_long <- make_cdr3_long(df)
+df_stacked <- make_stacked_long(df)
 
 # ============================================================
-# Fig 12: CDR3 AA Length - Per-subject bars, faceted by tier (rows) and disease (cols)
+# Fig 10: Stacked Bar - TopX by Disease Category
 # ============================================================
-p12 <- ggplot(df_long,
-              aes(x = reorder(repertoire_id, subj_order), y = avg_cdr3_len, fill = top_tier)) +
+p10 <- ggplot(df_stacked,
+              aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
   geom_bar(stat = "identity", width = 0.9) +
-  facet_grid(top_tier ~ disease_cat, scales = "free_x", space = "free_x") +
+  facet_grid(~ disease_cat, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  scale_y_continuous(expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, max(df_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
-  labs(x = NULL, y = "Average CDR3 Length (AA)") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, 100)) +
+  labs(x = NULL, y = "Fraction of Total Copies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 5))
-ggsave("plots/12_cdr3_length_by_disease.png", p12, width = 22, height = 12, dpi = 200)
-cat("\nFigure 12 saved.\n")
+ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 22, height = 8, dpi = 200)
+cat("\nFigure 10 (stacked) saved.\n")
 
 # ============================================================
-# Fig 13: CDR3 AA Length - Per-subject bars by Age + Disease
+# Fig 11: Stacked Bar - TopX by Age Group + Disease
 # ============================================================
 df_age_plot <- df %>% filter(!is.na(age_group))
 df_age_plot <- df_age_plot %>%
-  arrange(disease_cat, age_group, desc(top10_aa)) %>%
+  arrange(disease_cat, age_group, desc(top10_pct)) %>%
   mutate(subj_order = row_number())
 
-df_age_long <- make_cdr3_long(df_age_plot)
+df_age_stacked <- make_stacked_long(df_age_plot)
 
-p13 <- ggplot(df_age_long,
-              aes(x = reorder(repertoire_id, subj_order), y = avg_cdr3_len, fill = top_tier)) +
+p11 <- ggplot(df_age_stacked,
+              aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
   geom_bar(stat = "identity", width = 0.9) +
-  facet_grid(top_tier ~ disease_cat + age_group, scales = "free_x", space = "free_x") +
+  facet_grid(~ disease_cat + age_group, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  scale_y_continuous(expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, max(df_age_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
-  labs(x = NULL, y = "Average CDR3 Length (AA)") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, 100)) +
+  labs(x = NULL, y = "Fraction of Total Copies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 3),
         strip.text = element_text(size = 7),
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/13_cdr3_length_by_age_disease.png", p13, width = 32, height = 12, dpi = 200)
-cat("Figure 13 saved.\n")
+ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 32, height = 8, dpi = 200)
+cat("Figure 11 (stacked by age) saved.\n")
 
 # ============================================================
-# Fig 14: CDR3 AA Length - Per-subject bars by Sex + Disease
+# Fig 11b: Stacked Bar - TopX by Sex + Disease
 # ============================================================
 df_sex_plot <- df %>% filter(!is.na(sex_clean))
 df_sex_plot <- df_sex_plot %>%
-  arrange(disease_cat, sex_clean, desc(top10_aa)) %>%
+  arrange(disease_cat, sex_clean, desc(top10_pct)) %>%
   mutate(subj_order = row_number())
 
-df_sex_long <- make_cdr3_long(df_sex_plot)
+df_sex_stacked <- make_stacked_long(df_sex_plot)
 
-p14 <- ggplot(df_sex_long,
-              aes(x = reorder(repertoire_id, subj_order), y = avg_cdr3_len, fill = top_tier)) +
+p11b <- ggplot(df_sex_stacked,
+               aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
   geom_bar(stat = "identity", width = 0.9) +
-  facet_grid(top_tier ~ disease_cat + sex_clean, scales = "free_x", space = "free_x") +
+  facet_grid(~ disease_cat + sex_clean, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  scale_y_continuous(expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, max(df_sex_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
-  labs(x = NULL, y = "Average CDR3 Length (AA)") +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, 100)) +
+  labs(x = NULL, y = "Fraction of Total Copies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 4),
         strip.text = element_text(size = 9),
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/14_cdr3_length_by_sex_disease.png", p14, width = 28, height = 12, dpi = 200)
-cat("Figure 14 saved.\n")
+ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 28, height = 8, dpi = 200)
+cat("Figure 11b (stacked by sex) saved.\n")
 
 # Summary stats
-cat("\n========== CDR3 AA LENGTH SUMMARY ==========\n")
+cat("\n========== TOP-X CLONE PROPORTION SUMMARY ==========\n")
 df %>%
   group_by(disease_cat) %>%
   summarise(
     n = n(),
-    median_top10 = round(median(top10_aa), 2),
-    median_top100 = round(median(top100_aa), 2),
-    median_top1000 = round(median(top1000_aa), 2),
+    median_top10_pct = round(median(top10_pct), 2),
+    median_top100_pct = round(median(top100_pct), 2),
+    median_top1000_pct = round(median(top1000_pct), 2),
     .groups = "drop"
   ) %>%
-  print()
-
-cat("\nBy sex:\n")
-df %>% filter(!is.na(sex_clean)) %>%
-  group_by(disease_cat, sex_clean) %>%
-  summarise(n = n(), median_top10 = round(median(top10_aa), 2),
-            median_top100 = round(median(top100_aa), 2), .groups = "drop") %>%
   print()
