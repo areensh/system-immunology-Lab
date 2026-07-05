@@ -19,44 +19,30 @@ for (const connection of connections) {
   let totaValue;
   let whereClauses = [];
     let SUMClauses =[];
-    let whereParams = [];
-    let sumParams = [];
+    let params = [];
 
     // Construct the WHERE clause dynamically — always use 'sm' alias
     KeyName.forEach((key, index) => {
         const value = ValueName[index];
         if (value === 'ALL') {
             whereClauses.push(`(sm.key = ? AND sm.value != 'NA')`);
-            whereParams.push(key);
+            params.push(key);
         } else {
             whereClauses.push(`(sm.key = ? AND sm.value = ?)`);
-            whereParams.push(key, value);
+            params.push(key, value);
         }
     });
     KeyName.forEach((key, index) => {
         SUMClauses.push(`(sm.key = ?)`);
-        sumParams.push(key);
+        params.push(key);
     });
 
-    // filtered_samples CTE: find sample_ids that match ALL requested metadata.
-    // This restricts computation to only samples from the correct tissue/disease/etc.
-    const filteredSamplesCTE = `
-    filtered_samples AS (
-      SELECT sm.sample_id
-      FROM sample_metadata sm
-      WHERE (${whereClauses.join(' OR ')})
-      GROUP BY sm.sample_id
-      HAVING (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
-    )`;
 
-
-// FIX v2: Filter clone_stats to only matching samples BEFORE aggregation,
-// so statistics are computed per-tissue (not across all tissues).
+// Aggregate per sample (not per subject) so each sample gets its own metadata.
+// This avoids mixing data from different tissues/timepoints within a subject,
+// and ensures the metadata labels (tissue, disease, etc.) are accurate per row.
 if (statistics[0] == "clone_size"){
-    // params: CTE(where+sum) + outer(where+sum)
-    const params = [...whereParams, ...sumParams, ...whereParams, ...sumParams];
     query = `
-      WITH ${filteredSamplesCTE}
       SELECT cs_agg.clone_id,
         MAX(cs_agg.count) AS count,
         cs_agg.subject_id,
@@ -64,10 +50,9 @@ if (statistics[0] == "clone_size"){
         GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS valuee,
         GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS keey
       FROM (
-        SELECT clone_id, SUM(unique_cnt) AS count, subject_id, MIN(sample_id) AS sample_id
+        SELECT clone_id, SUM(unique_cnt) AS count, subject_id, sample_id
         FROM clone_stats
-        WHERE sample_id IN (SELECT sample_id FROM filtered_samples)
-        GROUP BY subject_id, clone_id
+        GROUP BY sample_id, subject_id, clone_id
         HAVING count > 20
       ) cs_agg
       JOIN
@@ -77,68 +62,14 @@ if (statistics[0] == "clone_size"){
       WHERE
         ${whereClauses.join(' OR ')}
       GROUP BY
-        cs_agg.subject_id, cs_agg.clone_id, s.identifier
+        cs_agg.sample_id, cs_agg.subject_id, cs_agg.clone_id, s.identifier
       HAVING
         ( ${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')} > 0 )
     `;
-
-     const results = [];
-      const [rows] = await connection.query(query, params);
-      results.push(...rows);
-
-    const processedResults = results.map(row => ({
-      ...row,
-      values: row.valuee ? row.valuee.split(',') : [],
-      keys: row.keey ? row.keey.split(',') : []
-    }));
-
-            clonesBySubjects = processedResults.reduce((total, current)=>{
-            let subjectsArray = {...total}
-
-            currentSubject = current.subject_id
-
-            if (!total[currentSubject]) {
-              subjectsArray[currentSubject] = {
-                subject_id:currentSubject,
-                clones:[]
-              }
-            }
-
-            subjectsArray[currentSubject] = {
-              ...subjectsArray[currentSubject],
-              clones: [...subjectsArray[currentSubject].clones, current]
-            }
-             const data = [];
-             const count = Number(current.count)
-              totaValue = null
-              data.push({
-                  clone_id: current.clone_id,
-                  count: count
-                });
-                        payload = {
-              repertoire: {
-                repertoire_id: `${connection.config.database}-${ current.identifier}`,
-                meta_key: current.keys,
-                meta_value: current.values
-              },
-              statistics: [
-                {
-                  statistic_name: statistics[0],
-                  total: totaValue,
-                  stats_value: data,
-                },
-              ],
-            };
-             resultsFinal.push(payload);
-            return subjectsArray
-          },{})
 }
 
 if (statistics[0] == "clone_count" ){
-    // params: CTE(where+sum) + outer(where+sum)
-    const params = [...whereParams, ...sumParams, ...whereParams, ...sumParams];
     query = `
-      WITH ${filteredSamplesCTE}
       SELECT
         s.identifier,
         cs_agg.subject_id,
@@ -146,10 +77,9 @@ if (statistics[0] == "clone_count" ){
         GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS valuee,
         GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS keey
       FROM (
-        SELECT subject_id, COUNT(DISTINCT clone_id) AS count, MIN(sample_id) AS sample_id
+        SELECT subject_id, sample_id, COUNT(DISTINCT clone_id) AS count
         FROM clone_stats
-        WHERE sample_id IN (SELECT sample_id FROM filtered_samples)
-        GROUP BY subject_id
+        GROUP BY subject_id, sample_id
       ) cs_agg
       JOIN
         sample_metadata sm ON sm.sample_id = cs_agg.sample_id
@@ -158,79 +88,23 @@ if (statistics[0] == "clone_count" ){
       WHERE
         ${whereClauses.join(' OR ')}
       GROUP BY
-        cs_agg.subject_id, s.identifier
+        cs_agg.subject_id, cs_agg.sample_id, s.identifier
       HAVING
         (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0;` ;
-
-     const results = [];
-      const [rows] = await connection.query(query, params);
-      results.push(...rows);
-
-    const processedResults = results.map(row => ({
-      ...row,
-      values: row.valuee ? row.valuee.split(',') : [],
-      keys: row.keey ? row.keey.split(',') : []
-    }));
-
-            clonesBySubjects = processedResults.reduce((total, current)=>{
-            let subjectsArray = {...total}
-
-            currentSubject = current.subject_id
-
-            if (!total[currentSubject]) {
-              subjectsArray[currentSubject] = {
-                subject_id:currentSubject,
-                clones:[]
-              }
-            }
-
-            subjectsArray[currentSubject] = {
-              ...subjectsArray[currentSubject],
-              clones: [...subjectsArray[currentSubject].clones, current]
-            }
-             const data = [];
-             const count = Number(current.count)
-              totaValue = null
-              data.push({
-                  clone_id: "ALL",
-                  count: count
-                });
-                        payload = {
-              repertoire: {
-                repertoire_id: `${connection.config.database}-${ current.identifier}`,
-                meta_key: current.keys,
-                meta_value: current.values
-              },
-              statistics: [
-                {
-                  statistic_name: statistics[0],
-                  total: totaValue,
-                  stats_value: data,
-                },
-              ],
-            };
-             resultsFinal.push(payload);
-            return subjectsArray
-          },{})
 }
 
 
-// FIX v2: Filter clone_stats to only matching samples BEFORE ranking/aggregation.
 if (statistics[0] == "topX_clone_size_copies"){
-    // params: CTE(where+sum) + outer(where+sum)
-    const params = [...whereParams, ...sumParams, ...whereParams, ...sumParams];
     query = `
-    WITH ${filteredSamplesCTE},
-    ranked_clones AS (
+    WITH ranked_clones AS (
     SELECT
         sample_id,
         subject_id,
         total_cnt AS copies,
-        ROW_NUMBER() OVER (PARTITION BY subject_id ORDER BY total_cnt DESC) AS rn
+        ROW_NUMBER() OVER (PARTITION BY sample_id ORDER BY total_cnt DESC) AS rn
     FROM
         clone_stats
     WHERE clone_stats.functional = 1 AND sample_id IS NOT NULL
-      AND sample_id IN (SELECT sample_id FROM filtered_samples)
 
 ),
 top_10 AS (
@@ -243,7 +117,7 @@ top_10 AS (
     WHERE
         rn <= 10
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 ),
 top_100 AS (
     SELECT
@@ -255,7 +129,7 @@ top_100 AS (
     WHERE
         rn <= 100
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 ),
 top_1000 AS (
     SELECT
@@ -267,7 +141,7 @@ top_1000 AS (
     WHERE
         rn <= 1000
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 ),
 total_sum AS (
     SELECT
@@ -276,60 +150,53 @@ total_sum AS (
         SUM(total_cnt) AS total_sum
     FROM
         clone_stats
-    WHERE sample_id IN (SELECT sample_id FROM filtered_samples)
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 )
 SELECT
-    agg.subject_id,
-    agg.total_sum_10,
-    agg.total_sum_100,
-    agg.total_sum_1000,
-    agg.total_sum,
-    agg.identifier,
+    ts10.subject_id,
+    ts10.sum_10 AS total_sum_10,
+    ts100.sum_100 AS total_sum_100,
+    ts1000.sum_1000 AS total_sum_1000,
+    ts.total_sum AS total_sum,
+    s.identifier,
     GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ', ') AS keey,
     GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ', ') AS valuee
-FROM (
-    SELECT
-        ts10.subject_id,
-        SUM(ts10.sum_10) AS total_sum_10,
-        SUM(ts100.sum_100) AS total_sum_100,
-        SUM(ts1000.sum_1000) AS total_sum_1000,
-        SUM(ts.total_sum) AS total_sum,
-        s.identifier,
-        MIN(ts10.sample_id) AS sample_id
-    FROM
-        top_10 ts10
-    JOIN
-        top_100 ts100 ON ts10.subject_id = ts100.subject_id AND ts10.sample_id = ts100.sample_id
-    JOIN
-        top_1000 ts1000 ON ts10.subject_id = ts1000.subject_id AND ts10.sample_id = ts1000.sample_id
-    JOIN
-        total_sum ts ON ts10.subject_id = ts.subject_id AND ts10.sample_id = ts.sample_id
-    JOIN
-        subjects s ON ts10.subject_id = s.id
-    GROUP BY
-        ts10.subject_id, s.identifier
-) agg
+FROM
+    top_10 ts10
 JOIN
-    sample_metadata sm ON sm.sample_id = agg.sample_id
+    top_100 ts100 ON ts10.sample_id = ts100.sample_id
+JOIN
+    top_1000 ts1000 ON ts10.sample_id = ts1000.sample_id
+JOIN
+    total_sum ts ON ts10.sample_id = ts.sample_id
+JOIN
+    subjects s ON ts10.subject_id = s.id
+JOIN
+    sample_metadata sm ON ts10.sample_id = sm.sample_id
 WHERE
     (${whereClauses.join(' OR ')})
 GROUP BY
-    agg.subject_id, agg.identifier
+    ts10.subject_id, ts10.sample_id, s.identifier
 HAVING
     (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
 `;
+}
+
+
+
 
      const results = [];
       const [rows] = await connection.query(query, params);
       results.push(...rows);
+
 
     const processedResults = results.map(row => ({
       ...row,
       values: row.valuee ? row.valuee.split(',') : [],
       keys: row.keey ? row.keey.split(',') : []
     }));
+
 
             clonesBySubjects = processedResults.reduce((total, current)=>{
             let subjectsArray = {...total}
@@ -348,6 +215,16 @@ HAVING
               clones: [...subjectsArray[currentSubject].clones, current]
             }
              const data = [];
+             const count = Number(current.count)
+
+             if (statistics[0] =="clone_count"){
+              totaValue = null
+              data.push({
+                  clone_id: "ALL",
+                  count: count
+                });
+             }
+             if ( statistics[0] =="topX_clone_size_copies"){
               totaValue = Number(current.total_sum)
                data.push({
                   clone_id: "Top_10",
@@ -362,6 +239,14 @@ HAVING
                   clone_id: "Top_1000",
                   count: Number(current.total_sum_1000)
                 });
+             }
+             if ( statistics[0] =="clone_size"){
+              totaValue = null
+              data.push({
+                  clone_id: current.clone_id,
+                  count: count
+                });
+             }
                         payload = {
               repertoire: {
                 repertoire_id: `${connection.config.database}-${ current.identifier}`,
@@ -379,7 +264,6 @@ HAVING
              resultsFinal.push(payload);
             return subjectsArray
           },{})
-}
 
 
 
