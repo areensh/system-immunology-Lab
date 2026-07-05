@@ -38,8 +38,9 @@ for (const connection of connections) {
     });
 
 
-// FIX: Aggregate clone sizes in a subquery BEFORE joining sample_metadata,
-// so that multiple metadata rows per sample don't multiply the SUM.
+// Aggregate per sample (not per subject) so each sample gets its own metadata.
+// This avoids mixing data from different tissues/timepoints within a subject,
+// and ensures the metadata labels (tissue, disease, etc.) are accurate per row.
 if (statistics[0] == "clone_size"){
     query = `
       SELECT cs_agg.clone_id,
@@ -49,9 +50,9 @@ if (statistics[0] == "clone_size"){
         GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS valuee,
         GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS keey
       FROM (
-        SELECT clone_id, SUM(unique_cnt) AS count, subject_id, MIN(sample_id) AS sample_id
+        SELECT clone_id, SUM(unique_cnt) AS count, subject_id, sample_id
         FROM clone_stats
-        GROUP BY subject_id, clone_id
+        GROUP BY sample_id, subject_id, clone_id
         HAVING count > 20
       ) cs_agg
       JOIN
@@ -61,7 +62,7 @@ if (statistics[0] == "clone_size"){
       WHERE
         ${whereClauses.join(' OR ')}
       GROUP BY
-        cs_agg.subject_id, cs_agg.clone_id, s.identifier
+        cs_agg.sample_id, cs_agg.subject_id, cs_agg.clone_id, s.identifier
       HAVING
         ( ${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')} > 0 )
     `;
@@ -76,9 +77,9 @@ if (statistics[0] == "clone_count" ){
         GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS valuee,
         GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS keey
       FROM (
-        SELECT subject_id, COUNT(DISTINCT clone_id) AS count, MIN(sample_id) AS sample_id
+        SELECT subject_id, sample_id, COUNT(DISTINCT clone_id) AS count
         FROM clone_stats
-        GROUP BY subject_id
+        GROUP BY subject_id, sample_id
       ) cs_agg
       JOIN
         sample_metadata sm ON sm.sample_id = cs_agg.sample_id
@@ -87,13 +88,12 @@ if (statistics[0] == "clone_count" ){
       WHERE
         ${whereClauses.join(' OR ')}
       GROUP BY
-        cs_agg.subject_id, s.identifier
+        cs_agg.subject_id, cs_agg.sample_id, s.identifier
       HAVING
         (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0;` ;
 }
 
 
-// FIX: Aggregate sums in a subquery BEFORE joining sample_metadata.
 if (statistics[0] == "topX_clone_size_copies"){
     query = `
     WITH ranked_clones AS (
@@ -101,10 +101,10 @@ if (statistics[0] == "topX_clone_size_copies"){
         sample_id,
         subject_id,
         total_cnt AS copies,
-        ROW_NUMBER() OVER (PARTITION BY subject_id ORDER BY total_cnt DESC) AS rn
+        ROW_NUMBER() OVER (PARTITION BY sample_id ORDER BY total_cnt DESC) AS rn
     FROM
         clone_stats
-    WHERE clone_stats.functional = 1 and sample_id is not null
+    WHERE clone_stats.functional = 1 AND sample_id IS NOT NULL
 
 ),
 top_10 AS (
@@ -117,7 +117,7 @@ top_10 AS (
     WHERE
         rn <= 10
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 ),
 top_100 AS (
     SELECT
@@ -129,7 +129,7 @@ top_100 AS (
     WHERE
         rn <= 100
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 ),
 top_1000 AS (
     SELECT
@@ -141,7 +141,7 @@ top_1000 AS (
     WHERE
         rn <= 1000
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 ),
 total_sum AS (
     SELECT
@@ -151,45 +151,33 @@ total_sum AS (
     FROM
         clone_stats
     GROUP BY
-        subject_id, sample_id
+        sample_id, subject_id
 )
 SELECT
-    agg.subject_id,
-    agg.total_sum_10,
-    agg.total_sum_100,
-    agg.total_sum_1000,
-    agg.total_sum,
-    agg.identifier,
+    ts10.subject_id,
+    ts10.sum_10 AS total_sum_10,
+    ts100.sum_100 AS total_sum_100,
+    ts1000.sum_1000 AS total_sum_1000,
+    ts.total_sum AS total_sum,
+    s.identifier,
     GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ', ') AS keey,
     GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ', ') AS valuee
-FROM (
-    SELECT
-        ts10.subject_id,
-        SUM(ts10.sum_10) AS total_sum_10,
-        SUM(ts100.sum_100) AS total_sum_100,
-        SUM(ts1000.sum_1000) AS total_sum_1000,
-        SUM(ts.total_sum) AS total_sum,
-        s.identifier,
-        MIN(ts10.sample_id) AS sample_id
-    FROM
-        top_10 ts10
-    JOIN
-        top_100 ts100 ON ts10.subject_id = ts100.subject_id AND ts10.sample_id = ts100.sample_id
-    JOIN
-        top_1000 ts1000 ON ts10.subject_id = ts1000.subject_id AND ts10.sample_id = ts1000.sample_id
-    JOIN
-        total_sum ts ON ts10.subject_id = ts.subject_id AND ts10.sample_id = ts.sample_id
-    JOIN
-        subjects s ON ts10.subject_id = s.id
-    GROUP BY
-        ts10.subject_id, s.identifier
-) agg
+FROM
+    top_10 ts10
 JOIN
-    sample_metadata sm ON sm.sample_id = agg.sample_id
+    top_100 ts100 ON ts10.sample_id = ts100.sample_id
+JOIN
+    top_1000 ts1000 ON ts10.sample_id = ts1000.sample_id
+JOIN
+    total_sum ts ON ts10.sample_id = ts.sample_id
+JOIN
+    subjects s ON ts10.subject_id = s.id
+JOIN
+    sample_metadata sm ON ts10.sample_id = sm.sample_id
 WHERE
     (${whereClauses.join(' OR ')})
 GROUP BY
-    agg.subject_id, agg.identifier
+    ts10.subject_id, ts10.sample_id, s.identifier
 HAVING
     (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
 `;
@@ -199,7 +187,7 @@ HAVING
 
 
      const results = [];
-      const [rows] = await connection.query(query, { replacements: params });
+      const [rows] = await connection.query(query, params);
       results.push(...rows);
 
 
