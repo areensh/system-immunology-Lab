@@ -4,7 +4,8 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 import os
 
-os.chdir("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal")
+BASE = "/home/user/system-immunology-Lab/immunedb_STATS_API"
+os.chdir(BASE + "/clonal")
 
 doc = Document()
 
@@ -79,10 +80,95 @@ intro.add_run(
     'fingerprint grouping approach that correctly aggregates per-tissue data across samples.'
 )
 
+META = BASE + "/metadata/plots"
+
 # ============================================================
-# 1. CLONE SIZE
+# 0. METADATA / COHORT DESCRIPTION
 # ============================================================
-doc.add_heading('1. Clone Size Analysis', level=2)
+doc.add_heading('1. Cohort Metadata and Demographics', level=2)
+
+doc.add_paragraph(
+    'The study cohort was assembled from seven independent immune repertoire datasets '
+    'retrieved via the iReceptor Gateway: CD1 (Covid19_db3, n=51), CD2 (covid_db2, n=19), '
+    'CD3 (covid19, n=13), CVX1 (vaccine2, n=12), CVX2 (covid_vaccine_new, n=5), '
+    'HC1 (lp16_Igblast), and GT1 (sykesIgblast2020). After excluding control samples '
+    '(covid_vaccine_new-Fb, Water) and non-human subjects (lp16_Igblast-D159, D154, Hu-1), '
+    'and removing healthy subjects from the CD3 study (H3, H4, H8), the final analysis '
+    'included 103 subjects with peripheral blood data.'
+)
+
+doc.add_heading('1.1 Metadata Availability per Dataset', level=3)
+doc.add_paragraph(
+    'Figure 1 summarizes the metadata fields available across datasets. All datasets '
+    'provided disease stage and tissue information. Sex metadata was available for all '
+    'datasets except CD3 and HC1. Age data was available for CD1, CD2, CVX1, and CVX2.'
+)
+add_figure(doc, META + '/00_metadata_per_dataset.png',
+           'Figure 1. Metadata availability per dataset. Bar heights indicate the number '
+           'of subjects with each metadata type available.')
+
+doc.add_heading('1.2 Subjects per Dataset', level=3)
+doc.add_paragraph(
+    'Figure 2 shows the number of subjects contributed by each dataset. CD1 was the '
+    'largest contributor (51 subjects), followed by CD2 (19) and CD3 (13).'
+)
+add_figure(doc, META + '/01_subjects_per_dataset.png',
+           'Figure 2. Number of subjects per dataset.')
+
+doc.add_heading('1.3 Disease Category Distribution', level=3)
+doc.add_paragraph(
+    'Disease labels from individual studies were harmonized into six categories: '
+    'Severe (n=27), Mild (n=41), Moderate (n=9), Recovered (n=12), COVID Naive (n=8), '
+    'and Healthy (n=6). The Mild category was the most represented, combining subjects '
+    'labeled as "mild" (CD1) and "non-severe" (CD3). The Severe category included '
+    'subjects with "severe" (CD1, CD3) and "Early phase hypoxaemia" (CD2) labels. '
+    'The Moderate category comprised CD2 subjects with "Early phase-Stable" or '
+    '"Early phase-Improving" labels.'
+)
+add_figure(doc, META + '/02a_subjects_per_disease_category.png',
+           'Figure 3. Number of subjects per harmonized disease category.')
+
+doc.add_heading('1.4 Sex Distribution', level=3)
+doc.add_paragraph(
+    'Among subjects with available sex metadata (n=86), 52 were male and 34 were female. '
+    'Fourteen subjects (CD3 and HC1 studies) lacked sex annotation.'
+)
+add_figure(doc, META + '/02b_subjects_per_sex.png',
+           'Figure 4. Sex distribution across the cohort.')
+
+doc.add_heading('1.5 Age Distribution', level=3)
+doc.add_paragraph(
+    'Age data was available for 86 subjects (median 48 years, range 18-87). '
+    'The age distribution was roughly uniform across the 31-50 and 51-65 groups, '
+    'with fewer subjects in the youngest (18-30) and oldest (66+) brackets.'
+)
+add_figure(doc, META + '/02c_age_distribution.png',
+           'Figure 5. Age distribution histogram. Red dashed line indicates the median age.')
+add_figure(doc, META + '/02d_subjects_per_age_group.png',
+           'Figure 6. Number of subjects per age group.')
+
+doc.add_heading('1.6 Cross-tabulations', level=3)
+doc.add_paragraph(
+    'Figures 7-10 show the relationships between disease category, sex, age, and study. '
+    'The sex ratio was relatively balanced within each disease category. Age distributions '
+    'varied across disease groups, with Moderate and Recovered subjects tending to be older.'
+)
+add_figure(doc, META + '/03a_disease_by_sex.png',
+           'Figure 7. Disease category by sex.')
+add_figure(doc, META + '/03b_disease_by_age_group.png',
+           'Figure 8. Disease category by age group.')
+add_figure(doc, META + '/03c_study_by_disease.png',
+           'Figure 9. Study composition by disease category.')
+add_figure(doc, META + '/03d_age_by_disease_boxplot.png',
+           'Figure 10. Age distribution by disease category (box plots with individual data points).')
+add_figure(doc, META + '/03e_heatmap_disease_age_sex.png',
+           'Figure 11. Heatmap of subject counts by disease category, age group, and sex.')
+
+# ============================================================
+# 2. CLONE SIZE
+# ============================================================
+doc.add_page_break()
+doc.add_heading('2. Clone Size Analysis', level=2)
 
 doc.add_paragraph(
     'Clone size, defined as the number of sequence copies per clone, reflects the degree '
@@ -90,67 +176,67 @@ doc.add_paragraph(
     'expanded clones (clones with size > 20) and the median clone size per subject.'
 )
 
-doc.add_heading('1.1 Number of Expanded Clones by Disease Category', level=3)
+doc.add_heading('2.1 Number of Expanded Clones by Disease Category', level=3)
 doc.add_paragraph(
-    'Figure 1 shows the number of expanded clones (size > 20) across disease categories. '
+    'Figure 12 shows the number of expanded clones (size > 20) across disease categories. '
     'COVID Naive and Healthy subjects showed higher counts of expanded clones compared to '
     'acute disease groups, suggesting pre-existing clonal expansions unrelated to SARS-CoV-2 infection.'
 )
 add_figure(doc, 'clone_size/plots/01_n_expanded_clones_by_disease.png',
-           'Figure 1. Number of expanded clones (size > 20) by disease category. '
+           'Figure 12. Number of expanded clones (size > 20) by disease category. '
            'Box plots show median and IQR; red diamond indicates mean with SD error bars. '
            'Points are colored by original disease label.')
 
-doc.add_heading('1.2 Median Clone Size by Disease Category', level=3)
+doc.add_heading('2.2 Median Clone Size by Disease Category', level=3)
 doc.add_paragraph(
-    'Figure 2 presents the median clone size per subject across disease categories. '
+    'Figure 13 presents the median clone size per subject across disease categories. '
     'The median clone size was relatively uniform across groups, with COVID Naive subjects '
     'showing slightly elevated values.'
 )
 add_figure(doc, 'clone_size/plots/02_median_clone_size_by_disease.png',
-           'Figure 2. Median clone size per subject by disease category.')
+           'Figure 13. Median clone size per subject by disease category.')
 
-doc.add_heading('1.3 Clone Size by Age and Disease', level=3)
+doc.add_heading('2.3 Clone Size by Age and Disease', level=3)
 doc.add_paragraph(
-    'Figures 3 and 4 examine the number of expanded clones and median clone size '
+    'Figures 14 and 15 examine the number of expanded clones and median clone size '
     'stratified by age group within each disease category.'
 )
 add_figure(doc, 'clone_size/plots/03_clone_count_by_age_disease.png',
-           'Figure 3. Number of expanded clones by age group, faceted by disease category.')
+           'Figure 14. Number of expanded clones by age group, faceted by disease category.')
 add_figure(doc, 'clone_size/plots/05_clone_size_by_age_disease.png',
-           'Figure 4. Median clone size by age group, faceted by disease category.')
+           'Figure 15. Median clone size by age group, faceted by disease category.')
 
-doc.add_heading('1.4 Clone Size by Sex and Disease', level=3)
+doc.add_heading('2.4 Clone Size by Sex and Disease', level=3)
 doc.add_paragraph(
-    'Figures 5 and 6 examine sex-based differences in clonal expansion within each '
+    'Figures 16 and 17 examine sex-based differences in clonal expansion within each '
     'disease category.'
 )
 add_figure(doc, 'clone_size/plots/04_clone_count_by_sex_disease.png',
-           'Figure 5. Number of expanded clones by sex, faceted by disease category.')
+           'Figure 16. Number of expanded clones by sex, faceted by disease category.')
 add_figure(doc, 'clone_size/plots/06_clone_size_by_sex_disease.png',
-           'Figure 6. Median clone size by sex, faceted by disease category.')
+           'Figure 17. Median clone size by sex, faceted by disease category.')
 
 # ============================================================
 # 2. CLONE COUNT (CLONAL DIVERSITY)
 # ============================================================
 doc.add_page_break()
-doc.add_heading('2. Clonal Diversity (Clone Count)', level=2)
+doc.add_heading('3. Clonal Diversity (Clone Count)', level=2)
 
 doc.add_paragraph(
     'Clone count, representing the number of unique clones per subject, serves as a measure '
     'of clonal diversity. Higher clone counts indicate greater repertoire diversity.'
 )
 
-doc.add_heading('2.1 Clone Count by Disease Category', level=3)
+doc.add_heading('3.1 Clone Count by Disease Category', level=3)
 doc.add_paragraph(
-    'Figure 7 shows the distribution of unique clone counts across disease categories. '
+    'Figure 18 shows the distribution of unique clone counts across disease categories. '
     'Recovered and COVID Naive subjects exhibited markedly higher clone counts '
     '(median 21,526 and 16,682, respectively) compared to Mild (2,478) and Severe (5,089) '
     'groups, suggesting repertoire expansion following infection or vaccination. '
     'The Healthy group showed high variability (range 650-61,136).'
 )
 add_figure(doc, 'clone_count/plots/07_clone_count_by_disease.png',
-           'Figure 7. Clone count (number of unique clones) by disease category. '
+           'Figure 18. Clone count (number of unique clones) by disease category. '
            'Box plots show median and IQR; red diamond indicates mean with SD error bars.')
 
 add_table(doc,
@@ -166,21 +252,21 @@ add_table(doc,
     caption='Table 1. Clone count summary statistics by disease category.'
 )
 
-doc.add_heading('2.2 Clone Count by Age Group and Disease', level=3)
+doc.add_heading('3.2 Clone Count by Age Group and Disease', level=3)
 doc.add_paragraph(
-    'Figure 8 displays clone count distributions stratified by age group within each '
+    'Figure 19 displays clone count distributions stratified by age group within each '
     'disease category.'
 )
 add_figure(doc, 'clone_count/plots/08_clone_count_by_age_disease.png',
-           'Figure 8. Clone count by age group, faceted by disease category.')
+           'Figure 19. Clone count by age group, faceted by disease category.')
 
-doc.add_heading('2.3 Clone Count by Sex and Disease', level=3)
+doc.add_heading('3.3 Clone Count by Sex and Disease', level=3)
 doc.add_paragraph(
-    'Figure 9 shows clone count distributions by sex within each disease category. '
+    'Figure 20 shows clone count distributions by sex within each disease category. '
     'No substantial sex-based differences were observed across disease groups.'
 )
 add_figure(doc, 'clone_count/plots/09_clone_count_by_sex_disease.png',
-           'Figure 9. Clone count by sex, faceted by disease category.')
+           'Figure 20. Clone count by sex, faceted by disease category.')
 
 add_table(doc,
     ['Disease Category', 'Sex', 'n', 'Median Clone Count'],
@@ -205,7 +291,7 @@ add_table(doc,
 # 3. TOP-X CLONE PROPORTION
 # ============================================================
 doc.add_page_break()
-doc.add_heading('3. Top-X Clone Proportion Analysis', level=2)
+doc.add_heading('4. Top-X Clone Proportion Analysis', level=2)
 
 doc.add_paragraph(
     'The proportion of total repertoire copies held by the top expanded clones '
@@ -213,16 +299,16 @@ doc.add_paragraph(
     'Higher proportions indicate that a small number of clones dominate the repertoire.'
 )
 
-doc.add_heading('3.1 Top-X Proportion by Disease Category', level=3)
+doc.add_heading('4.1 Top-X Proportion by Disease Category', level=3)
 doc.add_paragraph(
-    'Figure 10 shows the proportion of total copies captured by the top 10, 100, and 1000 '
+    'Figure 21 shows the proportion of total copies captured by the top 10, 100, and 1000 '
     'clones across disease categories. Healthy subjects showed notably high Top 1000 '
     'concentration (median 99.3%), indicating that nearly all copies belong to the top 1000 '
     'clones, consistent with a repertoire dominated by relatively few expanded clones. '
     'Moderate disease subjects showed the highest Top 10 dominance (median 23.1%).'
 )
 add_figure(doc, 'topX/plots/10_topX_stacked_by_disease.png',
-           'Figure 10. Clonal dominance: fraction of total repertoire copies held by '
+           'Figure 21. Clonal dominance: fraction of total repertoire copies held by '
            'Top 10 (red), Top 11-100 (orange), Top 101-1000 (green), and remaining (blue) '
            'clones per subject, faceted by disease category and sorted by Top 10 dominance.')
 
@@ -239,21 +325,21 @@ add_table(doc,
     caption='Table 3. Median proportion of total copies held by top-X clones.'
 )
 
-doc.add_heading('3.2 Top-X Proportion by Age and Disease', level=3)
+doc.add_heading('4.2 Top-X Proportion by Age and Disease', level=3)
 doc.add_paragraph(
-    'Figure 11 presents the top-X clone proportions stratified by age group within each '
+    'Figure 22 presents the top-X clone proportions stratified by age group within each '
     'disease category.'
 )
 add_figure(doc, 'topX/plots/11_topX_stacked_by_age_disease.png',
-           'Figure 11. Clonal dominance stacked bars per subject, faceted by disease '
+           'Figure 22. Clonal dominance stacked bars per subject, faceted by disease '
            'category and age group, sorted by Top 10 dominance.')
 
-doc.add_heading('3.3 Top-X Proportion by Sex and Disease', level=3)
+doc.add_heading('4.3 Top-X Proportion by Sex and Disease', level=3)
 doc.add_paragraph(
-    'Figure 12 shows top-X clone proportions by sex within each disease category.'
+    'Figure 23 shows top-X clone proportions by sex within each disease category.'
 )
 add_figure(doc, 'topX/plots/11b_topX_stacked_by_sex_disease.png',
-           'Figure 12. Clonal dominance stacked bars per subject, faceted by disease '
+           'Figure 23. Clonal dominance stacked bars per subject, faceted by disease '
            'category and sex, sorted by Top 10 dominance.')
 
 add_table(doc,
@@ -279,7 +365,7 @@ add_table(doc,
 # 4. CDR3 AA LENGTH
 # ============================================================
 doc.add_page_break()
-doc.add_heading('4. CDR3 Amino Acid Length Analysis', level=2)
+doc.add_heading('5. CDR3 Amino Acid Length Analysis', level=2)
 
 doc.add_paragraph(
     'The CDR3 (Complementarity-Determining Region 3) amino acid length is a key structural '
@@ -289,9 +375,9 @@ doc.add_paragraph(
     'of dominant clones.'
 )
 
-doc.add_heading('4.1 CDR3 Length by Disease Category', level=3)
+doc.add_heading('5.1 CDR3 Length by Disease Category', level=3)
 doc.add_paragraph(
-    'Figure 13 shows the average CDR3 AA length of the top expanded clones across disease '
+    'Figure 24 shows the average CDR3 AA length of the top expanded clones across disease '
     'categories. Severe cases exhibited the longest CDR3 lengths in Top 10 clones '
     '(median 17.7 AA), while Healthy subjects showed the shortest (median 13.8 AA). '
     'This difference was most pronounced in the Top 10 tier and diminished progressively '
@@ -299,7 +385,7 @@ doc.add_paragraph(
     'in severe disease tend to use longer CDR3 regions.'
 )
 add_figure(doc, 'cdr3/plots/12_cdr3_length_by_disease.png',
-           'Figure 13. Average CDR3 amino acid length per subject for Top 10 (red), '
+           'Figure 24. Average CDR3 amino acid length per subject for Top 10 (red), '
            'Top 100 (orange), and Top 1000 (green) expanded clones, faceted by disease '
            'category (columns) and clone tier (rows). Subjects sorted by Top 10 CDR3 length.')
 
@@ -316,21 +402,21 @@ add_table(doc,
     caption='Table 5. Median average CDR3 AA length of top-X clones by disease category.'
 )
 
-doc.add_heading('4.2 CDR3 Length by Age and Disease', level=3)
+doc.add_heading('5.2 CDR3 Length by Age and Disease', level=3)
 doc.add_paragraph(
-    'Figure 14 shows CDR3 AA length distributions stratified by age group within each '
+    'Figure 25 shows CDR3 AA length distributions stratified by age group within each '
     'disease category.'
 )
 add_figure(doc, 'cdr3/plots/13_cdr3_length_by_age_disease.png',
-           'Figure 14. Average CDR3 AA length per subject, faceted by disease category, '
+           'Figure 25. Average CDR3 AA length per subject, faceted by disease category, '
            'age group (columns), and clone tier (rows).')
 
-doc.add_heading('4.3 CDR3 Length by Sex and Disease', level=3)
+doc.add_heading('5.3 CDR3 Length by Sex and Disease', level=3)
 doc.add_paragraph(
-    'Figure 15 presents CDR3 AA length distributions by sex within each disease category.'
+    'Figure 26 presents CDR3 AA length distributions by sex within each disease category.'
 )
 add_figure(doc, 'cdr3/plots/14_cdr3_length_by_sex_disease.png',
-           'Figure 15. Average CDR3 AA length per subject, faceted by disease category, '
+           'Figure 26. Average CDR3 AA length per subject, faceted by disease category, '
            'sex (columns), and clone tier (rows).')
 
 add_table(doc,
