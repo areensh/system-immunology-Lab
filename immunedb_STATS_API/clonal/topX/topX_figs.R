@@ -200,8 +200,8 @@ p10 <- ggplot(df_stacked,
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 5))
-ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 22, height = 8, dpi = 200)
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 18, height = 7, dpi = 300)
 cat("\nFigure 10 (stacked) saved.\n")
 
 # ============================================================
@@ -222,10 +222,10 @@ p11 <- ggplot(df_age_stacked,
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 3),
-        strip.text = element_text(size = 7),
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        strip.text = element_text(size = 9),
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 32, height = 8, dpi = 200)
+ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 24, height = 7, dpi = 300)
 cat("Figure 11 (stacked by age) saved.\n")
 
 # ============================================================
@@ -246,10 +246,10 @@ p11b <- ggplot(df_sex_stacked,
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 4),
-        strip.text = element_text(size = 9),
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        strip.text = element_text(size = 10),
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 28, height = 8, dpi = 200)
+ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 22, height = 7, dpi = 300)
 cat("Figure 11b (stacked by sex) saved.\n")
 
 # Summary stats
