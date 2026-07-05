@@ -37,149 +37,86 @@ for (const connection of connections) {
         params.push(key);
     });
 
+    // sample_meta CTE: one row per sample with a metadata fingerprint.
+    // Samples with identical metadata for all requested keys share the same fingerprint.
+    // Grouping by (subject_id, meta_fp) merges those samples so COUNT(DISTINCT)
+    // and SUM work correctly without double-counting across samples that share metadata.
+    const sampleMetaCTE = `
+    sample_meta AS (
+      SELECT sm.sample_id,
+        GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS meta_values,
+        GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS meta_keys
+      FROM sample_metadata sm
+      WHERE (${whereClauses.join(' OR ')})
+      GROUP BY sm.sample_id
+      HAVING (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
+    )`;
 
-// Aggregate per sample (not per subject) so each sample gets its own metadata.
-// This avoids mixing data from different tissues/timepoints within a subject,
-// and ensures the metadata labels (tissue, disease, etc.) are accurate per row.
+
 if (statistics[0] == "clone_size"){
     query = `
-      SELECT cs_agg.clone_id,
-        MAX(cs_agg.count) AS count,
-        cs_agg.subject_id,
+      WITH ${sampleMetaCTE}
+      SELECT cs.clone_id,
+        SUM(cs.unique_cnt) AS count,
+        cs.subject_id,
         s.identifier,
-        GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS valuee,
-        GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS keey
-      FROM (
-        SELECT clone_id, SUM(unique_cnt) AS count, subject_id, sample_id
-        FROM clone_stats
-        GROUP BY sample_id, subject_id, clone_id
-        HAVING count > 20
-      ) cs_agg
-      JOIN
-        sample_metadata sm ON sm.sample_id = cs_agg.sample_id
-      JOIN
-        subjects s ON cs_agg.subject_id = s.id
-      WHERE
-        ${whereClauses.join(' OR ')}
+        sma.meta_values AS valuee,
+        sma.meta_keys AS keey
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      JOIN subjects s ON cs.subject_id = s.id
       GROUP BY
-        cs_agg.sample_id, cs_agg.subject_id, cs_agg.clone_id, s.identifier
+        cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys, s.identifier
       HAVING
-        ( ${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')} > 0 )
+        SUM(cs.unique_cnt) > 20
     `;
 }
 
 if (statistics[0] == "clone_count" ){
     query = `
+      WITH ${sampleMetaCTE}
       SELECT
         s.identifier,
-        cs_agg.subject_id,
-        MAX(cs_agg.count) AS count,
-        GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS valuee,
-        GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS keey
-      FROM (
-        SELECT subject_id, sample_id, COUNT(DISTINCT clone_id) AS count
-        FROM clone_stats
-        GROUP BY subject_id, sample_id
-      ) cs_agg
-      JOIN
-        sample_metadata sm ON sm.sample_id = cs_agg.sample_id
-      JOIN
-        subjects s ON cs_agg.subject_id = s.id
-      WHERE
-        ${whereClauses.join(' OR ')}
+        cs.subject_id,
+        COUNT(DISTINCT cs.clone_id) AS count,
+        sma.meta_values AS valuee,
+        sma.meta_keys AS keey
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      JOIN subjects s ON cs.subject_id = s.id
       GROUP BY
-        cs_agg.subject_id, cs_agg.sample_id, s.identifier
-      HAVING
-        (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0;` ;
+        cs.subject_id, sma.meta_values, sma.meta_keys, s.identifier;` ;
 }
 
 
 if (statistics[0] == "topX_clone_size_copies"){
     query = `
-    WITH ranked_clones AS (
+    WITH ${sampleMetaCTE},
+    clone_totals AS (
+      SELECT cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys,
+        SUM(cs.total_cnt) AS total_copies
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      WHERE cs.functional = 1
+      GROUP BY cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys
+    ),
+    ranked_clones AS (
+      SELECT subject_id, clone_id, meta_values, meta_keys, total_copies,
+        ROW_NUMBER() OVER (PARTITION BY subject_id, meta_values ORDER BY total_copies DESC) AS rn
+      FROM clone_totals
+    )
     SELECT
-        sample_id,
-        subject_id,
-        total_cnt AS copies,
-        ROW_NUMBER() OVER (PARTITION BY sample_id ORDER BY total_cnt DESC) AS rn
-    FROM
-        clone_stats
-    WHERE clone_stats.functional = 1 AND sample_id IS NOT NULL
-
-),
-top_10 AS (
-    SELECT
-        sample_id,
-        subject_id,
-        SUM(copies) AS sum_10
-    FROM
-        ranked_clones
-    WHERE
-        rn <= 10
-    GROUP BY
-        sample_id, subject_id
-),
-top_100 AS (
-    SELECT
-        sample_id,
-        subject_id,
-        SUM(copies) AS sum_100
-    FROM
-        ranked_clones
-    WHERE
-        rn <= 100
-    GROUP BY
-        sample_id, subject_id
-),
-top_1000 AS (
-    SELECT
-        sample_id,
-        subject_id,
-        SUM(copies) AS sum_1000
-    FROM
-        ranked_clones
-    WHERE
-        rn <= 1000
-    GROUP BY
-        sample_id, subject_id
-),
-total_sum AS (
-    SELECT
-        sample_id,
-        subject_id,
-        SUM(total_cnt) AS total_sum
-    FROM
-        clone_stats
-    GROUP BY
-        sample_id, subject_id
-)
-SELECT
-    ts10.subject_id,
-    MAX(ts10.sum_10) AS total_sum_10,
-    MAX(ts100.sum_100) AS total_sum_100,
-    MAX(ts1000.sum_1000) AS total_sum_1000,
-    MAX(ts.total_sum) AS total_sum,
-    s.identifier,
-    GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ', ') AS keey,
-    GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ', ') AS valuee
-FROM
-    top_10 ts10
-JOIN
-    top_100 ts100 ON ts10.sample_id = ts100.sample_id
-JOIN
-    top_1000 ts1000 ON ts10.sample_id = ts1000.sample_id
-JOIN
-    total_sum ts ON ts10.sample_id = ts.sample_id
-JOIN
-    subjects s ON ts10.subject_id = s.id
-JOIN
-    sample_metadata sm ON ts10.sample_id = sm.sample_id
-WHERE
-    (${whereClauses.join(' OR ')})
-GROUP BY
-    ts10.subject_id, ts10.sample_id, s.identifier
-HAVING
-    (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
+      rc.subject_id,
+      SUM(CASE WHEN rn <= 10 THEN total_copies ELSE 0 END) AS total_sum_10,
+      SUM(CASE WHEN rn <= 100 THEN total_copies ELSE 0 END) AS total_sum_100,
+      SUM(CASE WHEN rn <= 1000 THEN total_copies ELSE 0 END) AS total_sum_1000,
+      SUM(total_copies) AS total_sum,
+      s.identifier,
+      rc.meta_keys AS keey,
+      rc.meta_values AS valuee
+    FROM ranked_clones rc
+    JOIN subjects s ON rc.subject_id = s.id
+    GROUP BY rc.subject_id, rc.meta_values, rc.meta_keys, s.identifier
 `;
 }
 

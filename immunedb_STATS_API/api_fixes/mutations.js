@@ -36,99 +36,50 @@ for (const connection of connections) {
         params.push(key);
     });
 
+    const sampleMetaCTE = `
+    sample_meta AS (
+      SELECT sm.sample_id,
+        GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ',') AS meta_values,
+        GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ',') AS meta_keys
+      FROM sample_metadata sm
+      WHERE (${whereClauses.join(' OR ')})
+      GROUP BY sm.sample_id
+      HAVING (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
+    )`;
 
-// FIX: Aggregate averages in a subquery BEFORE joining sample_metadata.
+
 if (statistics[0] == "topX_mutation_level"){
     query = `
-  WITH ranked_clones AS (
+    WITH ${sampleMetaCTE},
+    clone_mutations AS (
+      SELECT cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys,
+        JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) AS mutation_cnt,
+        SUM(cs.total_cnt) AS total_copies
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
+`
+    if (connection.config.database == "sykesIgblast"){
+        query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `
+    }
+    query += `
+      GROUP BY cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys
+    ),
+    ranked_clones AS (
+      SELECT *, ROW_NUMBER() OVER (PARTITION BY subject_id, meta_values ORDER BY total_copies DESC) AS rn
+      FROM clone_mutations
+    )
     SELECT
-        clone_id,
-        subject_id,
-        sample_id,
-        JSON_LENGTH(JSON_EXTRACT(mutations, '$.positions')) as mutation_cnt ,
-       total_cnt,
-        ROW_NUMBER() OVER (PARTITION BY subject_id ORDER BY total_cnt DESC) AS rn
-    FROM
-        clone_stats where sample_id is not null and clone_stats.functional =1 `
-        if (connection.config.database == "sykesIgblast"){
-    query += `AND clone_stats.subject_id  not IN (12,13,11,14,15,22,19,18) `
-}
-
-query +=`),
-top_10 AS (
-    SELECT
-        clone_id,
-        sample_id,
-        subject_id,
-        avg(mutation_cnt) AS mutations_10
-    FROM
-        ranked_clones
-    WHERE
-        rn <= 10
-    GROUP BY
-       subject_id, clone_id, sample_id
-),
-top_100 AS (
-    SELECT
-         clone_id,
-         sample_id,
-        subject_id,
-         avg(mutation_cnt) AS mutations_100
-    FROM
-        ranked_clones
-    WHERE
-        rn <= 100
-   GROUP BY
-       subject_id, clone_id, sample_id
-),
-top_1000 AS (
-    SELECT
-       clone_id,
-       sample_id,
-        subject_id,
-        avg(mutation_cnt) AS mutations_1000
-    FROM
-        ranked_clones
-    WHERE
-        rn <= 1000
-    GROUP BY
-       subject_id, clone_id, sample_id
-)
-SELECT
-    agg.subject_id,
-    agg.total_avg_10,
-    agg.total_avg_100,
-    agg.total_avg_1000,
-    agg.identifier,
-    GROUP_CONCAT(DISTINCT sm.key ORDER BY sm.key SEPARATOR ', ') AS keey,
-    GROUP_CONCAT(DISTINCT sm.value ORDER BY sm.key SEPARATOR ', ') AS valuee
-FROM (
-    SELECT
-        ts10.subject_id,
-        avg(ts10.mutations_10) AS total_avg_10,
-        avg(ts100.mutations_100) AS total_avg_100,
-        avg(ts1000.mutations_1000) AS total_avg_1000,
-        s.identifier,
-        MIN(ts10.sample_id) AS sample_id
-    FROM
-        top_10 ts10
-    JOIN
-        top_100 ts100 ON ts10.subject_id = ts100.subject_id AND ts10.sample_id = ts100.sample_id
-    JOIN
-        top_1000 ts1000 ON ts10.subject_id = ts1000.subject_id AND ts10.sample_id = ts1000.sample_id
-    JOIN
-        subjects s ON ts10.subject_id = s.id
-    GROUP BY
-        ts10.subject_id, s.identifier
-) agg
-JOIN
-    sample_metadata sm ON sm.sample_id = agg.sample_id
-WHERE
-    (${whereClauses.join(' OR ')})
-GROUP BY
-    agg.subject_id, agg.identifier
-HAVING
-    (${SUMClauses.map(clause => `SUM(${clause})`).join(' > 0 AND ')}) > 0
+      rc.subject_id,
+      AVG(CASE WHEN rn <= 10 THEN mutation_cnt END) AS total_avg_10,
+      AVG(CASE WHEN rn <= 100 THEN mutation_cnt END) AS total_avg_100,
+      AVG(CASE WHEN rn <= 1000 THEN mutation_cnt END) AS total_avg_1000,
+      s.identifier,
+      rc.meta_keys AS keey,
+      rc.meta_values AS valuee
+    FROM ranked_clones rc
+    JOIN subjects s ON rc.subject_id = s.id
+    GROUP BY rc.subject_id, rc.meta_values, rc.meta_keys, s.identifier
 `;
 }
 
