@@ -221,9 +221,10 @@ doc.add_paragraph(
     'clones, consistent with a repertoire dominated by relatively few expanded clones. '
     'Moderate disease subjects showed the highest Top 10 dominance (median 23.1%).'
 )
-add_figure(doc, 'topX/plots/10_topX_proportion_by_disease.png',
-           'Figure 10. Proportion of total copies held by Top 10, Top 100, and Top 1000 '
-           'clones, by disease category.')
+add_figure(doc, 'topX/plots/10_topX_stacked_by_disease.png',
+           'Figure 10. Clonal dominance: fraction of total repertoire copies held by '
+           'Top 10 (red), Top 11-100 (orange), Top 101-1000 (green), and remaining (blue) '
+           'clones per subject, faceted by disease category and sorted by Top 10 dominance.')
 
 add_table(doc,
     ['Disease Category', 'n', 'Top 10 (%)', 'Top 100 (%)', 'Top 1000 (%)'],
@@ -243,15 +244,17 @@ doc.add_paragraph(
     'Figure 11 presents the top-X clone proportions stratified by age group within each '
     'disease category.'
 )
-add_figure(doc, 'topX/plots/11_topX_proportion_by_age_disease.png',
-           'Figure 11. Top-X clone proportion by age group, faceted by disease category.')
+add_figure(doc, 'topX/plots/11_topX_stacked_by_age_disease.png',
+           'Figure 11. Clonal dominance stacked bars per subject, faceted by disease '
+           'category and age group, sorted by Top 10 dominance.')
 
 doc.add_heading('3.3 Top-X Proportion by Sex and Disease', level=3)
 doc.add_paragraph(
     'Figure 12 shows top-X clone proportions by sex within each disease category.'
 )
-add_figure(doc, 'topX/plots/11b_topX_proportion_by_sex_disease.png',
-           'Figure 12. Top-X clone proportion by sex, faceted by disease category.')
+add_figure(doc, 'topX/plots/11b_topX_stacked_by_sex_disease.png',
+           'Figure 12. Clonal dominance stacked bars per subject, faceted by disease '
+           'category and sex, sorted by Top 10 dominance.')
 
 add_table(doc,
     ['Disease Category', 'Sex', 'n', 'Top 10 (%)', 'Top 100 (%)'],
@@ -296,8 +299,9 @@ doc.add_paragraph(
     'in severe disease tend to use longer CDR3 regions.'
 )
 add_figure(doc, 'cdr3/plots/12_cdr3_length_by_disease.png',
-           'Figure 13. Average CDR3 amino acid length of top expanded clones (Top 10, '
-           'Top 100, Top 1000), by disease category.')
+           'Figure 13. Average CDR3 amino acid length per subject for Top 10 (red), '
+           'Top 100 (orange), and Top 1000 (green) expanded clones, faceted by disease '
+           'category (columns) and clone tier (rows). Subjects sorted by Top 10 CDR3 length.')
 
 add_table(doc,
     ['Disease Category', 'n', 'Top 10 (AA)', 'Top 100 (AA)', 'Top 1000 (AA)'],
@@ -318,16 +322,16 @@ doc.add_paragraph(
     'disease category.'
 )
 add_figure(doc, 'cdr3/plots/13_cdr3_length_by_age_disease.png',
-           'Figure 14. Average CDR3 AA length by age group, faceted by disease category '
-           'and top-X tier.')
+           'Figure 14. Average CDR3 AA length per subject, faceted by disease category, '
+           'age group (columns), and clone tier (rows).')
 
 doc.add_heading('4.3 CDR3 Length by Sex and Disease', level=3)
 doc.add_paragraph(
     'Figure 15 presents CDR3 AA length distributions by sex within each disease category.'
 )
 add_figure(doc, 'cdr3/plots/14_cdr3_length_by_sex_disease.png',
-           'Figure 15. Average CDR3 AA length by sex, faceted by disease category and '
-           'top-X tier.')
+           'Figure 15. Average CDR3 AA length per subject, faceted by disease category, '
+           'sex (columns), and clone tier (rows).')
 
 add_table(doc,
     ['Disease Category', 'Sex', 'n', 'Top 10 (AA)', 'Top 100 (AA)'],
