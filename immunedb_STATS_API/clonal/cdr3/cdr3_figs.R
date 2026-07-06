@@ -40,8 +40,11 @@ compact_legend <- theme(
   legend.margin = margin(5, 0, 5, 0)
 )
 
-base_theme <- theme_minimal(base_size = 20) +
+base_theme <- theme_bw(base_size = 20) +
   theme(
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    legend.background = element_rect(fill = "white", color = NA),
     axis.title = element_text(size = 20, face = "bold"),
     axis.text = element_text(size = 16),
     axis.text.x = element_blank(),
@@ -180,9 +183,16 @@ p12 <- ggplot(df_long,
   scale_y_continuous(expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, max(df_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
   labs(x = NULL, y = "Average CDR3 Length (AA)") +
-  theme(strip.text.x = element_text(face = "bold", size = 18, angle = 90, hjust = 0, vjust = 0.5),
-        strip.clip = "off")
-ggsave("plots/12_cdr3_length_by_disease.png", p12, width = 14, height = 12, dpi = 400)
+  theme(strip.text.x = element_text(face = "bold", size = 14),
+        strip.text.y = element_text(face = "bold", size = 14, angle = 0),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        plot.margin = margin(10, 10, 30, 10),
+        legend.position = "bottom",
+        legend.box.margin = margin(10, 0, 0, 0),
+        legend.title = element_text(size = 16, face = "bold"),
+        legend.text = element_text(size = 14),
+        legend.key.size = unit(0.8, "cm"))
+ggsave("plots/12_cdr3_length_by_disease.png", p12, width = 20, height = 11, dpi = 400, bg = "white")
 cat("\nFigure 12 saved.\n")
 
 # ============================================================
@@ -206,7 +216,7 @@ p13 <- ggplot(df_age_long,
   theme(strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/13_cdr3_length_by_age_disease.png", p13, width = 18, height = 12, dpi = 400)
+ggsave("plots/13_cdr3_length_by_age_disease.png", p13, width = 18, height = 12, dpi = 400, bg = "white")
 cat("Figure 13 saved.\n")
 
 # ============================================================
@@ -230,7 +240,7 @@ p14 <- ggplot(df_sex_long,
   theme(strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/14_cdr3_length_by_sex_disease.png", p14, width = 16, height = 12, dpi = 400)
+ggsave("plots/14_cdr3_length_by_sex_disease.png", p14, width = 16, height = 12, dpi = 400, bg = "white")
 cat("Figure 14 saved.\n")
 
 # Summary stats

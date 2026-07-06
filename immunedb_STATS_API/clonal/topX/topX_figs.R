@@ -41,8 +41,11 @@ compact_legend <- theme(
   legend.margin = margin(5, 0, 5, 0)
 )
 
-base_theme <- theme_minimal(base_size = 20) +
+base_theme <- theme_bw(base_size = 20) +
   theme(
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    legend.background = element_rect(fill = "white", color = NA),
     axis.title = element_text(size = 20, face = "bold"),
     axis.text = element_text(size = 16),
     axis.text.x = element_blank(),
@@ -203,7 +206,7 @@ p10 <- ggplot(df_stacked,
   labs(x = NULL, y = "Fraction of Total Copies") +
   theme(strip.text.x = element_text(face = "bold", size = 18, angle = 90, hjust = 0, vjust = 0.5),
         strip.clip = "off")
-ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 14, height = 8, dpi = 400)
+ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 14, height = 8, dpi = 400, bg = "white")
 cat("\nFigure 10 (stacked) saved.\n")
 
 # ============================================================
@@ -227,7 +230,7 @@ p11 <- ggplot(df_age_stacked,
   theme(strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 18, height = 8, dpi = 400)
+ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 18, height = 8, dpi = 400, bg = "white")
 cat("Figure 11 (stacked by age) saved.\n")
 
 # ============================================================
@@ -251,7 +254,7 @@ p11b <- ggplot(df_sex_stacked,
   theme(strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 16, height = 8, dpi = 400)
+ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 16, height = 8, dpi = 400, bg = "white")
 cat("Figure 11b (stacked by sex) saved.\n")
 
 # Summary stats
