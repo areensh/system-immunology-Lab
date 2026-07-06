@@ -202,9 +202,10 @@ p13 <- ggplot(df_age_long,
   scale_y_continuous(expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, max(df_age_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
   labs(x = NULL, y = "Average CDR3 Length (AA)") +
-  theme(strip.text = element_text(face = "bold", size = 14),
+  theme(strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
+        strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/13_cdr3_length_by_age_disease.png", p13, width = 18, height = 10, dpi = 400)
+ggsave("plots/13_cdr3_length_by_age_disease.png", p13, width = 18, height = 12, dpi = 400)
 cat("Figure 13 saved.\n")
 
 # ============================================================
@@ -225,9 +226,10 @@ p14 <- ggplot(df_sex_long,
   scale_y_continuous(expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, max(df_sex_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
   labs(x = NULL, y = "Average CDR3 Length (AA)") +
-  theme(strip.text = element_text(face = "bold", size = 16),
+  theme(strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
+        strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/14_cdr3_length_by_sex_disease.png", p14, width = 16, height = 10, dpi = 400)
+ggsave("plots/14_cdr3_length_by_sex_disease.png", p14, width = 16, height = 12, dpi = 400)
 cat("Figure 14 saved.\n")
 
 # Summary stats

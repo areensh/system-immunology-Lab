@@ -223,9 +223,10 @@ p11 <- ggplot(df_age_stacked,
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(strip.text = element_text(face = "bold", size = 14),
+  theme(strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
+        strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 18, height = 6, dpi = 400)
+ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 18, height = 8, dpi = 400)
 cat("Figure 11 (stacked by age) saved.\n")
 
 # ============================================================
@@ -246,9 +247,10 @@ p11b <- ggplot(df_sex_stacked,
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(strip.text = element_text(face = "bold", size = 16),
+  theme(strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
+        strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 16, height = 6, dpi = 400)
+ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 16, height = 8, dpi = 400)
 cat("Figure 11b (stacked by sex) saved.\n")
 
 # Summary stats
