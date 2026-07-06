@@ -469,6 +469,87 @@ add_table(doc,
 )
 
 # ============================================================
+# 6. SOMATIC HYPERMUTATION
+# ============================================================
+doc.add_page_break()
+doc.add_heading('6. Somatic Hypermutation Analysis', level=2)
+
+doc.add_paragraph(
+    'Somatic hypermutation (SHM) is a key process in antibody affinity maturation, '
+    'introducing point mutations in immunoglobulin variable regions. We analyzed the '
+    'average number of mutations in the top expanded clones (Top 10, Top 100, and Top 1000) '
+    'per subject to examine whether disease severity is associated with differences in '
+    'mutation burden among dominant clones.'
+)
+
+doc.add_heading('6.1 Mutation Level by Disease Category', level=3)
+doc.add_paragraph(
+    'Figure 27 shows the average mutation count of the top expanded clones across disease '
+    'categories. COVID Naive subjects exhibited the highest mutation levels in Top 10 clones '
+    '(median 119.0), followed by Recovered (median 107.0), suggesting extensive affinity '
+    'maturation in subjects with prior immune exposure. Mild subjects showed the lowest '
+    'Top 10 mutation levels (median 48.6). The difference between tiers was most pronounced '
+    'in COVID Naive subjects, where Top 10 clones carried substantially more mutations than '
+    'Top 1000 clones, indicating strong selection of highly mutated dominant clones.'
+)
+add_figure(doc, 'mutation/plots/15_mutation_by_disease.png',
+           'Figure 27. Average mutation count per subject for Top 10 (red), Top 100 (orange), '
+           'and Top 1000 (green) expanded clones, faceted by disease category. '
+           'Box plots show median and IQR; red diamond indicates mean with SD error bars.',
+           landscape=True)
+
+add_table(doc,
+    ['Disease Category', 'n', 'Top 10', 'Top 100', 'Top 1000'],
+    [
+        ['Severe', '27', '80.2', '33.5', '16.9'],
+        ['Mild', '41', '48.6', '25.5', '15.0'],
+        ['Moderate', '9', '74.8', '30.3', '13.0'],
+        ['Recovered', '12', '107.0', '60.1', '23.5'],
+        ['COVID Naive', '8', '119.0', '92.9', '27.3'],
+        ['Healthy', '6', '78.9', '35.5', '12.7'],
+    ],
+    caption='Table 7. Median average mutation count of top-X clones by disease category.'
+)
+
+doc.add_heading('6.2 Mutation Level by Age and Disease', level=3)
+doc.add_paragraph(
+    'Figure 28 shows mutation level distributions stratified by age group within each '
+    'disease category.'
+)
+add_figure(doc, 'mutation/plots/16_mutation_by_age_disease.png',
+           'Figure 28. Average mutation count per subject, faceted by disease category '
+           '(columns) and age group (rows), for each clone tier.',
+           landscape=True)
+
+doc.add_heading('6.3 Mutation Level by Sex and Disease', level=3)
+doc.add_paragraph(
+    'Figure 29 presents mutation level distributions by sex within each disease category.'
+)
+add_figure(doc, 'mutation/plots/17_mutation_by_sex_disease.png',
+           'Figure 29. Average mutation count per subject, faceted by disease category '
+           '(columns) and sex (rows), for each clone tier.',
+           landscape=True)
+
+add_table(doc,
+    ['Disease Category', 'Sex', 'n', 'Top 10', 'Top 100'],
+    [
+        ['Severe', 'Female', '5', '86.0', '41.4'],
+        ['Severe', 'Male', '14', '82.0', '32.7'],
+        ['Mild', 'Female', '19', '46.2', '25.5'],
+        ['Mild', 'Male', '19', '48.6', '24.1'],
+        ['Moderate', 'Female', '3', '113.0', '40.6'],
+        ['Moderate', 'Male', '6', '71.3', '29.4'],
+        ['Recovered', 'Female', '3', '101.0', '52.5'],
+        ['Recovered', 'Male', '9', '120.0', '60.9'],
+        ['COVID Naive', 'Female', '4', '115.0', '91.2'],
+        ['COVID Naive', 'Male', '4', '121.0', '101.0'],
+        ['Healthy', 'Female', '1', '82.1', '36.0'],
+        ['Healthy', 'Male', '5', '75.8', '35.0'],
+    ],
+    caption='Table 8. Median mutation count by disease category and sex.'
+)
+
+# ============================================================
 # SAVE
 # ============================================================
 outpath = '/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/Clonal_Analysis_Results.docx'
