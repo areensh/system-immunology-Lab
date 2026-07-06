@@ -494,8 +494,8 @@ doc.add_paragraph(
 )
 add_figure(doc, 'mutation/plots/15_mutation_by_disease.png',
            'Figure 27. Average mutation count per subject for Top 10 (red), Top 100 (orange), '
-           'and Top 1000 (green) expanded clones, faceted by disease category. '
-           'Box plots show median and IQR; red diamond indicates mean with SD error bars.',
+           'and Top 1000 (green) expanded clones, faceted by disease category (columns) and '
+           'clone tier (rows). Subjects sorted by Top 10 mutation count.',
            landscape=True)
 
 add_table(doc,
@@ -517,8 +517,8 @@ doc.add_paragraph(
     'disease category.'
 )
 add_figure(doc, 'mutation/plots/16_mutation_by_age_disease.png',
-           'Figure 28. Average mutation count per subject, faceted by disease category '
-           '(columns) and age group (rows), for each clone tier.',
+           'Figure 28. Average mutation count per subject, faceted by disease category, '
+           'age group (columns), and clone tier (rows).',
            landscape=True)
 
 doc.add_heading('6.3 Mutation Level by Sex and Disease', level=3)
@@ -526,8 +526,8 @@ doc.add_paragraph(
     'Figure 29 presents mutation level distributions by sex within each disease category.'
 )
 add_figure(doc, 'mutation/plots/17_mutation_by_sex_disease.png',
-           'Figure 29. Average mutation count per subject, faceted by disease category '
-           '(columns) and sex (rows), for each clone tier.',
+           'Figure 29. Average mutation count per subject, faceted by disease category, '
+           'sex (columns), and clone tier (rows).',
            landscape=True)
 
 add_table(doc,

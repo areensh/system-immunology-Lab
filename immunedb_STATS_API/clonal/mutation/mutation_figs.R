@@ -142,51 +142,70 @@ cat("After filtering:", nrow(df), "subjects\n")
 cat("\nPer disease:\n")
 df %>% count(disease_cat) %>% print()
 
-df_long <- df %>%
-  select(repertoire_id, disease_cat, disease_raw, sex_clean, age_group,
-         mut_top10, mut_top100, mut_top1000) %>%
-  pivot_longer(cols = starts_with("mut_"),
-               names_to = "tier", values_to = "mutation_count") %>%
-  mutate(tier = case_when(
-    tier == "mut_top10"   ~ "Top 10",
-    tier == "mut_top100"  ~ "Top 100",
-    tier == "mut_top1000" ~ "Top 1000"
-  )) %>%
-  mutate(tier = factor(tier, levels = c("Top 10", "Top 100", "Top 1000")))
+df <- df %>%
+  arrange(disease_cat, desc(mut_top10)) %>%
+  mutate(subj_order = row_number())
+
+make_mutation_long <- function(data) {
+  data %>%
+    select(repertoire_id, subj_order, disease_cat, disease_raw, sex_clean, age_group,
+           mut_top10, mut_top100, mut_top1000) %>%
+    pivot_longer(cols = starts_with("mut_"),
+                 names_to = "tier", values_to = "mutation_count") %>%
+    mutate(tier = case_when(
+      tier == "mut_top10"   ~ "Top 10",
+      tier == "mut_top100"  ~ "Top 100",
+      tier == "mut_top1000" ~ "Top 1000"
+    )) %>%
+    mutate(tier = factor(tier, levels = c("Top 10", "Top 100", "Top 1000")))
+}
+
+df_long <- make_mutation_long(df)
 
 # ============================================================
-# Fig 15: Mutation Level by Disease Category
+# Fig 15: Mutation Level - Per-subject bars, faceted by tier (rows) and disease (cols)
 # ============================================================
-p15 <- ggplot(df_long, aes(x = tier, y = mutation_count, fill = tier)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
-  geom_jitter(width = 0.2, alpha = 0.5, size = 2) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 4, color = "red") +
-  stat_summary(fun.data = function(x) {
-    m <- mean(x); s <- sd(x)
-    data.frame(y = m, ymin = m - s, ymax = m + s)
-  }, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
-  facet_wrap(~disease_cat, nrow = 1) +
+p15 <- ggplot(df_long,
+              aes(x = reorder(repertoire_id, subj_order), y = mutation_count, fill = tier)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  facet_grid(tier ~ disease_cat, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  labs(x = "Clone Tier", y = "Avg. Mutation Count") +
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        strip.text.x = element_text(face = "bold", size = 16))
-ggsave("plots/15_mutation_by_disease.png", p15, width = 16, height = 8, dpi = 400, bg = "white")
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(df_long$mutation_count, na.rm = TRUE) + 5)) +
+  labs(x = NULL, y = "Avg. Mutation Count") +
+  theme(strip.text.x = element_text(face = "bold", size = 14),
+        strip.text.y = element_text(face = "bold", size = 14, angle = 0),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        plot.margin = margin(10, 10, 30, 10),
+        legend.position = "bottom",
+        legend.box.margin = margin(10, 0, 0, 0),
+        legend.title = element_text(size = 16, face = "bold"),
+        legend.text = element_text(size = 14),
+        legend.key.size = unit(0.8, "cm"))
+ggsave("plots/15_mutation_by_disease.png", p15, width = 20, height = 11, dpi = 400, bg = "white")
 cat("\nFigure 15 saved.\n")
 
 # ============================================================
-# Fig 16: Mutation Level by Age Group + Disease
+# Fig 16: Mutation Level - Per-subject bars by Age + Disease
 # ============================================================
-df_age_long <- df_long %>% filter(!is.na(age_group))
+df_age_plot <- df %>% filter(!is.na(age_group))
+df_age_plot <- df_age_plot %>%
+  arrange(disease_cat, age_group, desc(mut_top10)) %>%
+  mutate(subj_order = row_number())
 
-p16 <- ggplot(df_age_long, aes(x = tier, y = mutation_count, fill = tier)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
-  geom_jitter(width = 0.2, alpha = 0.5, size = 1.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red") +
-  facet_grid(age_group ~ disease_cat) +
+df_age_long <- make_mutation_long(df_age_plot)
+
+p16 <- ggplot(df_age_long,
+              aes(x = reorder(repertoire_id, subj_order), y = mutation_count, fill = tier)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  facet_grid(tier ~ disease_cat + age_group, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  labs(x = "Clone Tier", y = "Avg. Mutation Count") +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(df_age_long$mutation_count, na.rm = TRUE) + 5)) +
+  labs(x = NULL, y = "Avg. Mutation Count") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
+        strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
         strip.text.y = element_text(face = "bold", size = 14, angle = 0),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
@@ -194,23 +213,29 @@ ggsave("plots/16_mutation_by_age_disease.png", p16, width = 18, height = 12, dpi
 cat("Figure 16 saved.\n")
 
 # ============================================================
-# Fig 17: Mutation Level by Sex + Disease
+# Fig 17: Mutation Level - Per-subject bars by Sex + Disease
 # ============================================================
-df_sex_long <- df_long %>% filter(!is.na(sex_clean))
+df_sex_plot <- df %>% filter(!is.na(sex_clean))
+df_sex_plot <- df_sex_plot %>%
+  arrange(disease_cat, sex_clean, desc(mut_top10)) %>%
+  mutate(subj_order = row_number())
 
-p17 <- ggplot(df_sex_long, aes(x = tier, y = mutation_count, fill = tier)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
-  geom_jitter(width = 0.2, alpha = 0.5, size = 1.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red") +
-  facet_grid(sex_clean ~ disease_cat) +
+df_sex_long <- make_mutation_long(df_sex_plot)
+
+p17 <- ggplot(df_sex_long,
+              aes(x = reorder(repertoire_id, subj_order), y = mutation_count, fill = tier)) +
+  geom_bar(stat = "identity", width = 0.9) +
+  facet_grid(tier ~ disease_cat + sex_clean, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  labs(x = "Clone Tier", y = "Avg. Mutation Count") +
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(df_sex_long$mutation_count, na.rm = TRUE) + 5)) +
+  labs(x = NULL, y = "Avg. Mutation Count") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
         strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
         strip.text.y = element_text(face = "bold", size = 14, angle = 0),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/17_mutation_by_sex_disease.png", p17, width = 16, height = 10, dpi = 400, bg = "white")
+ggsave("plots/17_mutation_by_sex_disease.png", p17, width = 16, height = 12, dpi = 400, bg = "white")
 cat("Figure 17 saved.\n")
 
 # Summary stats
