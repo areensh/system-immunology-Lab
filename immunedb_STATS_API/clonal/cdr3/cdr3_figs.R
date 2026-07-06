@@ -180,8 +180,9 @@ p12 <- ggplot(df_long,
   scale_y_continuous(expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, max(df_long$avg_cdr3_len, na.rm = TRUE) + 1)) +
   labs(x = NULL, y = "Average CDR3 Length (AA)") +
-  theme(strip.text = element_text(face = "bold", size = 20))
-ggsave("plots/12_cdr3_length_by_disease.png", p12, width = 14, height = 10, dpi = 400)
+  theme(strip.text.x = element_text(face = "bold", size = 18, angle = 90, hjust = 0, vjust = 0.5),
+        strip.clip = "off")
+ggsave("plots/12_cdr3_length_by_disease.png", p12, width = 14, height = 12, dpi = 400)
 cat("\nFigure 12 saved.\n")
 
 # ============================================================

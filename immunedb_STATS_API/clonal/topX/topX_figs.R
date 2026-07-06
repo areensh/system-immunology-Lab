@@ -201,8 +201,9 @@ p10 <- ggplot(df_stacked,
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(strip.text = element_text(face = "bold", size = 20))
-ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 14, height = 6, dpi = 400)
+  theme(strip.text.x = element_text(face = "bold", size = 18, angle = 90, hjust = 0, vjust = 0.5),
+        strip.clip = "off")
+ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 14, height = 8, dpi = 400)
 cat("\nFigure 10 (stacked) saved.\n")
 
 # ============================================================
