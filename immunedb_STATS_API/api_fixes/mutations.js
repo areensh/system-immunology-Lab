@@ -53,7 +53,7 @@ if (statistics[0] == "topX_mutation_level"){
     WITH ${sampleMetaCTE},
     clone_mutations AS (
       SELECT cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys,
-        JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) AS mutation_cnt,
+        AVG(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions'))) AS mutation_cnt,
         SUM(cs.total_cnt) AS total_copies
       FROM clone_stats cs
       JOIN sample_meta sma ON sma.sample_id = cs.sample_id
