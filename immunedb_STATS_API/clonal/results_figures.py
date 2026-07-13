@@ -550,6 +550,245 @@ add_table(doc,
 )
 
 # ============================================================
+# 7. RESULTS SUMMARY
+# ============================================================
+doc.add_page_break()
+doc.add_heading('7. Summary of Results', level=2)
+
+doc.add_paragraph(
+    'This study analyzed B-cell receptor (BCR) repertoire characteristics across 103 subjects '
+    'from seven independent immune repertoire datasets, encompassing a spectrum of COVID-19 '
+    'disease severities as well as healthy and COVID-naive controls. Using the iReceptor '
+    'Statistics API (v0.3.0), we examined four complementary dimensions of clonal architecture: '
+    'clone size and expansion, clonal diversity, clonal dominance (top-X clone proportions), '
+    'CDR3 amino acid length, and somatic hypermutation levels. The following summarizes the '
+    'principal findings across these analyses.'
+)
+
+doc.add_heading('7.1 Clonal Expansion and Clone Size', level=3)
+doc.add_paragraph(
+    'Clone size analysis revealed that COVID Naive and Healthy subjects harbored higher '
+    'numbers of expanded clones (size > 20) compared to subjects with active disease '
+    '(Severe, Mild, Moderate). This suggests the presence of pre-existing clonal expansions '
+    'unrelated to acute SARS-CoV-2 infection in these groups, likely reflecting prior antigen '
+    'exposures or homeostatic proliferation. Median clone size was relatively uniform across '
+    'disease categories, with COVID Naive subjects showing slightly elevated values, indicating '
+    'that while the number of expanded clones varied substantially, the degree of expansion '
+    'per clone was broadly comparable.'
+)
+
+doc.add_heading('7.2 Clonal Diversity', level=3)
+doc.add_paragraph(
+    'Clonal diversity, measured by the total number of unique clones per subject, varied '
+    'markedly across disease categories. Recovered subjects exhibited the highest median '
+    'clone count (21,526), followed by COVID Naive (16,682), while Mild subjects had the '
+    'lowest (2,478). Severe subjects showed an intermediate median of 5,089. The elevated '
+    'clone counts in Recovered and COVID Naive groups suggest that immune exposure—whether '
+    'through natural infection and recovery or pre-existing immunity—drives substantial '
+    'repertoire diversification. The Healthy group displayed high variability (range 650–61,136), '
+    'potentially reflecting heterogeneous prior immune histories among these subjects. '
+    'No substantial sex-based differences in clone count were observed within any disease '
+    'category (Table 2).'
+)
+
+doc.add_heading('7.3 Clonal Dominance (Top-X Clone Proportions)', level=3)
+doc.add_paragraph(
+    'The proportion of total repertoire copies captured by the most expanded clones provided '
+    'a measure of clonal dominance. Healthy subjects showed strikingly high Top 1000 '
+    'concentration (median 99.3%), indicating that nearly all sequence copies belonged to '
+    'the top 1000 clones. This is consistent with a small, highly concentrated repertoire '
+    'dominated by a limited number of expanded clones—a pattern expected in the absence of '
+    'an active immune response driving diversification. Moderate disease subjects exhibited '
+    'the highest Top 10 dominance (median 23.1%), suggesting that a few clones undergo '
+    'particularly aggressive expansion during moderate-severity COVID-19. In contrast, '
+    'COVID Naive subjects had the lowest Top 10 dominance (median 9.6%), indicating a more '
+    'evenly distributed clonal landscape despite having large overall clone counts. '
+    'Recovered subjects showed a relatively low Top 1000 proportion (62.0%), reflecting '
+    'the broader distribution of copies across a large and diverse repertoire.'
+)
+
+doc.add_heading('7.4 CDR3 Amino Acid Length', level=3)
+doc.add_paragraph(
+    'CDR3 length analysis of the top expanded clones revealed a gradient associated with '
+    'disease severity. Severe cases exhibited the longest CDR3 regions in their Top 10 clones '
+    '(median 17.7 AA), while Healthy subjects showed the shortest (median 13.8 AA). This '
+    'difference was most pronounced in the Top 10 tier and diminished progressively with larger '
+    'clone sets (Top 100 and Top 1000), suggesting that the most aggressively expanded clones '
+    'in severe disease tend to utilize longer CDR3 regions. Longer CDR3 loops can form more '
+    'complex antigen-binding surfaces, which may reflect the selection of antibodies targeting '
+    'specific SARS-CoV-2 epitopes during severe infection. The convergence of CDR3 lengths '
+    'across tiers in less severe categories suggests that CDR3 length selection pressure is '
+    'strongest among the most dominant clones during active, severe disease. Notably, sex-based '
+    'differences in CDR3 length were minimal across all disease categories (Table 6).'
+)
+
+doc.add_heading('7.5 Somatic Hypermutation', level=3)
+doc.add_paragraph(
+    'Somatic hypermutation (SHM) analysis revealed substantial variation in mutation burden '
+    'across disease categories. COVID Naive subjects showed the highest mutation levels in '
+    'their Top 10 clones (median 119.0 mutations), followed by Recovered subjects (median '
+    '107.0). Mild subjects exhibited the lowest Top 10 mutation levels (median 48.6). The '
+    'elevated mutation burden in COVID Naive and Recovered groups is consistent with extensive '
+    'affinity maturation driven by prior or resolved immune responses—these subjects have had '
+    'more time for their B cells to undergo iterative rounds of somatic hypermutation in '
+    'germinal centers. The steep gradient between Top 10 and Top 1000 mutation levels was '
+    'particularly pronounced in COVID Naive subjects (119.0 vs. 27.3), indicating that the '
+    'most expanded clones in these individuals are highly selected, affinity-matured antibodies, '
+    'while the broader repertoire retains a lower baseline mutation level. Severe subjects '
+    'showed intermediate mutation levels (median 80.2 for Top 10), which may reflect ongoing '
+    'but incomplete affinity maturation during active infection. Sex-based differences in '
+    'mutation levels were generally modest, though Moderate females showed notably higher '
+    'Top 10 mutation counts (113.0) compared to males (71.3) in this small subgroup (Table 8).'
+)
+
+# ============================================================
+# 8. DISCUSSION
+# ============================================================
+doc.add_page_break()
+doc.add_heading('8. Discussion', level=2)
+
+doc.add_paragraph(
+    'This study presents a comprehensive clonal analysis of B-cell receptor repertoires '
+    'across COVID-19 disease severities, leveraging the iReceptor Statistics API (v0.3.0) '
+    'to aggregate and analyze data from seven independent datasets comprising 103 subjects. '
+    'By examining multiple complementary dimensions of clonal architecture—clone size, '
+    'diversity, dominance, CDR3 length, and somatic hypermutation—we reveal distinct '
+    'immunological signatures associated with different stages and outcomes of SARS-CoV-2 '
+    'infection.'
+)
+
+doc.add_heading('8.1 Distinct Clonal Architectures Across Disease States', level=3)
+doc.add_paragraph(
+    'Our findings reveal that the clonal landscape of the B-cell repertoire undergoes '
+    'characteristic remodeling during and after SARS-CoV-2 infection. Subjects with active '
+    'disease (Severe and Moderate) exhibited moderate clonal diversity but high clonal '
+    'dominance, with a small number of clones capturing a disproportionate fraction of the '
+    'repertoire. This pattern is consistent with antigen-driven clonal selection during acute '
+    'infection, where B cells recognizing viral epitopes undergo rapid expansion at the '
+    'expense of overall repertoire diversity. In contrast, Recovered and COVID Naive subjects '
+    'displayed markedly higher clone counts (medians of 21,526 and 16,682, respectively) '
+    'with lower Top 10 dominance, reflecting a more diversified repertoire shaped by '
+    'completed or pre-existing immune responses.'
+)
+
+doc.add_paragraph(
+    'The Healthy group presented a distinctive profile: low median clone counts (1,707) but '
+    'extremely high Top 1000 concentration (99.3%), indicating that in the absence of active '
+    'infection, the repertoire is compact and dominated by a limited set of expanded clones. '
+    'The high variability in this group (clone count range 650–61,136) likely reflects '
+    'heterogeneous prior immune histories among healthy donors.'
+)
+
+doc.add_heading('8.2 CDR3 Length as a Severity-Associated Feature', level=3)
+doc.add_paragraph(
+    'The observation that Severe subjects had the longest CDR3 regions in their top expanded '
+    'clones (median 17.7 AA for Top 10) while Healthy subjects had the shortest (13.8 AA) '
+    'suggests that CDR3 length is a feature under selection during severe COVID-19. Longer '
+    'CDR3 loops provide greater structural diversity for antigen recognition and can form '
+    'extended binding surfaces capable of accessing recessed or complex epitopes on viral '
+    'proteins. Previous studies have reported that antibodies targeting the SARS-CoV-2 receptor '
+    'binding domain (RBD) frequently employ longer-than-average CDR3 regions (Cao et al., 2020; '
+    'Kreye et al., 2020). The progressive attenuation of this CDR3 length difference in larger '
+    'clone sets (Top 100, Top 1000) indicates that the selection pressure favoring longer CDR3 '
+    'loops operates most strongly on the handful of most dominant clones, rather than shaping '
+    'the entire repertoire.'
+)
+
+doc.add_heading('8.3 Somatic Hypermutation and Affinity Maturation', level=3)
+doc.add_paragraph(
+    'The mutation analysis provides insight into the maturation state of expanded clones '
+    'across disease categories. The markedly elevated mutation levels in COVID Naive (median '
+    '119.0 for Top 10) and Recovered (107.0) subjects suggest that these groups harbor clones '
+    'that have undergone extensive affinity maturation through iterative germinal center '
+    'reactions. For COVID Naive subjects, the high mutation burden likely reflects memory '
+    'B cells from prior coronavirus exposures or other infections that have accumulated '
+    'mutations over time. For Recovered subjects, it indicates successful completion of the '
+    'germinal center response following SARS-CoV-2 infection.'
+)
+
+doc.add_paragraph(
+    'The relatively lower mutation levels in Mild (48.6) and Severe (80.2) subjects during '
+    'active disease may reflect the contribution of newly recruited, less-mutated B cells '
+    'to the expanded clone pool. In severe disease, the immune response may rely more heavily '
+    'on extrafollicular B-cell activation pathways that bypass germinal centers and produce '
+    'less-mutated antibodies (Woodruff et al., 2020). The steep intra-subject gradient between '
+    'Top 10 and Top 1000 mutation levels—most pronounced in COVID Naive subjects (119.0 vs. '
+    '27.3)—demonstrates that the most dominant clones are preferentially drawn from the '
+    'highly mutated, affinity-matured compartment, while the broader repertoire maintains a '
+    'lower mutation baseline.'
+)
+
+doc.add_heading('8.4 Integration of Clonal Features', level=3)
+doc.add_paragraph(
+    'Considered together, the four clonal dimensions paint a coherent picture of repertoire '
+    'dynamics during COVID-19. Severe disease is characterized by moderate diversity, high '
+    'clonal dominance, long CDR3 regions, and intermediate mutation levels—a profile '
+    'consistent with an active, antigen-driven response recruiting both newly activated and '
+    'partially matured B cells. Mild disease shows a more restricted repertoire (lowest '
+    'diversity) with lower dominance and mutation levels, suggesting a less aggressive or '
+    'earlier-stage immune response. Recovered subjects exhibit the hallmarks of a completed '
+    'immune response: high diversity, moderate dominance, and elevated mutation levels '
+    'reflecting successful affinity maturation. COVID Naive subjects, despite not having been '
+    'infected with SARS-CoV-2, show the highest mutation burden and high diversity, consistent '
+    'with a well-established memory compartment from prior immune exposures.'
+)
+
+doc.add_heading('8.5 Sex and Age Effects', level=3)
+doc.add_paragraph(
+    'Sex-based differences across the analyzed clonal features were generally modest. '
+    'Clone counts, CDR3 lengths, and mutation levels showed broadly similar distributions '
+    'between males and females within each disease category (Tables 2, 4, 6, 8). The most '
+    'notable exception was among Moderate subjects, where females showed higher Top 10 '
+    'mutation levels (113.0) compared to males (71.3), though this subgroup was small (n=3 '
+    'female, n=6 male) and this finding should be interpreted with caution. Among Recovered '
+    'subjects, males exhibited slightly higher Top 10 CDR3 lengths (17.2 AA) and mutation '
+    'counts (120.0) compared to females (15.1 AA, 101.0), again in a small sample. These '
+    'observations warrant further investigation in larger, balanced cohorts. Age-stratified '
+    'analyses did not reveal consistent age-dependent patterns across disease categories, '
+    'though the uneven distribution of subjects across age groups and disease categories '
+    'limits the power of these comparisons.'
+)
+
+doc.add_heading('8.6 Methodological Considerations', level=3)
+doc.add_paragraph(
+    'This analysis leveraged the iReceptor Statistics API (v0.3.0), which provides a '
+    'standardized framework for computing repertoire statistics across federated datasets. '
+    'The metadata fingerprint grouping approach ensures correct per-tissue aggregation of '
+    'samples, enabling consistent cross-study comparisons. Disease labels from individual '
+    'studies were harmonized into six categories using a rule-based mapping, which, while '
+    'necessary for cross-dataset comparison, may obscure clinically meaningful differences '
+    'within broad categories (e.g., "Severe" encompasses both "severe" and "Early phase '
+    'hypoxaemia"). The restriction to peripheral blood samples provides a consistent tissue '
+    'context but does not capture tissue-resident B-cell populations that may play important '
+    'roles in disease pathogenesis.'
+)
+
+doc.add_paragraph(
+    'Several limitations should be noted. First, the sample sizes within some subgroups '
+    '(particularly Healthy n=6, COVID Naive n=8, and Moderate n=9) are small, limiting '
+    'statistical power and the robustness of subgroup comparisons. Second, the cross-sectional '
+    'nature of the data precludes tracking within-subject changes over the course of infection '
+    'and recovery. Third, the datasets were generated using different sequencing protocols and '
+    'bioinformatics pipelines, which may introduce batch effects despite our efforts to use '
+    'standardized analysis metrics. Finally, the top-X clone analysis framework, while '
+    'informative about dominant clone properties, does not capture the full distribution of '
+    'clonal features across the repertoire.'
+)
+
+doc.add_heading('8.7 Conclusions', level=3)
+doc.add_paragraph(
+    'In conclusion, our multi-dimensional clonal analysis reveals disease severity-associated '
+    'signatures in the B-cell receptor repertoire during COVID-19. Severe disease is '
+    'characterized by high clonal dominance with long CDR3 regions and intermediate mutation '
+    'levels, while recovery is associated with high diversity and extensively mutated clones. '
+    'These findings suggest that the clonal architecture of the BCR repertoire reflects both '
+    'the intensity of the acute immune response and the maturation state of the humoral '
+    'immune memory. The iReceptor Statistics API framework enables standardized cross-study '
+    'comparisons that could be extended to other infectious diseases and vaccine responses, '
+    'providing a scalable approach to immune repertoire profiling in multi-center studies.'
+)
+
+# ============================================================
 # SAVE
 # ============================================================
 outpath = '/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/Clonal_Analysis_Results.docx'
