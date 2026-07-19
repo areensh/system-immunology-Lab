@@ -195,24 +195,25 @@ cat("Figure 2 saved.\n")
 cat("\n=== CDR3 ===\n")
 parse_cdr3 <- function(path) {
   raw <- fromJSON(path, simplifyDataFrame = FALSE)
-  do.call(rbind, lapply(raw$Result, function(entry) {
+  rows <- lapply(raw$Result, function(entry) {
     rep <- entry$repertoire
     keys <- trimws(rep$meta_key)
     vals <- trimws(rep$meta_value)
     sv <- entry$statistics[[1]]$stats_value
-    top10 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_10")]]$count
-    top100 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_100")]]$count
-    top1000 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_1000")]]$count
+    ids <- sapply(sv, function(x) x$clone_id)
+    i10 <- which(ids == "Top_10_AA"); i100 <- which(ids == "Top_100_AA"); i1000 <- which(ids == "Top_1000_AA")
+    if (!length(i10) || !length(i100) || !length(i1000)) return(NULL)
     ds_idx <- which(keys == "disease_stage")
     tissue_idx <- which(keys == "tissue")
     data.frame(
       repertoire_id = rep$repertoire_id,
-      top10_aa = top10, top100_aa = top100, top1000_aa = top1000,
+      top10_aa = sv[[i10]]$count, top100_aa = sv[[i100]]$count, top1000_aa = sv[[i1000]]$count,
       disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
       tissue = if (length(tissue_idx)) vals[tissue_idx] else NA_character_,
       stringsAsFactors = FALSE
     )
-  }))
+  })
+  bind_rows(rows[!sapply(rows, is.null)])
 }
 
 df_cdr3 <- parse_cdr3("../cdr3/data/CDR3_tissue_disease.json")
@@ -264,24 +265,25 @@ cat("Figure 4 saved.\n")
 cat("\n=== Mutation ===\n")
 parse_mutation <- function(path) {
   raw <- fromJSON(path, simplifyDataFrame = FALSE)
-  do.call(rbind, lapply(raw$Result, function(entry) {
+  rows <- lapply(raw$Result, function(entry) {
     rep <- entry$repertoire
     keys <- trimws(rep$meta_key)
     vals <- trimws(rep$meta_value)
     sv <- entry$statistics[[1]]$stats_value
-    top10 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_10")]]$count
-    top100 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_100")]]$count
-    top1000 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_1000")]]$count
+    ids <- sapply(sv, function(x) x$clone_id)
+    i10 <- which(ids == "Top_10"); i100 <- which(ids == "Top_100"); i1000 <- which(ids == "Top_1000")
+    if (!length(i10) || !length(i100) || !length(i1000)) return(NULL)
     ds_idx <- which(keys == "disease_stage")
     tissue_idx <- which(keys == "tissue")
     data.frame(
       repertoire_id = rep$repertoire_id,
-      mut_top10 = top10, mut_top100 = top100, mut_top1000 = top1000,
+      mut_top10 = sv[[i10]]$count, mut_top100 = sv[[i100]]$count, mut_top1000 = sv[[i1000]]$count,
       disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
       tissue = if (length(tissue_idx)) vals[tissue_idx] else NA_character_,
       stringsAsFactors = FALSE
     )
-  }))
+  })
+  bind_rows(rows[!sapply(rows, is.null)])
 }
 
 df_mut <- parse_mutation("../mutation/data/mutations_disease_tissue.json")
