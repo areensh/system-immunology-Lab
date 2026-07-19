@@ -83,6 +83,133 @@ if (statistics[0] == "topX_mutation_level"){
 `;
 }
 
+if (statistics[0] == "mutation_by_region"){
+    query = `
+    WITH ${sampleMetaCTE}
+    SELECT
+      cs.subject_id,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0)
+      ) AS avg_cdr_mutations,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0)
+      ) AS avg_fw_mutations,
+      s.identifier,
+      sma.meta_keys AS keey,
+      sma.meta_values AS valuee
+    FROM clone_stats cs
+    JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+    JOIN subjects s ON cs.subject_id = s.id
+    WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
+      AND JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) > 0
+`
+    if (connection.config.database == "sykesIgblast"){
+        query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `
+    }
+    query += `
+    GROUP BY cs.subject_id, sma.meta_values, sma.meta_keys, s.identifier
+`;
+}
+
+if (statistics[0] == "mutation_by_type"){
+    query = `
+    WITH ${sampleMetaCTE}
+    SELECT
+      cs.subject_id,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.ALL.synonymous')), 0)
+      ) AS avg_synonymous,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.ALL.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.ALL.nonconservative')), 0)
+      ) AS avg_replacement,
+      s.identifier,
+      sma.meta_keys AS keey,
+      sma.meta_values AS valuee
+    FROM clone_stats cs
+    JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+    JOIN subjects s ON cs.subject_id = s.id
+    WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
+      AND JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) > 0
+`
+    if (connection.config.database == "sykesIgblast"){
+        query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `
+    }
+    query += `
+    GROUP BY cs.subject_id, sma.meta_values, sma.meta_keys, s.identifier
+`;
+}
+
+if (statistics[0] == "mutation_cdr_rs_ratio"){
+    query = `
+    WITH ${sampleMetaCTE}
+    SELECT
+      cs.subject_id,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0)
+      ) AS avg_cdr_replacement,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0)
+      ) AS avg_cdr_synonymous,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0)
+      ) AS avg_fw_replacement,
+      AVG(
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0)
+      ) AS avg_fw_synonymous,
+      s.identifier,
+      sma.meta_keys AS keey,
+      sma.meta_values AS valuee
+    FROM clone_stats cs
+    JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+    JOIN subjects s ON cs.subject_id = s.id
+    WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
+      AND JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) > 0
+`
+    if (connection.config.database == "sykesIgblast"){
+        query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `
+    }
+    query += `
+    GROUP BY cs.subject_id, sma.meta_values, sma.meta_keys, s.identifier
+`;
+}
+
      const results = [];
       const [rows] =  await connection.query(query, { replacements: params });
       results.push(...rows);
@@ -125,6 +252,47 @@ if (statistics[0] == "topX_mutation_level"){
                data.push({
                   clone_id: "Top_1000",
                   count: Number(current.total_avg_1000)
+                });
+            }
+
+            if (statistics[0] == "mutation_by_region"){
+                data.push({
+                  clone_id: "CDR",
+                  count: Number(current.avg_cdr_mutations)
+                });
+                data.push({
+                  clone_id: "FW",
+                  count: Number(current.avg_fw_mutations)
+                });
+            }
+
+            if (statistics[0] == "mutation_by_type"){
+                data.push({
+                  clone_id: "synonymous",
+                  count: Number(current.avg_synonymous)
+                });
+                data.push({
+                  clone_id: "replacement",
+                  count: Number(current.avg_replacement)
+                });
+            }
+
+            if (statistics[0] == "mutation_cdr_rs_ratio"){
+                data.push({
+                  clone_id: "CDR_replacement",
+                  count: Number(current.avg_cdr_replacement)
+                });
+                data.push({
+                  clone_id: "CDR_synonymous",
+                  count: Number(current.avg_cdr_synonymous)
+                });
+                data.push({
+                  clone_id: "FW_replacement",
+                  count: Number(current.avg_fw_replacement)
+                });
+                data.push({
+                  clone_id: "FW_synonymous",
+                  count: Number(current.avg_fw_synonymous)
                 });
             }
 
