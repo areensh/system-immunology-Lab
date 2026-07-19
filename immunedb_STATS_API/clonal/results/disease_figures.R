@@ -34,19 +34,23 @@ stacked_tier_colors <- c(
   "Top 101-1000" = "#2ca02c", "Remaining" = "#aec7e8"
 )
 
-base_theme <- theme_bw(base_size = 20) +
+base_theme <- theme_bw(base_size = 26) +
   theme(
     plot.background = element_rect(fill = "white", color = NA),
     panel.background = element_rect(fill = "white", color = NA),
     legend.background = element_rect(fill = "white", color = NA),
-    axis.title = element_text(size = 20, face = "bold"),
-    axis.text = element_text(size = 16),
-    strip.text = element_text(face = "bold", size = 18),
+    axis.title = element_text(size = 26, face = "bold"),
+    axis.text = element_text(size = 20),
+    axis.text.x = element_text(size = 20, angle = 20, hjust = 1),
+    strip.text = element_text(face = "bold", size = 22),
+    plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
     plot.margin = margin(10, 15, 10, 15),
     legend.position = "bottom",
-    legend.title = element_text(size = 16, face = "bold"),
-    legend.text = element_text(size = 14),
-    legend.key.size = unit(0.6, "cm")
+    legend.title = element_text(size = 20, face = "bold"),
+    legend.text = element_text(size = 18),
+    legend.key.size = unit(1, "cm"),
+    legend.spacing.x = unit(0.3, "cm"),
+    legend.margin = margin(10, 0, 5, 0)
   )
 theme_set(base_theme)
 
@@ -113,7 +117,7 @@ p1 <- ggplot(df_cc, aes(x = disease_cat, y = clone_count, fill = disease_cat)) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   scale_y_log10(labels = scales::comma) +
   labs(x = NULL, y = "Clone Count (unique clones)", title = "Clonal Diversity") +
-  theme(plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+  theme()
 ggsave("plots/01_clone_count_by_disease.png", p1, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 1 saved.\n")
 
@@ -181,8 +185,7 @@ p2 <- ggplot(df_tx_long, aes(x = reorder(repertoire_id, subj_order), y = pct, fi
   coord_cartesian(ylim = c(0, 100)) +
   labs(x = NULL, y = "Fraction of Total Copies", title = "Clonal Dominance") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        strip.text.x = element_text(face = "bold", size = 16),
-        plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+        strip.text.x = element_text(face = "bold", size = 22))
 ggsave("plots/02_topX_stacked_by_disease.png", p2, width = 16, height = 8, dpi = 400, bg = "white")
 cat("Figure 2 saved.\n")
 
@@ -235,7 +238,7 @@ p3 <- ggplot(df_cdr3_long, aes(x = disease_cat, y = cdr3_length, fill = tier)) +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
   scale_color_manual(values = tier_colors, guide = "none") +
   labs(x = NULL, y = "Avg. CDR3 Length (AA)", title = "CDR3 Length by Disease") +
-  theme(plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+  theme()
 ggsave("plots/03_cdr3_by_disease.png", p3, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 3 saved.\n")
 
@@ -251,7 +254,7 @@ p3b <- ggplot(df_cdr3_range, aes(x = disease_cat, y = cdr3_range, fill = disease
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
   labs(x = NULL, y = "CDR3 Length Difference (Top10 - Top1000, AA)",
        title = "CDR3 Length Divergence: Top vs Broad Clones") +
-  theme(plot.title = element_text(size = 20, face = "bold", hjust = 0.5))
+  theme()
 ggsave("plots/04_cdr3_range_by_disease.png", p3b, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 4 saved.\n")
 
@@ -304,7 +307,7 @@ p4 <- ggplot(df_mut_long, aes(x = disease_cat, y = mutation_count, fill = tier))
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
   scale_color_manual(values = tier_colors, guide = "none") +
   labs(x = NULL, y = "Avg. Mutation Count", title = "Somatic Hypermutation by Disease") +
-  theme(plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+  theme()
 ggsave("plots/05_mutation_by_disease.png", p4, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 5 saved.\n")
 
@@ -319,7 +322,7 @@ p4b <- ggplot(df_mut_gradient, aes(x = disease_cat, y = mut_gradient, fill = dis
   scale_fill_manual(values = disease_colors, guide = "none") +
   labs(x = NULL, y = "Mutation Difference (Top10 - Top1000)",
        title = "Mutation Selection Gradient") +
-  theme(plot.title = element_text(size = 20, face = "bold", hjust = 0.5))
+  theme()
 ggsave("plots/06_mutation_gradient_by_disease.png", p4b, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 6 saved.\n")
 
