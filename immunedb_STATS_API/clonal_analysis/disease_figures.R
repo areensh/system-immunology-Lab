@@ -3,7 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/results")
+setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal_analysis")
 
 # ---- Common setup ----
 map_disease <- function(ds) {
@@ -102,7 +102,7 @@ parse_clone_count <- function(path) {
   }))
 }
 
-df_cc <- parse_clone_count("../clone_count/data/clone_count_disease_tissue.json")
+df_cc <- parse_clone_count("clone_count/data/clone_count_disease_tissue.json")
 df_cc <- standard_filter(df_cc)
 df_cc <- df_cc %>%
   group_by(repertoire_id, disease_cat, study) %>%
@@ -152,7 +152,7 @@ parse_topX <- function(path) {
   }))
 }
 
-df_tx <- parse_topX("../topX/data/topX_disease_tissue.json")
+df_tx <- parse_topX("topX/data/topX_disease_tissue.json")
 df_tx <- standard_filter(df_tx)
 cat("TopX subjects:", nrow(df_tx), "\n")
 
@@ -216,7 +216,7 @@ parse_cdr3 <- function(path) {
   bind_rows(rows[!sapply(rows, is.null)])
 }
 
-df_cdr3 <- parse_cdr3("../cdr3/data/CDR3_tissue_disease.json")
+df_cdr3 <- parse_cdr3("cdr3/data/CDR3_tissue_disease.json")
 df_cdr3 <- standard_filter(df_cdr3)
 cat("CDR3 subjects:", nrow(df_cdr3), "\n")
 
@@ -286,7 +286,7 @@ parse_mutation <- function(path) {
   bind_rows(rows[!sapply(rows, is.null)])
 }
 
-df_mut <- parse_mutation("../mutation/data/mutations_disease_tissue.json")
+df_mut <- parse_mutation("mutation/data/mutations_disease_tissue.json")
 df_mut <- standard_filter(df_mut)
 cat("Mutation subjects:", nrow(df_mut), "\n")
 

@@ -3,7 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/topX")
+setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal_analysis/mutation")
 
 map_disease <- function(ds) {
   ds <- trimws(ds)
@@ -22,15 +22,9 @@ map_disease <- function(ds) {
 
 disease_order <- c("Severe", "Mild", "Moderate", "Recovered", "COVID Naive", "Healthy")
 
-tier_colors <- c(
-  "Top 10"       = "#d62728",
-  "Top 11-100"   = "#ff7f0e",
-  "Top 101-1000" = "#2ca02c",
-  "Remaining"    = "#aec7e8"
-)
-
+tier_colors <- c("Top 10" = "#d62728", "Top 100" = "#ff7f0e", "Top 1000" = "#2ca02c")
 sex_colors <- c("Male" = "#4A90D9", "Female" = "#E85D75")
-age_colors <- c("18-30"="#C6DBEF","31-50"="#6BAED6","51-65"="#2171B5","66+"="#08306B")
+age_colors <- c("18-30" = "#C6DBEF", "31-50" = "#6BAED6", "51-65" = "#2171B5", "66+" = "#08306B")
 
 compact_legend <- theme(
   legend.position = "bottom",
@@ -48,8 +42,6 @@ base_theme <- theme_bw(base_size = 20) +
     legend.background = element_rect(fill = "white", color = NA),
     axis.title = element_text(size = 20, face = "bold"),
     axis.text = element_text(size = 16),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank(),
     strip.text = element_text(face = "bold", size = 18),
     plot.margin = margin(10, 15, 10, 15)
   ) +
@@ -57,16 +49,13 @@ base_theme <- theme_bw(base_size = 20) +
 
 theme_set(base_theme)
 
-# ---- Parse topX JSON ----
-parse_topX <- function(path) {
+parse_mutation <- function(path) {
   raw <- fromJSON(path, simplifyDataFrame = FALSE)
   do.call(rbind, lapply(raw$Result, function(entry) {
     rep <- entry$repertoire
     keys <- trimws(rep$meta_key)
     vals <- trimws(rep$meta_value)
-    stat <- entry$statistics[[1]]
-    total <- stat$total
-    sv <- stat$stats_value
+    sv <- entry$statistics[[1]]$stats_value
 
     top10 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_10")]]$count
     top100 <- sv[[which(sapply(sv, function(x) x$clone_id) == "Top_100")]]$count
@@ -79,13 +68,9 @@ parse_topX <- function(path) {
 
     data.frame(
       repertoire_id = rep$repertoire_id,
-      total_copies = total,
-      top10 = top10,
-      top100 = top100,
-      top1000 = top1000,
-      top10_pct = round(top10 / total * 100, 2),
-      top100_pct = round(top100 / total * 100, 2),
-      top1000_pct = round(top1000 / total * 100, 2),
+      mut_top10 = top10,
+      mut_top100 = top100,
+      mut_top1000 = top1000,
       age = if (length(age_idx)) as.numeric(vals[age_idx]) else NA_real_,
       disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
       sex = if (length(sex_idx)) vals[sex_idx] else NA_character_,
@@ -95,17 +80,16 @@ parse_topX <- function(path) {
   }))
 }
 
-df <- parse_topX("data/topX_disease_tissue.json")
+df <- parse_mutation("data/mutations_disease_tissue.json")
 
-df_sex <- parse_topX("data/topX_sex_disease_tissue.json")
+df_sex <- parse_mutation("data/mutations_sex_disease_tissue.json")
 missing_sex <- df_sex %>% filter(!repertoire_id %in% df$repertoire_id)
 if (nrow(missing_sex) > 0) df <- bind_rows(df, missing_sex)
 
-df_age <- parse_topX("data/topX_age_disease_tissue.json")
+df_age <- parse_mutation("data/mutations_age_disease_tissue.json")
 
 cat("Total rows before filtering:", nrow(df), "\n")
 
-# Study labels
 df$study <- sub("-.*", "", df$repertoire_id)
 df$study <- case_when(
   df$study == "Covid19_db3" ~ "CD1",
@@ -118,30 +102,26 @@ df$study <- case_when(
   TRUE ~ df$study
 )
 
-# Standard exclusions
 df <- df %>% filter(!repertoire_id %in% c(
-  "covid_vaccine_new-Fb","covid_vaccine_new-Water",
-  "lp16_Igblast-D159","lp16_Igblast-D154","lp16_Igblast-Hu-1"))
+  "covid_vaccine_new-Fb", "covid_vaccine_new-Water",
+  "lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"))
 
-cd3_healthy <- df %>% filter(study=="CD3", grepl("healthy",disease_raw,ignore.case=TRUE)) %>%
+cd3_healthy <- df %>% filter(study == "CD3", grepl("healthy", disease_raw, ignore.case = TRUE)) %>%
   pull(repertoire_id) %>% unique()
 df <- df %>% filter(!repertoire_id %in% cd3_healthy)
 
-# Blood-only
-df <- df %>% filter(tissue %in% c("blood","PBL","Peripheral blood"))
+df <- df %>% filter(tissue %in% c("blood", "PBL", "Peripheral blood"))
 
-# Merge sex
 df_sex_blood <- df_sex %>%
-  filter(tissue %in% c("blood","PBL","Peripheral blood")) %>%
+  filter(tissue %in% c("blood", "PBL", "Peripheral blood")) %>%
   group_by(repertoire_id) %>%
   summarise(sex = first(na.omit(sex)), .groups = "drop")
 df <- df %>% left_join(df_sex_blood, by = "repertoire_id", suffix = c("", ".sex"))
 df$sex <- ifelse(is.na(df$sex), df$sex.sex, df$sex)
 df$sex.sex <- NULL
 
-# Merge age
 df_age_blood <- df_age %>%
-  filter(tissue %in% c("blood","PBL","Peripheral blood")) %>%
+  filter(tissue %in% c("blood", "PBL", "Peripheral blood")) %>%
   group_by(repertoire_id) %>%
   summarise(age = first(na.omit(age)), .groups = "drop")
 df <- df %>% left_join(df_age_blood, by = "repertoire_id", suffix = c("", ".age"))
@@ -162,110 +142,123 @@ cat("After filtering:", nrow(df), "subjects\n")
 cat("\nPer disease:\n")
 df %>% count(disease_cat) %>% print()
 
-# ---- Compute stacked tiers (non-overlapping) ----
-df <- df %>% mutate(
-  tier_top10     = top10_pct,
-  tier_11_100    = top100_pct - top10_pct,
-  tier_101_1000  = top1000_pct - top100_pct,
-  tier_remaining = 100 - top1000_pct
-)
-
-# Sort subjects by top10_pct within each disease category
 df <- df %>%
-  arrange(disease_cat, desc(top10_pct)) %>%
+  arrange(disease_cat, desc(mut_top10)) %>%
   mutate(subj_order = row_number())
 
-# ---- Pivot to stacked long format ----
-make_stacked_long <- function(data) {
+make_mutation_long <- function(data) {
   data %>%
     select(repertoire_id, subj_order, disease_cat, disease_raw, sex_clean, age_group,
-           tier_top10, tier_11_100, tier_101_1000, tier_remaining) %>%
-    pivot_longer(cols = starts_with("tier_"),
-                 names_to = "tier", values_to = "pct") %>%
+           mut_top10, mut_top100, mut_top1000) %>%
+    pivot_longer(cols = starts_with("mut_"),
+                 names_to = "tier", values_to = "mutation_count") %>%
     mutate(tier = case_when(
-      tier == "tier_top10"     ~ "Top 10",
-      tier == "tier_11_100"    ~ "Top 11-100",
-      tier == "tier_101_1000"  ~ "Top 101-1000",
-      tier == "tier_remaining" ~ "Remaining"
+      tier == "mut_top10"   ~ "Top 10",
+      tier == "mut_top100"  ~ "Top 100",
+      tier == "mut_top1000" ~ "Top 1000"
     )) %>%
-    mutate(tier = factor(tier, levels = c("Remaining", "Top 101-1000", "Top 11-100", "Top 10")))
+    mutate(tier = factor(tier, levels = c("Top 10", "Top 100", "Top 1000")))
 }
 
-df_stacked <- make_stacked_long(df)
+df_long <- make_mutation_long(df)
 
 # ============================================================
-# Fig 10: Stacked Bar - TopX by Disease Category
+# Fig 15: Mutation Level - Per-subject bars, faceted by tier (rows) and disease (cols)
 # ============================================================
-p10 <- ggplot(df_stacked,
-              aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
+p15 <- ggplot(df_long,
+              aes(x = reorder(repertoire_id, subj_order), y = mutation_count, fill = tier)) +
   geom_bar(stat = "identity", width = 0.9) +
-  facet_grid(~ disease_cat, scales = "free_x", space = "free_x") +
+  facet_grid(tier ~ disease_cat, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, 100)) +
-  labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(strip.text.x = element_text(face = "bold", size = 18, angle = 90, hjust = 0, vjust = 0.5),
-        strip.clip = "off")
-ggsave("plots/10_topX_stacked_by_disease.png", p10, width = 14, height = 8, dpi = 400, bg = "white")
-cat("\nFigure 10 (stacked) saved.\n")
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(df_long$mutation_count, na.rm = TRUE) + 5)) +
+  labs(x = NULL, y = "Avg. Mutation Count") +
+  theme(strip.text.x = element_text(face = "bold", size = 14),
+        strip.text.y = element_text(face = "bold", size = 14, angle = 0),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        plot.margin = margin(10, 10, 30, 10),
+        legend.position = "bottom",
+        legend.box.margin = margin(10, 0, 0, 0),
+        legend.title = element_text(size = 16, face = "bold"),
+        legend.text = element_text(size = 14),
+        legend.key.size = unit(0.8, "cm"))
+ggsave("plots/15_mutation_by_disease.png", p15, width = 20, height = 11, dpi = 400, bg = "white")
+cat("\nFigure 15 saved.\n")
 
 # ============================================================
-# Fig 11: Stacked Bar - TopX by Age Group + Disease
+# Fig 16: Mutation Level - Per-subject bars by Age + Disease
 # ============================================================
 df_age_plot <- df %>% filter(!is.na(age_group))
 df_age_plot <- df_age_plot %>%
-  arrange(disease_cat, age_group, desc(top10_pct)) %>%
+  arrange(disease_cat, age_group, desc(mut_top10)) %>%
   mutate(subj_order = row_number())
 
-df_age_stacked <- make_stacked_long(df_age_plot)
+df_age_long <- make_mutation_long(df_age_plot)
 
-p11 <- ggplot(df_age_stacked,
-              aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
+p16 <- ggplot(df_age_long,
+              aes(x = reorder(repertoire_id, subj_order), y = mutation_count, fill = tier)) +
   geom_bar(stat = "identity", width = 0.9) +
-  facet_grid(~ disease_cat + age_group, scales = "free_x", space = "free_x") +
+  facet_grid(tier ~ disease_cat + age_group, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, 100)) +
-  labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(df_age_long$mutation_count, na.rm = TRUE) + 5)) +
+  labs(x = NULL, y = "Avg. Mutation Count") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        strip.text.x = element_text(face = "bold", size = 13, angle = 90, hjust = 0, vjust = 0.5),
+        strip.text.y = element_text(face = "bold", size = 14, angle = 0),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11_topX_stacked_by_age_disease.png", p11, width = 18, height = 8, dpi = 400, bg = "white")
-cat("Figure 11 (stacked by age) saved.\n")
+ggsave("plots/16_mutation_by_age_disease.png", p16, width = 18, height = 12, dpi = 400, bg = "white")
+cat("Figure 16 saved.\n")
 
 # ============================================================
-# Fig 11b: Stacked Bar - TopX by Sex + Disease
+# Fig 17: Mutation Level - Per-subject bars by Sex + Disease
 # ============================================================
 df_sex_plot <- df %>% filter(!is.na(sex_clean))
 df_sex_plot <- df_sex_plot %>%
-  arrange(disease_cat, sex_clean, desc(top10_pct)) %>%
+  arrange(disease_cat, sex_clean, desc(mut_top10)) %>%
   mutate(subj_order = row_number())
 
-df_sex_stacked <- make_stacked_long(df_sex_plot)
+df_sex_long <- make_mutation_long(df_sex_plot)
 
-p11b <- ggplot(df_sex_stacked,
-               aes(x = reorder(repertoire_id, subj_order), y = pct, fill = tier)) +
+p17 <- ggplot(df_sex_long,
+              aes(x = reorder(repertoire_id, subj_order), y = mutation_count, fill = tier)) +
   geom_bar(stat = "identity", width = 0.9) +
-  facet_grid(~ disease_cat + sex_clean, scales = "free_x", space = "free_x") +
+  facet_grid(tier ~ disease_cat + sex_clean, scales = "free_x", space = "free_x") +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
-  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
-  coord_cartesian(ylim = c(0, 100)) +
-  labs(x = NULL, y = "Fraction of Total Copies") +
-  theme(strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_cartesian(ylim = c(0, max(df_sex_long$mutation_count, na.rm = TRUE) + 5)) +
+  labs(x = NULL, y = "Avg. Mutation Count") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        strip.text.x = element_text(face = "bold", size = 14, angle = 90, hjust = 0, vjust = 0.5),
+        strip.text.y = element_text(face = "bold", size = 14, angle = 0),
         strip.clip = "off",
         panel.spacing.x = unit(0.3, "lines"))
-ggsave("plots/11b_topX_stacked_by_sex_disease.png", p11b, width = 16, height = 8, dpi = 400, bg = "white")
-cat("Figure 11b (stacked by sex) saved.\n")
+ggsave("plots/17_mutation_by_sex_disease.png", p17, width = 16, height = 12, dpi = 400, bg = "white")
+cat("Figure 17 saved.\n")
 
 # Summary stats
-cat("\n========== TOP-X CLONE PROPORTION SUMMARY ==========\n")
+cat("\n========== MUTATION LEVEL SUMMARY ==========\n")
 df %>%
   group_by(disease_cat) %>%
   summarise(
     n = n(),
-    median_top10_pct = round(median(top10_pct), 2),
-    median_top100_pct = round(median(top100_pct), 2),
-    median_top1000_pct = round(median(top1000_pct), 2),
+    median_top10 = round(median(mut_top10), 2),
+    median_top100 = round(median(mut_top100), 2),
+    median_top1000 = round(median(mut_top1000), 2),
+    mean_top10 = round(mean(mut_top10), 2),
+    mean_top100 = round(mean(mut_top100), 2),
+    mean_top1000 = round(mean(mut_top1000), 2),
     .groups = "drop"
   ) %>%
+  print()
+
+cat("\nBy sex:\n")
+df %>% filter(!is.na(sex_clean)) %>%
+  group_by(disease_cat, sex_clean) %>%
+  summarise(n = n(),
+            median_top10 = round(median(mut_top10), 2),
+            median_top100 = round(median(mut_top100), 2),
+            .groups = "drop") %>%
   print()
