@@ -408,18 +408,27 @@ df_region_long <- df_region %>%
   )) %>%
   mutate(region = factor(region, levels = c("CDR", "FW")))
 
-p5 <- ggplot(df_region_long, aes(x = disease_cat, y = mutation_count, fill = region)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.5,
-               position = position_dodge(width = 0.8)) +
-  geom_point(aes(color = region), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
-             alpha = 0.5, size = 1.5) +
-  scale_fill_manual(values = region_colors, name = "Region") +
-  scale_color_manual(values = region_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. Mutation Count per Clone",
-       title = "Somatic Mutations: CDR vs Framework Regions") +
+p7_cdr <- ggplot(df_region, aes(x = disease_cat, y = avg_cdr, fill = disease_cat)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  scale_fill_manual(values = disease_colors, guide = "none") +
+  labs(x = NULL, y = "Avg. CDR Mutations per Clone",
+       title = "CDR Somatic Mutations by Disease") +
   theme()
-ggsave("plots/07_mutation_by_region.png", p5, width = 14, height = 8, dpi = 400, bg = "white")
-cat("Figure 7 saved.\n")
+ggsave("plots/07_cdr_mutations_by_disease.png", p7_cdr, width = 12, height = 8, dpi = 400, bg = "white")
+cat("Figure 7a saved.\n")
+
+p7_fw <- ggplot(df_region, aes(x = disease_cat, y = avg_fw, fill = disease_cat)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  scale_fill_manual(values = disease_colors, guide = "none") +
+  labs(x = NULL, y = "Avg. FW Mutations per Clone",
+       title = "Framework Somatic Mutations by Disease") +
+  theme()
+ggsave("plots/07_fw_mutations_by_disease.png", p7_fw, width = 12, height = 8, dpi = 400, bg = "white")
+cat("Figure 7b saved.\n")
 
 cat("\n--- Mutation by Region (median) ---\n")
 df_region %>% group_by(disease_cat) %>%
