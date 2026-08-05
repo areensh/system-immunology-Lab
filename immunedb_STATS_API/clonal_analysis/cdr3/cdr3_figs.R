@@ -3,7 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/cdr3")
+setwd("/home/user/system-immunology-Lab/immunedb_STATS_API/clonal_analysis/cdr3")
 
 map_disease <- function(ds) {
   ds <- trimws(ds)

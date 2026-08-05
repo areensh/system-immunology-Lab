@@ -6,7 +6,7 @@ from docx.enum.section import WD_ORIENT
 import os
 
 BASE = "/home/user/system-immunology-Lab/immunedb_STATS_API"
-os.chdir(BASE + "/clonal")
+os.chdir(BASE + "/clonal_analysis")
 
 doc = Document()
 
@@ -791,6 +791,6 @@ doc.add_paragraph(
 # ============================================================
 # SAVE
 # ============================================================
-outpath = '/home/user/system-immunology-Lab/immunedb_STATS_API/clonal/Clonal_Analysis_Results.docx'
+outpath = '/home/user/system-immunology-Lab/immunedb_STATS_API/clonal_analysis/Clonal_Analysis_Results.docx'
 doc.save(outpath)
 print(f"Document saved to {outpath}")
