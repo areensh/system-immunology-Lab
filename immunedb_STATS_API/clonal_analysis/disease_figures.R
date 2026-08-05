@@ -364,3 +364,66 @@ cat("\n--- Mutation Gradient (Top10 - Top1000) ---\n")
 df_mut_gradient %>% group_by(disease_cat) %>%
   summarise(n = n(), median_gradient = round(median(mut_gradient), 1),
             mean_gradient = round(mean(mut_gradient), 1), .groups = "drop") %>% print()
+
+# ============================================================
+# 5. MUTATION BY REGION (CDR vs FW) BY DISEASE
+# ============================================================
+cat("\n=== Mutation by Region ===\n")
+parse_mutation_region <- function(path) {
+  raw <- fromJSON(path, simplifyDataFrame = FALSE)
+  rows <- lapply(raw$Result, function(entry) {
+    rep <- entry$repertoire
+    keys <- trimws(rep$meta_key)
+    vals <- trimws(rep$meta_value)
+    sv <- entry$statistics[[1]]$stats_value
+    ids <- sapply(sv, function(x) x$clone_id)
+    i_cdr <- which(ids == "CDR"); i_fw <- which(ids == "FW")
+    if (!length(i_cdr) || !length(i_fw)) return(NULL)
+    ds_idx <- which(keys == "disease_stage")
+    tissue_idx <- which(keys == "tissue")
+    data.frame(
+      repertoire_id = rep$repertoire_id,
+      avg_cdr = sv[[i_cdr]]$count, avg_fw = sv[[i_fw]]$count,
+      disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
+      tissue = if (length(tissue_idx)) vals[tissue_idx] else NA_character_,
+      stringsAsFactors = FALSE
+    )
+  })
+  bind_rows(rows[!sapply(rows, is.null)])
+}
+
+region_colors <- c("CDR" = "#e74c3c", "FW" = "#3498db")
+
+df_region <- parse_mutation_region("mutation/data/mutations_region_disease_tissue.json")
+df_region <- standard_filter(df_region)
+cat("Mutation by region subjects:", nrow(df_region), "\n")
+
+df_region_long <- df_region %>%
+  select(repertoire_id, disease_cat, avg_cdr, avg_fw) %>%
+  pivot_longer(cols = c(avg_cdr, avg_fw),
+               names_to = "region", values_to = "mutation_count") %>%
+  mutate(region = case_when(
+    region == "avg_cdr" ~ "CDR",
+    region == "avg_fw" ~ "FW"
+  )) %>%
+  mutate(region = factor(region, levels = c("CDR", "FW")))
+
+p5 <- ggplot(df_region_long, aes(x = disease_cat, y = mutation_count, fill = region)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
+  geom_point(aes(color = region), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+             alpha = 0.5, size = 1.5) +
+  scale_fill_manual(values = region_colors, name = "Region") +
+  scale_color_manual(values = region_colors, guide = "none") +
+  labs(x = NULL, y = "Avg. Mutation Count per Clone",
+       title = "Somatic Mutations: CDR vs Framework Regions") +
+  theme()
+ggsave("plots/07_mutation_by_region.png", p5, width = 14, height = 8, dpi = 400, bg = "white")
+cat("Figure 7 saved.\n")
+
+cat("\n--- Mutation by Region (median) ---\n")
+df_region %>% group_by(disease_cat) %>%
+  summarise(n = n(), median_cdr = round(median(avg_cdr), 2),
+            median_fw = round(median(avg_fw), 2),
+            median_ratio = round(median(avg_cdr / avg_fw), 3),
+            .groups = "drop") %>% print()
