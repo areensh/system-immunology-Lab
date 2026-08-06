@@ -436,3 +436,74 @@ df_region %>% group_by(disease_cat) %>%
             median_fw = round(median(avg_fw), 2),
             median_ratio = round(median(avg_cdr / avg_fw), 3),
             .groups = "drop") %>% print()
+
+# ============================================================
+# 6. R/S RATIO BY DISEASE (CDR and FW separately)
+# ============================================================
+cat("\n=== R/S Ratio ===\n")
+parse_rs_ratio <- function(path) {
+  raw <- fromJSON(path, simplifyDataFrame = FALSE)
+  rows <- lapply(raw$Result, function(entry) {
+    rep <- entry$repertoire
+    keys <- trimws(rep$meta_key)
+    vals <- trimws(rep$meta_value)
+    sv <- entry$statistics[[1]]$stats_value
+    ids <- sapply(sv, function(x) x$clone_id)
+    get_val <- function(id) {
+      i <- which(ids == id)
+      if (length(i)) sv[[i]]$count else NA_real_
+    }
+    ds_idx <- which(keys == "disease_stage")
+    tissue_idx <- which(keys == "tissue")
+    data.frame(
+      repertoire_id = rep$repertoire_id,
+      cdr_r = get_val("CDR_replacement"), cdr_s = get_val("CDR_synonymous"),
+      fw_r = get_val("FW_replacement"), fw_s = get_val("FW_synonymous"),
+      disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
+      tissue = if (length(tissue_idx)) vals[tissue_idx] else NA_character_,
+      stringsAsFactors = FALSE
+    )
+  })
+  bind_rows(rows[!sapply(rows, is.null)])
+}
+
+df_rs <- parse_rs_ratio("mutation/data/mutations_rs_ratio_disease_tissue.json")
+df_rs <- standard_filter(df_rs)
+df_rs <- df_rs %>% mutate(
+  cdr_rs = ifelse(cdr_s > 0, cdr_r / cdr_s, NA_real_),
+  fw_rs = ifelse(fw_s > 0, fw_r / fw_s, NA_real_)
+)
+cat("R/S ratio subjects:", nrow(df_rs), "\n")
+
+rs_colors <- c("CDR" = "#e74c3c", "FW" = "#3498db")
+
+df_rs_long <- df_rs %>%
+  select(repertoire_id, disease_cat, cdr_rs, fw_rs) %>%
+  pivot_longer(cols = c(cdr_rs, fw_rs),
+               names_to = "region", values_to = "rs_ratio") %>%
+  mutate(region = case_when(
+    region == "cdr_rs" ~ "CDR",
+    region == "fw_rs" ~ "FW"
+  )) %>%
+  mutate(region = factor(region, levels = c("CDR", "FW")))
+
+p8 <- ggplot(df_rs_long, aes(x = disease_cat, y = rs_ratio, fill = region)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
+  geom_point(aes(color = region), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+             alpha = 0.5, size = 1.5) +
+  scale_fill_manual(values = rs_colors, name = "Region") +
+  scale_color_manual(values = rs_colors, guide = "none") +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey50") +
+  labs(x = NULL, y = "R/S Ratio (Replacement / Synonymous)",
+       title = "Selection Pressure: R/S Ratio by Disease") +
+  theme()
+ggsave("plots/08_rs_ratio_by_disease.png", p8, width = 14, height = 8, dpi = 400, bg = "white")
+cat("Figure 8 saved.\n")
+
+cat("\n--- R/S Ratio (median) ---\n")
+df_rs %>% group_by(disease_cat) %>%
+  summarise(n = n(),
+            median_cdr_rs = round(median(cdr_rs, na.rm = TRUE), 3),
+            median_fw_rs = round(median(fw_rs, na.rm = TRUE), 3),
+            .groups = "drop") %>% print()
