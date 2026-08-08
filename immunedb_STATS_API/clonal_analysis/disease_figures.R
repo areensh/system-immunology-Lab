@@ -618,3 +618,66 @@ df_cs_subj %>% group_by(disease_cat) %>%
             median_expanded_pct = round(median(highly_expanded_pct), 1),
             median_expanded_size = round(median(mean_expanded_size, na.rm = TRUE), 1),
             .groups = "drop") %>% print()
+
+# ============================================================
+# 8. SEX × DISEASE BREAKDOWNS (selected endpoints)
+# ============================================================
+cat("\n=== Sex x Disease Breakdowns ===\n")
+
+meta_raw <- fromJSON("../metadata/data/metadata_ALL.json", simplifyDataFrame = FALSE)
+meta_list <- lapply(meta_raw$Result, function(entry) {
+  rep <- entry$repertoire
+  keys <- trimws(rep$meta_key); vals <- trimws(rep$meta_value)
+  sex_i <- which(keys == "sex"); age_i <- which(keys == "Age minimum")
+  data.frame(
+    repertoire_id = rep$repertoire_id,
+    sex = if (length(sex_i)) vals[sex_i] else NA_character_,
+    age = suppressWarnings(if (length(age_i)) as.numeric(vals[age_i]) else NA_real_),
+    stringsAsFactors = FALSE
+  )
+})
+meta_df <- bind_rows(meta_list) %>% distinct(repertoire_id, .keep_all = TRUE)
+meta_df <- meta_df %>% filter(sex %in% c("male", "female", "Male", "Female"))
+meta_df$sex <- ifelse(grepl("^[Mm]", meta_df$sex), "Male", "Female")
+
+sex_colors <- c("Female" = "#e74c3c", "Male" = "#3498db")
+
+# Fig 12: Mutation Top10 by sex x disease
+df_mut_sex <- df_mut %>% left_join(meta_df, by = "repertoire_id") %>% filter(!is.na(sex))
+cat("Mutation by sex subjects:", nrow(df_mut_sex), "\n")
+
+p12 <- ggplot(df_mut_sex, aes(x = disease_cat, y = mut_top10, fill = sex)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
+  geom_point(aes(color = sex), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+             alpha = 0.5, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red",
+               position = position_dodge(width = 0.8)) +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.2, color = "red", linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = sex_colors, name = "Sex") +
+  scale_color_manual(values = sex_colors, guide = "none") +
+  labs(x = NULL, y = "Avg. Mutation Count (Top 10 Clones)") +
+  theme()
+ggsave("plots/12_mutation_top10_by_sex_disease.png", p12, width = 14, height = 8, dpi = 400, bg = "white")
+cat("Figure 12 saved.\n")
+
+# Fig 13: CDR3 Top10 by sex x disease
+df_cdr3_sex <- df_cdr3 %>% left_join(meta_df, by = "repertoire_id") %>% filter(!is.na(sex))
+cat("CDR3 by sex subjects:", nrow(df_cdr3_sex), "\n")
+
+p13 <- ggplot(df_cdr3_sex, aes(x = disease_cat, y = top10_aa, fill = sex)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
+  geom_point(aes(color = sex), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+             alpha = 0.5, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red",
+               position = position_dodge(width = 0.8)) +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.2, color = "red", linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = sex_colors, name = "Sex") +
+  scale_color_manual(values = sex_colors, guide = "none") +
+  labs(x = NULL, y = "Avg. CDR3 Length (AA, Top 10 Clones)") +
+  theme()
+ggsave("plots/13_cdr3_top10_by_sex_disease.png", p13, width = 14, height = 8, dpi = 400, bg = "white")
+cat("Figure 13 saved.\n")

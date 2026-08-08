@@ -800,8 +800,135 @@ children.push(para(
 
 children.push(pageBreak());
 
+// ===================== 8. SEX AND AGE STRATIFICATION =====================
+children.push(heading("8. Sex and Age Stratification of Selected Findings", HeadingLevel.HEADING_2));
+
+children.push(para(
+  "To examine whether the disease-associated patterns identified above are modulated by sex or age, " +
+  "we performed stratified analyses on the endpoints showing the most biologically interesting " +
+  "variation. Sex data was available for 92 of 103 subjects (the entire CD3 dataset of 13 subjects " +
+  "lacked sex annotations). Age data was available for 101 of 103 subjects."
+));
+
+children.push(heading("8.1 Somatic Hypermutation by Sex and Disease", HeadingLevel.HEADING_3));
+children.push(para(
+  "Figure 17 shows the average mutation count of the top 10 clones stratified by sex within each " +
+  "disease category. The most striking sex difference emerged in the Moderate group: females showed " +
+  "substantially higher Top 10 mutation levels (median 113.0) compared to males (71.3), a 1.6-fold " +
+  "difference. This suggests that Moderate females may have more mature, affinity-selected repertoires " +
+  "than their male counterparts, though the small subgroup size (n=3 female, n=6 male) warrants " +
+  "cautious interpretation. In the Recovered group, the pattern reversed: males showed higher " +
+  "mutation levels (120.0) than females (101.0). The mutation gradient (Top 10 − Top 1000) " +
+  "reinforced this pattern, with Moderate females showing a much steeper gradient (99.6) than males " +
+  "(60.6), indicating stronger selection of highly mutated dominant clones among Moderate females. " +
+  "Mild, Severe, and COVID Naive groups showed minimal sex differences in mutation burden."
+));
+
+children.push(figPara(IMG_BASE_CLONE, "12_mutation_top10_by_sex_disease.png", 580, 380));
+children.push(italic(
+  "Figure 17. Average mutation count of Top 10 clones by sex and disease category. " +
+  "Box plots show median and IQR; red diamond indicates mean with SD error bars."
+));
+
+children.push(tableCaptionBold("Table 11. Median mutation count (Top 10) and gradient by sex and disease category."));
+children.push(makeTable(
+  ["Disease Category", "Sex", "n", "Median Mut (Top 10)", "Median Gradient"],
+  [
+    ["Severe", "Female", "5", "86.0", "58.5"],
+    ["Severe", "Male", "14", "82.1", "60.5"],
+    ["Mild", "Female", "19", "46.2", "32.2"],
+    ["Mild", "Male", "19", "48.6", "33.4"],
+    ["Moderate", "Female", "3", "113.0", "99.6"],
+    ["Moderate", "Male", "6", "71.3", "60.6"],
+    ["Recovered", "Female", "3", "101.0", "76.6"],
+    ["Recovered", "Male", "9", "120.0", "89.7"],
+    ["COVID Naive", "Female", "4", "115.0", "85.9"],
+    ["COVID Naive", "Male", "4", "121.0", "92.2"],
+    ["Healthy", "Female", "1", "82.1", "74.1"],
+    ["Healthy", "Male", "5", "75.8", "64.4"],
+  ],
+  [1800, 1000, 600, 2200, 2000]
+));
+
+children.push(heading("8.2 CDR3 Length by Sex and Disease", HeadingLevel.HEADING_3));
+children.push(para(
+  "Figure 18 shows CDR3 amino acid length of the top 10 clones by sex and disease category. Two " +
+  "disease categories showed notable sex-associated differences with opposite directionality. In " +
+  "Recovered subjects, males had substantially longer Top 10 CDR3 (median 17.2 AA) compared to " +
+  "females (15.1 AA), a difference of 2.1 AA. Conversely, in COVID Naive subjects, females showed " +
+  "longer CDR3 (17.1 AA) than males (14.6 AA), a 2.5 AA difference in the opposite direction. " +
+  "These opposing patterns suggest that the sex-associated CDR3 length differences may reflect " +
+  "different antigen exposure histories or immune response kinetics rather than a universal " +
+  "sex-dependent effect on CDR3 selection. Severe, Mild, and Moderate groups showed modest or no " +
+  "sex differences in CDR3 length."
+));
+
+children.push(figPara(IMG_BASE_CLONE, "13_cdr3_top10_by_sex_disease.png", 580, 380));
+children.push(italic(
+  "Figure 18. Average CDR3 amino acid length of Top 10 clones by sex and disease category."
+));
+
+children.push(tableCaptionBold("Table 12. Median CDR3 AA length (Top 10) by sex and disease category."));
+children.push(makeTable(
+  ["Disease Category", "Sex", "n", "Median CDR3 (AA)"],
+  [
+    ["Severe", "Female", "5", "17.5"],
+    ["Severe", "Male", "14", "17.9"],
+    ["Mild", "Female", "19", "16.3"],
+    ["Mild", "Male", "19", "16.5"],
+    ["Moderate", "Female", "3", "17.8"],
+    ["Moderate", "Male", "6", "17.0"],
+    ["Recovered", "Female", "3", "15.1"],
+    ["Recovered", "Male", "9", "17.2"],
+    ["COVID Naive", "Female", "4", "17.1"],
+    ["COVID Naive", "Male", "4", "14.6"],
+    ["Healthy", "Female", "1", "12.8"],
+    ["Healthy", "Male", "5", "14.5"],
+  ],
+  [2400, 1200, 800, 2400]
+));
+
+children.push(heading("8.3 Age-Associated Patterns", HeadingLevel.HEADING_3));
+children.push(para(
+  "Age-stratified analysis revealed one particularly noteworthy pattern in the Severe disease group. " +
+  "Clonal diversity decreased sharply with age: the youngest Severe subject (18–30) had 18,401 unique " +
+  "clones, compared to a median of 7,678 (31–50), 3,423 (51–65), and 1,941 (66+). This age-related " +
+  "decline was paralleled by mutation burden: Top 10 mutation count dropped from 118.0 in the " +
+  "youngest age group to 43.0 in subjects aged 66+, consistent with immunosenescence limiting the " +
+  "capacity for affinity maturation during severe disease."
+));
+children.push(para(
+  "Interestingly, the CDR R/S ratio in Severe subjects showed the opposite trend, increasing " +
+  "from 1.90 (18–30) to 3.39 (66+). This suggests that while older Severe patients accumulate " +
+  "fewer total mutations, the mutations they do acquire are more strongly enriched for replacement " +
+  "changes in CDR regions—possibly reflecting a more constrained but targeted selection process. " +
+  "In Mild subjects, CDR3 length showed an age-dependent increase (16.3 AA at 18–30 to 18.5 AA " +
+  "at 66+), a pattern not seen in other disease categories."
+));
+
+children.push(tableCaptionBold("Table 13. Age-stratified clone count, mutation, and R/S ratio in Severe subjects."));
+children.push(makeTable(
+  ["Age Group", "n", "Median Clone Count", "Median Mut (Top 10)", "Median CDR R/S"],
+  [
+    ["18-30", "1", "18,401", "118.0", "1.90"],
+    ["31-50", "6", "7,678", "80.5", "2.43"],
+    ["51-65", "6", "3,423", "84.4", "2.89"],
+    ["66+", "5", "1,941", "43.0", "3.39"],
+  ],
+  [1800, 800, 2400, 2400, 2200]
+));
+
+children.push(para(
+  "No consistent age-dependent trends were observed in other disease categories, and the uneven " +
+  "distribution of subjects across age groups limits the power of age-stratified comparisons. " +
+  "Notably, all COVID Naive subjects were in the 18–30 age group, precluding age-stratified " +
+  "analysis for this category."
+));
+
+children.push(pageBreak());
+
 // ===================== SUMMARY =====================
-children.push(heading("8. Summary of Results", HeadingLevel.HEADING_2));
+children.push(heading("9. Summary of Results", HeadingLevel.HEADING_2));
 
 children.push(para(
   "This study analyzed B-cell receptor (BCR) repertoire characteristics across 103 subjects from " +
@@ -810,10 +937,11 @@ children.push(para(
   "(v0.3.0), we examined seven complementary dimensions of clonal architecture: clone size and " +
   "expansion, clonal diversity, clonal dominance (top-X clone proportions), CDR3 amino acid length, " +
   "somatic hypermutation levels, region-specific mutation (CDR vs. FW), and replacement-to-synonymous " +
-  "(R/S) mutation ratios. The following summarizes the principal findings across these analyses."
+  "(R/S) mutation ratios, with selected sex and age stratifications. The following summarizes the " +
+  "principal findings across these analyses."
 ));
 
-children.push(heading("8.1 Clonal Expansion and Clone Size", HeadingLevel.HEADING_3));
+children.push(heading("9.1 Clonal Expansion and Clone Size", HeadingLevel.HEADING_3));
 children.push(para(
   "Clone size analysis (96 subjects) revealed that COVID Naive subjects harbored the highest " +
   "numbers of expanded clones (size > 100; median 157) and the largest median clone size (103 copies). " +
@@ -826,7 +954,7 @@ children.push(para(
   "subjects were unavailable for clone size analysis."
 ));
 
-children.push(heading("8.2 Clonal Diversity", HeadingLevel.HEADING_3));
+children.push(heading("9.2 Clonal Diversity", HeadingLevel.HEADING_3));
 children.push(para(
   "Clonal diversity, measured by the total number of unique clones per subject, varied markedly " +
   "across disease categories. Recovered subjects exhibited the highest median clone count (21,526), " +
@@ -837,7 +965,7 @@ children.push(para(
   "variability (range 650–61,136), potentially reflecting heterogeneous prior immune histories."
 ));
 
-children.push(heading("8.3 Clonal Dominance (Top-X Clone Proportions)", HeadingLevel.HEADING_3));
+children.push(heading("9.3 Clonal Dominance (Top-X Clone Proportions)", HeadingLevel.HEADING_3));
 children.push(para(
   "Healthy subjects showed strikingly high Top 1000 concentration (median 99.3%), indicating that " +
   "nearly all sequence copies belonged to the top 1000 clones. This is consistent with a small, " +
@@ -848,7 +976,7 @@ children.push(para(
   "copies across a large and diverse repertoire."
 ));
 
-children.push(heading("8.4 CDR3 Amino Acid Length", HeadingLevel.HEADING_3));
+children.push(heading("9.4 CDR3 Amino Acid Length", HeadingLevel.HEADING_3));
 children.push(para(
   "CDR3 length analysis of the top expanded clones revealed a gradient associated with disease " +
   "severity. Severe cases exhibited the longest CDR3 regions in their Top 10 clones (median 17.7 AA), " +
@@ -861,7 +989,7 @@ children.push(para(
   "further supports this interpretation."
 ));
 
-children.push(heading("8.5 Somatic Hypermutation", HeadingLevel.HEADING_3));
+children.push(heading("9.5 Somatic Hypermutation", HeadingLevel.HEADING_3));
 children.push(para(
   "Somatic hypermutation (SHM) analysis revealed substantial variation in mutation burden across " +
   "disease categories. COVID Naive subjects showed the highest mutation levels in their Top 10 " +
@@ -873,7 +1001,7 @@ children.push(para(
   "expanded clones are highly selected, affinity-matured antibodies."
 ));
 
-children.push(heading("8.6 Region-Specific Mutation and R/S Ratios", HeadingLevel.HEADING_3));
+children.push(heading("9.6 Region-Specific Mutation and R/S Ratios", HeadingLevel.HEADING_3));
 children.push(para(
   "Analysis of mutation distribution across antibody regions revealed that FW regions consistently " +
   "carried more total mutations than CDR regions, reflecting their longer combined length. However, " +
@@ -890,7 +1018,28 @@ children.push(para(
   "lowest CDR R/S (1.98), consistent with a less mature selection profile."
 ));
 
-children.push(heading("8.7 Methodological Considerations", HeadingLevel.HEADING_3));
+children.push(heading("9.7 Sex and Age Effects", HeadingLevel.HEADING_3));
+children.push(para(
+  "Sex-stratified analysis of 92 subjects with sex annotations revealed selectively notable " +
+  "differences. The most striking finding was among Moderate subjects, where females showed " +
+  "substantially higher Top 10 mutation levels (113.0 vs. 71.3) and a steeper mutation gradient " +
+  "(99.6 vs. 60.6) compared to males, suggesting more mature affinity selection in this small " +
+  "subgroup (n=3F, n=6M). CDR3 length showed sex-dependent patterns with opposite directionality " +
+  "in Recovered (males longer: 17.2 vs. 15.1 AA) and COVID Naive (females longer: 17.1 vs. 14.6 AA), " +
+  "suggesting sex-associated CDR3 differences are context-dependent rather than universal. " +
+  "Clone count, Top-X proportions, and R/S ratios showed minimal sex differences across all " +
+  "disease categories."
+));
+children.push(para(
+  "Age-stratified analysis in Severe subjects revealed a clear gradient: clonal diversity decreased " +
+  "with age (18,401 clones at 18–30 to 1,941 at 66+), as did mutation burden (118.0 to 43.0), " +
+  "while the CDR R/S ratio increased (1.90 to 3.39). This pattern is consistent with " +
+  "immunosenescence limiting repertoire diversity and mutation accumulation, while the increased " +
+  "R/S ratio suggests more targeted selection in older patients. These observations warrant " +
+  "validation in larger, age-balanced cohorts."
+));
+
+children.push(heading("9.8 Methodological Considerations", HeadingLevel.HEADING_3));
 children.push(para(
   "This analysis leveraged the iReceptor Statistics API (v0.3.0), which provides a standardized " +
   "framework for computing repertoire statistics across federated datasets. The metadata fingerprint " +
@@ -904,17 +1053,18 @@ children.push(para(
 ));
 children.push(para(
   "Several limitations should be noted. First, sample sizes within some subgroups (Healthy n=6, " +
-  "COVID Naive n=8, Moderate n=9) are small. Second, clone size data was available for only 96 " +
-  "of 103 subjects (seven CD1 Severe subjects were absent from the API response). Third, the " +
-  "datasets were generated using different sequencing protocols and bioinformatics pipelines, " +
-  "which may introduce batch effects. Fourth, disease category confounds with study of origin, " +
-  "which is an important consideration for all cross-study comparisons."
+  "COVID Naive n=8, Moderate n=9) are small, and sex-stratified subgroups are even smaller. " +
+  "Second, clone size data was available for only 96 of 103 subjects (seven CD1 Severe subjects " +
+  "were absent from the API response). Third, the datasets were generated using different " +
+  "sequencing protocols and bioinformatics pipelines, which may introduce batch effects. Fourth, " +
+  "disease category confounds with study of origin, and age confounds with disease severity " +
+  "(Severe skews older), which are important considerations for all cross-study comparisons."
 ));
 
 children.push(pageBreak());
 
 // ===================== DISCUSSION =====================
-children.push(heading("9. Discussion", HeadingLevel.HEADING_2));
+children.push(heading("10. Discussion", HeadingLevel.HEADING_2));
 
 children.push(para(
   "This study presents a comprehensive clonal analysis of B-cell receptor repertoires across " +
@@ -925,7 +1075,7 @@ children.push(para(
   "signatures associated with different stages and outcomes of SARS-CoV-2 infection."
 ));
 
-children.push(heading("9.1 Distinct Clonal Architectures Across Disease States", HeadingLevel.HEADING_3));
+children.push(heading("10.1 Distinct Clonal Architectures Across Disease States", HeadingLevel.HEADING_3));
 children.push(para(
   "Our findings reveal that the clonal landscape of the B-cell repertoire undergoes characteristic " +
   "remodeling during and after SARS-CoV-2 infection. Subjects with active disease (Severe and " +
@@ -945,7 +1095,7 @@ children.push(para(
   "prior immune histories among healthy donors."
 ));
 
-children.push(heading("9.2 CDR3 Length as a Severity-Associated Feature", HeadingLevel.HEADING_3));
+children.push(heading("10.2 CDR3 Length as a Severity-Associated Feature", HeadingLevel.HEADING_3));
 children.push(para(
   "The observation that Severe subjects had the longest CDR3 regions in their top expanded clones " +
   "(median 17.7 AA for Top 10) while Healthy subjects had the shortest (13.8 AA) suggests that " +
@@ -957,7 +1107,7 @@ children.push(para(
   "dominant clones, rather than shaping the entire repertoire."
 ));
 
-children.push(heading("9.3 Somatic Hypermutation and Affinity Maturation", HeadingLevel.HEADING_3));
+children.push(heading("10.3 Somatic Hypermutation and Affinity Maturation", HeadingLevel.HEADING_3));
 children.push(para(
   "The mutation analysis provides insight into the maturation state of expanded clones across " +
   "disease categories. The markedly elevated mutation levels in COVID Naive (median 119.0 for " +
@@ -977,7 +1127,7 @@ children.push(para(
   "preferentially drawn from the highly mutated, affinity-matured compartment."
 ));
 
-children.push(heading("9.4 Region-Specific Mutation and Selection Pressure", HeadingLevel.HEADING_3));
+children.push(heading("10.4 Region-Specific Mutation and Selection Pressure", HeadingLevel.HEADING_3));
 children.push(para(
   "The analysis of CDR vs. FW mutation distribution and R/S ratios adds a new dimension to our " +
   "understanding of selection pressure across disease states. The uniformly elevated CDR R/S ratios " +
@@ -990,7 +1140,7 @@ children.push(para(
   "not yet fully shaped the repertoire in these patients, who were in the early phase of disease."
 ));
 
-children.push(heading("9.5 Integration of Clonal Features", HeadingLevel.HEADING_3));
+children.push(heading("10.5 Integration of Clonal Features", HeadingLevel.HEADING_3));
 children.push(para(
   "Considered together, the seven clonal dimensions paint a coherent picture of repertoire dynamics " +
   "during COVID-19. Severe disease is characterized by moderate diversity, high clonal dominance, " +
@@ -1004,7 +1154,7 @@ children.push(para(
   "mutation gradient, consistent with a well-established memory compartment from prior exposures."
 ));
 
-children.push(heading("9.6 Conclusions", HeadingLevel.HEADING_3));
+children.push(heading("10.6 Conclusions", HeadingLevel.HEADING_3));
 children.push(para(
   "In conclusion, our multi-dimensional clonal analysis reveals disease severity-associated " +
   "signatures in the B-cell receptor repertoire during COVID-19. Severe disease is characterized " +
