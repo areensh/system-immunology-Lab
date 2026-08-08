@@ -377,10 +377,16 @@ children.push(para(
 children.push(heading("1.1 Number of Expanded Clones by Disease Category", HeadingLevel.HEADING_3));
 children.push(para(
   "Figure 5 shows the number of expanded clones (size > 100) across disease categories. COVID Naive " +
-  "subjects showed the highest counts of expanded clones (median 157), consistent with pre-existing " +
-  "clonal expansions unrelated to SARS-CoV-2 infection. Recovered subjects also exhibited elevated " +
-  "counts (median 55). In contrast, Mild subjects had a median of 0 expanded clones, indicating that " +
-  "most Mild subjects lack clones exceeding the 100-copy threshold."
+  "subjects showed the highest counts of expanded clones (median 157, mean 157), consistent with " +
+  "pre-existing clonal expansions unrelated to SARS-CoV-2 infection. Recovered subjects also exhibited " +
+  "elevated counts (median 55, mean 65.2). The Mild group showed the most heterogeneous pattern: " +
+  "18 of 34 subjects (53%) had zero expanded clones, yielding a median of 0, while the remaining 16 " +
+  "subjects did have expanded clones—two CD3 subjects (M5 and M6) had particularly high counts (480 " +
+  "and 178, respectively). The mean number of expanded clones for Mild subjects was 20.5, and the " +
+  "mean proportion of expanded clones was 12.1%, comparable to other disease groups. This discrepancy " +
+  "between median and mean reflects the influence of sequencing depth differences across studies: " +
+  "CD1 subjects generally had fewer total clones returned by the API, making it less likely for any " +
+  "individual clone to exceed the 100-copy threshold."
 ));
 
 children.push(figPara(IMG_BASE_CLONE, "10_expanded_clones_by_disease.png", 560, 380));
@@ -402,16 +408,20 @@ children.push(italic("Figure 6. Median clone size per subject by disease categor
 
 children.push(tableCaptionBold("Table 2. Clone size summary statistics by disease category (n=96 subjects)."));
 children.push(makeTable(
-  ["Disease Category", "n", "Median Clone Size", "Median Expanded (>100)", "Expanded %"],
+  ["Disease Category", "n", "Median Clone Size", "Median Expanded", "Mean Expanded", "Subjects w/ Expanded", "Mean Expanded %"],
   [
-    ["Severe", "20", "54.8", "3", "12.0%"],
-    ["Mild", "34", "37.0", "0", "0.0%"],
-    ["Moderate", "9", "69.5", "8", "13.3%"],
-    ["Recovered", "12", "73.5", "55", "16.4%"],
-    ["COVID Naive", "8", "103.0", "157", "31.1%"],
-    ["Healthy", "6", "58.3", "12.5", "12.4%"],
+    ["Severe", "27*", "54.8", "3", "50.9", "22/27", "12.4%"],
+    ["Mild", "34", "37.0", "0", "20.5", "16/34", "12.1%"],
+    ["Moderate", "9", "69.5", "8", "12.4", "9/9", "14.0%"],
+    ["Recovered", "12", "73.5", "55", "65.2", "12/12", "18.5%"],
+    ["COVID Naive", "8", "103.0", "157", "157.0", "8/8", "31.5%"],
+    ["Healthy", "6", "58.3", "12.5", "101.0", "6/6", "11.9%"],
   ],
-  [2400, 800, 2200, 2600, 1600]
+  [1800, 600, 1600, 1400, 1400, 1600, 1400]
+));
+children.push(para(
+  "*Note: 7 CD1 Severe subjects were not returned by the API for the clone_size endpoint, " +
+  "reducing the Severe group from 27 to 20 subjects for this analysis."
 ));
 
 children.push(heading("1.3 Mean Size of Expanded Clones", HeadingLevel.HEADING_3));
@@ -427,8 +437,12 @@ children.push(italic("Figure 7. Mean clone size of expanded clones (>100 copies)
 
 children.push(para(
   "**Key finding:** COVID Naive individuals show the highest median clone size (103), 2.8x higher than " +
-  "Mild cases (37). The dramatic difference in expanded clone counts—median 157 for COVID Naive vs. " +
-  "0 for Mild—highlights fundamentally different clonal architectures between these groups."
+  "Mild cases (37). While the median expanded clone count for Mild is 0 (reflecting that 53% of Mild " +
+  "subjects lack any clones above 100 copies), the mean expanded percentage (12.1%) is comparable to " +
+  "Severe (12.4%) and Healthy (11.9%), indicating that when Mild subjects do have expanded clones, " +
+  "the degree of expansion is similar. All Moderate, Recovered, COVID Naive, and Healthy subjects " +
+  "had at least some expanded clones. COVID Naive subjects showed the highest proportion of expanded " +
+  "clones (mean 31.5%), consistent with a repertoire shaped by extensive prior immune challenges."
 ));
 
 children.push(pageBreak());
@@ -802,12 +816,14 @@ children.push(para(
 children.push(heading("8.1 Clonal Expansion and Clone Size", HeadingLevel.HEADING_3));
 children.push(para(
   "Clone size analysis (96 subjects) revealed that COVID Naive subjects harbored the highest " +
-  "numbers of expanded clones (size > 100; median 157) and the largest median clone size (103 copies), " +
-  "compared to Mild subjects who had a median of 0 expanded clones and the lowest median clone size " +
-  "(37 copies). This suggests the presence of pre-existing clonal expansions in COVID Naive " +
-  "individuals, likely reflecting prior antigen exposures. Recovered subjects also showed elevated " +
-  "expansion (median 55 expanded clones), consistent with a mature post-infection repertoire. Seven " +
-  "CD1 Severe subjects were unavailable for clone size analysis."
+  "numbers of expanded clones (size > 100; median 157) and the largest median clone size (103 copies). " +
+  "Recovered subjects also showed elevated expansion (median 55 expanded clones), consistent with a " +
+  "mature post-infection repertoire. The Mild group showed the most heterogeneous expansion pattern: " +
+  "while 53% of Mild subjects had zero expanded clones (median 0), those who did have expanded clones " +
+  "showed comparable expansion proportions (mean 12.1%) to Severe (12.4%) and Healthy (11.9%). This " +
+  "heterogeneity is partly driven by differences in sequencing depth across studies. All Moderate, " +
+  "Recovered, COVID Naive, and Healthy subjects had at least some expanded clones. Seven CD1 Severe " +
+  "subjects were unavailable for clone size analysis."
 ));
 
 children.push(heading("8.2 Clonal Diversity", HeadingLevel.HEADING_3));
