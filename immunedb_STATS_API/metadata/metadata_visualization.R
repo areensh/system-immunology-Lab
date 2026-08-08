@@ -198,17 +198,17 @@ cat("Saved: 01_subjects_per_dataset.png\n")
 raw_disease_colors <- c(
   "severe"                           = "#b71c1c",
   "Early phase hypoxaemia"           = "#e53935",
-  "non-severe"                       = "#42a5f5",
-  "mild"                             = "#1565c0",
-  "Early phase-Stable"               = "#ff8f00",
-  "Early phase-Improving"            = "#ffb300",
-  "Recovering post-ICU"              = "#f57c00",
-  "Recovering post-ICU -Improving"   = "#ffcc80",
-  "Recovering without ICU-Improving" = "#ffe0b2",
-  "Recovered"                        = "#2e7d32",
-  "COVID recovered"                  = "#66bb6a",
+  "non-severe"                       = "#e65100",
+  "mild"                             = "#ff9800",
+  "Early phase-Stable"               = "#f9a825",
+  "Early phase-Improving"            = "#fdd835",
+  "Recovering post-ICU"              = "#ffee58",
+  "Recovering post-ICU -Improving"   = "#fff59d",
+  "Recovering without ICU-Improving" = "#fff9c4",
+  "Recovered"                        = "#81c784",
+  "COVID recovered"                  = "#a5d6a7",
   "COVID Naive"                      = "#7e57c2",
-  "healthy"                          = "#43a047"
+  "healthy"                          = "#2e7d32"
 )
 
 df_raw_disease <- df %>%
@@ -244,11 +244,14 @@ p04_harm <- ggplot(df_harm_counts, aes(x = disease_category, y = n, fill = ds_tr
             size = 4.5, fontface = "bold") +
   scale_fill_manual(values = raw_disease_colors, name = "Original Label") +
   labs(x = "Harmonized Disease Category", y = "# Subjects") +
-  guides(fill = guide_legend(ncol = 2)) +
+  guides(fill = guide_legend(ncol = 1, keywidth = 0.5, keyheight = 0.5)) +
   theme(legend.position = "right",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14, face = "bold"))
-ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 15, height = 8, dpi = 200)
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 11, face = "bold"),
+        legend.key.size = unit(0.35, "cm"),
+        legend.spacing.y = unit(0.05, "cm"),
+        legend.margin = margin(0, 0, 0, 0))
+ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 13, height = 8, dpi = 200)
 cat("Saved: 04_disease_harmonized_with_labels.png\n")
 
 # ============================================================
