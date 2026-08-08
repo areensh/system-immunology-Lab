@@ -39,11 +39,11 @@ base_theme <- theme_bw(base_size = 26) +
     plot.background = element_rect(fill = "white", color = NA),
     panel.background = element_rect(fill = "white", color = NA),
     legend.background = element_rect(fill = "white", color = NA),
-    axis.title = element_text(size = 26, face = "bold"),
+    axis.title = element_text(size = 22, face = "bold"),
     axis.text = element_text(size = 20),
     axis.text.x = element_text(size = 20, angle = 20, hjust = 1),
     strip.text = element_text(face = "bold", size = 22),
-    plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
+    plot.title = element_blank(),
     plot.margin = margin(10, 15, 10, 15),
     legend.position = "bottom",
     legend.title = element_text(size = 20, face = "bold"),
@@ -53,6 +53,11 @@ base_theme <- theme_bw(base_size = 26) +
     legend.margin = margin(10, 0, 5, 0)
   )
 theme_set(base_theme)
+
+mean_sd_stats <- function(x) {
+  m <- mean(x); s <- sd(x)
+  data.frame(y = m, ymin = m - s, ymax = m + s)
+}
 
 # Standard exclusions and blood filter
 standard_filter <- function(df) {
@@ -113,10 +118,11 @@ cat("Clone count subjects:", nrow(df_cc), "\n")
 p1 <- ggplot(df_cc, aes(x = disease_cat, y = clone_count, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   scale_y_log10(labels = scales::comma) +
-  labs(x = NULL, y = "Clone Count (unique clones)", title = "Clonal Diversity") +
+  labs(x = NULL, y = "Clone Count (unique clones)") +
   theme()
 ggsave("plots/01_clone_count_by_disease.png", p1, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 1 saved.\n")
@@ -183,7 +189,7 @@ p2 <- ggplot(df_tx_long, aes(x = reorder(repertoire_id, subj_order), y = pct, fi
   scale_fill_manual(values = stacked_tier_colors, name = "Clone Tier") +
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
-  labs(x = NULL, y = "Fraction of Total Copies", title = "Clonal Dominance") +
+  labs(x = NULL, y = "Fraction of Total Copies") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
         strip.text.x = element_text(face = "bold", size = 22))
 ggsave("plots/02_topX_stacked_by_disease.png", p2, width = 16, height = 8, dpi = 400, bg = "white")
@@ -236,9 +242,13 @@ p3 <- ggplot(df_cdr3_long, aes(x = disease_cat, y = cdr3_length, fill = tier)) +
                position = position_dodge(width = 0.8)) +
   geom_point(aes(color = tier), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
              alpha = 0.5, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red",
+               position = position_dodge(width = 0.8)) +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.2, color = "red", linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
   scale_color_manual(values = tier_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. CDR3 Length (AA)", title = "CDR3 Length by Disease") +
+  labs(x = NULL, y = "Avg. CDR3 Length (AA)") +
   theme()
 ggsave("plots/03_cdr3_by_disease.png", p3, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 3 saved.\n")
@@ -250,11 +260,11 @@ df_cdr3_range <- df_cdr3 %>%
 p3b <- ggplot(df_cdr3_range, aes(x = disease_cat, y = cdr3_range, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
-  labs(x = NULL, y = "CDR3 Length Difference (Top10 - Top1000, AA)",
-       title = "CDR3 Length Divergence: Top vs Broad Clones") +
+  labs(x = NULL, y = "CDR3 Length Difference (Top10 - Top1000, AA)") +
   theme()
 ggsave("plots/04_cdr3_range_by_disease.png", p3b, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 4 saved.\n")
@@ -306,9 +316,13 @@ p4 <- ggplot(df_mut_long, aes(x = disease_cat, y = mutation_count, fill = tier))
                position = position_dodge(width = 0.8)) +
   geom_point(aes(color = tier), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
              alpha = 0.5, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red",
+               position = position_dodge(width = 0.8)) +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.2, color = "red", linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
   scale_color_manual(values = tier_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. Mutation Count", title = "Somatic Hypermutation by Disease") +
+  labs(x = NULL, y = "Avg. Mutation Count") +
   theme()
 ggsave("plots/05_mutation_by_disease.png", p4, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 5 saved.\n")
@@ -320,10 +334,10 @@ df_mut_gradient <- df_mut %>%
 p4b <- ggplot(df_mut_gradient, aes(x = disease_cat, y = mut_gradient, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
-  labs(x = NULL, y = "Mutation Difference (Top10 - Top1000)",
-       title = "Mutation Selection Gradient") +
+  labs(x = NULL, y = "Mutation Difference (Top10 - Top1000)") +
   theme()
 ggsave("plots/06_mutation_gradient_by_disease.png", p4b, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 6 saved.\n")
@@ -411,10 +425,10 @@ df_region_long <- df_region %>%
 p7_cdr <- ggplot(df_region, aes(x = disease_cat, y = avg_cdr, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. CDR Mutations per Clone",
-       title = "CDR Somatic Mutations by Disease") +
+  labs(x = NULL, y = "Avg. CDR Mutations per Clone") +
   theme()
 ggsave("plots/07_cdr_mutations_by_disease.png", p7_cdr, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 7a saved.\n")
@@ -422,10 +436,10 @@ cat("Figure 7a saved.\n")
 p7_fw <- ggplot(df_region, aes(x = disease_cat, y = avg_fw, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. FW Mutations per Clone",
-       title = "Framework Somatic Mutations by Disease") +
+  labs(x = NULL, y = "Avg. FW Mutations per Clone") +
   theme()
 ggsave("plots/07_fw_mutations_by_disease.png", p7_fw, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 7b saved.\n")
@@ -492,11 +506,14 @@ p8 <- ggplot(df_rs_long, aes(x = disease_cat, y = rs_ratio, fill = region)) +
                position = position_dodge(width = 0.8)) +
   geom_point(aes(color = region), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
              alpha = 0.5, size = 1.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "red",
+               position = position_dodge(width = 0.8)) +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.2, color = "red", linewidth = 0.5,
+               position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = rs_colors, name = "Region") +
   scale_color_manual(values = rs_colors, guide = "none") +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey50") +
-  labs(x = NULL, y = "R/S Ratio (Replacement / Synonymous)",
-       title = "Selection Pressure: R/S Ratio by Disease") +
+  labs(x = NULL, y = "R/S Ratio") +
   theme()
 ggsave("plots/08_rs_ratio_by_disease.png", p8, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 8 saved.\n")
@@ -552,42 +569,43 @@ df_cs_subj <- df_cs_raw %>%
   )
 cat("Clone size subjects:", nrow(df_cs_subj), "\n")
 
-# Fig 9: Mean clone size by disease
-p9 <- ggplot(df_cs_subj, aes(x = disease_cat, y = mean_clone_size, fill = disease_cat)) +
+# Fig 9: Median clone size by disease
+p9 <- ggplot(df_cs_subj, aes(x = disease_cat, y = median_clone_size, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   scale_y_log10(labels = scales::comma) +
-  labs(x = NULL, y = "Mean Clone Size (copies, log scale)",
-       title = "Mean Clone Size by Disease") +
+  labs(x = NULL, y = "Median Clone Size (copies)") +
   theme()
 ggsave("plots/09_clone_size_by_disease.png", p9, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 9 saved.\n")
 
 # Fig 10: Number of highly expanded clones (size > 100) by disease
-p10 <- ggplot(df_cs_subj, aes(x = disease_cat, y = highly_expanded, fill = disease_cat)) +
+p10 <- ggplot(df_cs_subj, aes(x = disease_cat, y = highly_expanded + 1, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
-  labs(x = NULL, y = "# Highly Expanded Clones (size > 100)",
-       title = "Highly Expanded Clones by Disease") +
+  scale_y_log10(labels = function(x) round(x - 1)) +
+  labs(x = NULL, y = "# Expanded Clones (size > 100)") +
   theme()
 ggsave("plots/10_expanded_clones_by_disease.png", p10, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 10 saved.\n")
 
-# Fig 11: Mean clone size of highly expanded clones only by disease
+# Fig 11: Median clone size of expanded clones only by disease
 df_cs_expanded <- df_cs_subj %>% filter(!is.na(mean_expanded_size))
 
 p11 <- ggplot(df_cs_expanded, aes(x = disease_cat, y = mean_expanded_size, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "red") +
+  stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   scale_y_log10(labels = scales::comma) +
-  labs(x = NULL, y = "Mean Size of Highly Expanded Clones (log scale)",
-       title = "Highly Expanded Clone Size by Disease") +
+  labs(x = NULL, y = "Mean Size of Expanded Clones (>100 copies)") +
   theme()
 ggsave("plots/11_expanded_clone_size_by_disease.png", p11, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 11 saved.\n")

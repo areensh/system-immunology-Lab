@@ -218,11 +218,16 @@ df_raw_disease <- df %>%
 
 p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed)) +
   geom_col(show.legend = FALSE, width = 0.7) +
-  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
   scale_fill_manual(values = raw_disease_colors) +
   labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 13))
-ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 14, height = 8, dpi = 200)
+  theme_bw(base_size = 24) +
+  theme(axis.title = element_text(size = 24, face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
+        axis.text.y = element_text(size = 18),
+        plot.margin = margin(15, 15, 10, 15),
+        plot.title = element_blank())
+ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 16, height = 9, dpi = 200)
 cat("Saved: 02_disease_stage_raw.png\n")
 
 # ============================================================
@@ -241,17 +246,23 @@ df_harm_counts <- df_harmonized %>%
 p04_harm <- ggplot(df_harm_counts, aes(x = disease_category, y = n, fill = ds_trimmed)) +
   geom_col(width = 0.7, color = "white", linewidth = 0.3) +
   geom_text(aes(label = n), position = position_stack(vjust = 0.5),
-            size = 4.5, fontface = "bold") +
+            size = 6, fontface = "bold") +
   scale_fill_manual(values = raw_disease_colors, name = "Original Label") +
   labs(x = "Harmonized Disease Category", y = "# Subjects") +
-  guides(fill = guide_legend(ncol = 1, keywidth = 0.5, keyheight = 0.5)) +
-  theme(legend.position = "right",
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 11, face = "bold"),
-        legend.key.size = unit(0.35, "cm"),
-        legend.spacing.y = unit(0.05, "cm"),
-        legend.margin = margin(0, 0, 0, 0))
-ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 13, height = 8, dpi = 200)
+  guides(fill = guide_legend(ncol = 1, keywidth = 0.7, keyheight = 0.7)) +
+  theme_bw(base_size = 24) +
+  theme(axis.title = element_text(size = 24, face = "bold"),
+        axis.text.x = element_text(size = 18, angle = 20, hjust = 1),
+        axis.text.y = element_text(size = 18),
+        legend.position = "right",
+        legend.text = element_text(size = 13),
+        legend.title = element_text(size = 15, face = "bold"),
+        legend.key.size = unit(0.5, "cm"),
+        legend.spacing.y = unit(0.1, "cm"),
+        legend.margin = margin(0, 5, 0, 0),
+        plot.margin = margin(15, 10, 10, 15),
+        plot.title = element_blank())
+ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 16, height = 9, dpi = 200)
 cat("Saved: 04_disease_harmonized_with_labels.png\n")
 
 # ============================================================
