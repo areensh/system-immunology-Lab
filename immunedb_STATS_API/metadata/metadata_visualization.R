@@ -193,6 +193,65 @@ ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 12, hei
 cat("Saved: 01_subjects_per_dataset.png\n")
 
 # ============================================================
+# Raw Disease Stage Distribution (gradient colors by harmonized group)
+# ============================================================
+raw_disease_colors <- c(
+  "severe"                           = "#b71c1c",
+  "Early phase hypoxaemia"           = "#e53935",
+  "non-severe"                       = "#42a5f5",
+  "mild"                             = "#1565c0",
+  "Early phase-Stable"               = "#ff8f00",
+  "Early phase-Improving"            = "#ffb300",
+  "Recovering post-ICU"              = "#f57c00",
+  "Recovering post-ICU -Improving"   = "#ffcc80",
+  "Recovering without ICU-Improving" = "#ffe0b2",
+  "Recovered"                        = "#2e7d32",
+  "COVID recovered"                  = "#66bb6a",
+  "COVID Naive"                      = "#7e57c2",
+  "healthy"                          = "#43a047"
+)
+
+df_raw_disease <- df %>%
+  filter(!is.na(ds_trimmed), ds_trimmed != "NA") %>%
+  count(ds_trimmed) %>%
+  mutate(ds_trimmed = factor(ds_trimmed, levels = names(raw_disease_colors)))
+
+p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed)) +
+  geom_col(show.legend = FALSE, width = 0.7) +
+  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  scale_fill_manual(values = raw_disease_colors) +
+  labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 13))
+ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 14, height = 8, dpi = 200)
+cat("Saved: 02_disease_stage_raw.png\n")
+
+# ============================================================
+# Harmonized Disease with Original Labels in Legend
+# ============================================================
+harmonized_order <- c("Severe", "Mild", "Moderate", "Recovered", "COVID Naive", "Healthy")
+
+df_harmonized <- df %>%
+  filter(!is.na(ds_trimmed), ds_trimmed != "NA", disease_category != "NA/Unknown") %>%
+  mutate(disease_category = factor(disease_category, levels = harmonized_order))
+
+df_harm_counts <- df_harmonized %>%
+  count(disease_category, ds_trimmed) %>%
+  mutate(ds_trimmed = factor(ds_trimmed, levels = names(raw_disease_colors)))
+
+p04_harm <- ggplot(df_harm_counts, aes(x = disease_category, y = n, fill = ds_trimmed)) +
+  geom_col(width = 0.7, color = "white", linewidth = 0.3) +
+  geom_text(aes(label = n), position = position_stack(vjust = 0.5),
+            size = 4.5, fontface = "bold") +
+  scale_fill_manual(values = raw_disease_colors, name = "Original Label") +
+  labs(x = "Harmonized Disease Category", y = "# Subjects") +
+  guides(fill = guide_legend(ncol = 2)) +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"))
+ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 15, height = 8, dpi = 200)
+cat("Saved: 04_disease_harmonized_with_labels.png\n")
+
+# ============================================================
 # LEVEL 2: Subjects per metadata category
 # ============================================================
 

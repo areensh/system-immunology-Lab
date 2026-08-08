@@ -507,3 +507,96 @@ df_rs %>% group_by(disease_cat) %>%
             median_cdr_rs = round(median(cdr_rs, na.rm = TRUE), 3),
             median_fw_rs = round(median(fw_rs, na.rm = TRUE), 3),
             .groups = "drop") %>% print()
+
+# ============================================================
+# 7. CLONE SIZE BY DISEASE (mean clone size per subject)
+# ============================================================
+cat("\n=== Clone Size ===\n")
+parse_clone_size <- function(path) {
+  raw <- fromJSON(path, simplifyDataFrame = FALSE)
+  rows <- lapply(raw$Result, function(entry) {
+    rep <- entry$repertoire
+    keys <- trimws(rep$meta_key)
+    vals <- trimws(rep$meta_value)
+    clone_size <- entry$statistics[[1]]$stats_value[[1]]$count
+    clone_id <- entry$statistics[[1]]$stats_value[[1]]$clone_id
+    ds_idx <- which(keys == "disease_stage")
+    tissue_idx <- which(keys == "tissue")
+    data.frame(
+      repertoire_id = rep$repertoire_id,
+      clone_id = clone_id,
+      clone_size = clone_size,
+      disease_raw = if (length(ds_idx)) vals[ds_idx] else NA_character_,
+      tissue = if (length(tissue_idx)) vals[tissue_idx] else NA_character_,
+      stringsAsFactors = FALSE
+    )
+  })
+  bind_rows(rows)
+}
+
+df_cs_raw <- parse_clone_size("clone_size/data/clone_size_disease_tissue.json")
+df_cs_raw <- standard_filter(df_cs_raw)
+cat("Clone size raw rows (clones):", nrow(df_cs_raw), "\n")
+
+df_cs_subj <- df_cs_raw %>%
+  group_by(repertoire_id, disease_cat, study) %>%
+  summarise(
+    mean_clone_size = mean(clone_size),
+    median_clone_size = median(clone_size),
+    total_clones = n(),
+    highly_expanded = sum(clone_size > 100),
+    highly_expanded_pct = round(sum(clone_size > 100) / n() * 100, 1),
+    mean_expanded_size = ifelse(sum(clone_size > 100) > 0,
+                                mean(clone_size[clone_size > 100]), NA_real_),
+    .groups = "drop"
+  )
+cat("Clone size subjects:", nrow(df_cs_subj), "\n")
+
+# Fig 9: Mean clone size by disease
+p9 <- ggplot(df_cs_subj, aes(x = disease_cat, y = mean_clone_size, fill = disease_cat)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  scale_fill_manual(values = disease_colors, guide = "none") +
+  scale_y_log10(labels = scales::comma) +
+  labs(x = NULL, y = "Mean Clone Size (copies, log scale)",
+       title = "Mean Clone Size by Disease") +
+  theme()
+ggsave("plots/09_clone_size_by_disease.png", p9, width = 12, height = 8, dpi = 400, bg = "white")
+cat("Figure 9 saved.\n")
+
+# Fig 10: Number of highly expanded clones (size > 100) by disease
+p10 <- ggplot(df_cs_subj, aes(x = disease_cat, y = highly_expanded, fill = disease_cat)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  scale_fill_manual(values = disease_colors, guide = "none") +
+  labs(x = NULL, y = "# Highly Expanded Clones (size > 100)",
+       title = "Highly Expanded Clones by Disease") +
+  theme()
+ggsave("plots/10_expanded_clones_by_disease.png", p10, width = 12, height = 8, dpi = 400, bg = "white")
+cat("Figure 10 saved.\n")
+
+# Fig 11: Mean clone size of highly expanded clones only by disease
+df_cs_expanded <- df_cs_subj %>% filter(!is.na(mean_expanded_size))
+
+p11 <- ggplot(df_cs_expanded, aes(x = disease_cat, y = mean_expanded_size, fill = disease_cat)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 5, color = "black") +
+  scale_fill_manual(values = disease_colors, guide = "none") +
+  scale_y_log10(labels = scales::comma) +
+  labs(x = NULL, y = "Mean Size of Highly Expanded Clones (log scale)",
+       title = "Highly Expanded Clone Size by Disease") +
+  theme()
+ggsave("plots/11_expanded_clone_size_by_disease.png", p11, width = 12, height = 8, dpi = 400, bg = "white")
+cat("Figure 11 saved.\n")
+
+cat("\n--- Clone Size Summary ---\n")
+df_cs_subj %>% group_by(disease_cat) %>%
+  summarise(n = n(),
+            median_mean_cs = round(median(mean_clone_size), 1),
+            median_expanded = median(highly_expanded),
+            median_expanded_pct = round(median(highly_expanded_pct), 1),
+            median_expanded_size = round(median(mean_expanded_size, na.rm = TRUE), 1),
+            .groups = "drop") %>% print()
