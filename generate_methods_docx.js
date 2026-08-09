@@ -263,19 +263,17 @@ const subjects = [
   ["D207","HC1","PMID: 28829438","Healthy","healthy","23","M","BM"],
 ];
 
-// Disease harmonization map
+// Disease harmonization map — matches the R script's map_disease() case_when order
 function harmonize(study, stage) {
   const s = stage.toLowerCase();
-  if (study === "HC1") return "Healthy";
-  if (s.includes("naive")) return "COVID Naive";
-  if (s.includes("recovered") || s === "recovered") return "Recovered";
-  if (s.includes("post-icu")) return "Moderate";
-  if (s.includes("recovering without icu")) return "Mild";
-  if (s.includes("hypoxaemia")) return "Severe";
-  if (s === "severe") return "Severe";
-  if (s === "mild" || s === "non-severe") return "Mild";
-  if (s.includes("stable") || s.includes("improving")) return "Mild";
-  if (s.includes("covid recovered")) return "Recovered";
+  if (/healthy/i.test(s)) return "Healthy";
+  if (/naive/i.test(s)) return "COVID Naive";
+  if (/non-severe/i.test(s)) return "Mild";
+  if (/^mild$/i.test(s)) return "Mild";
+  if (/recover/i.test(s)) return "Recovered";
+  if (/^severe$/i.test(s)) return "Severe";
+  if (/hypox/i.test(s)) return "Severe";
+  if (/Stable|Improving/.test(stage)) return "Moderate";
   return stage;
 }
 
@@ -318,9 +316,9 @@ async function main() {
 
   const harmRows = [
     ["Severe (n=27)", "\"severe\" (CD1, CD3), \"Early phase hypoxaemia\" (CD2)"],
-    ["Mild (n=41)", "\"mild\", \"non-severe\" (CD1, CD3), \"Early phase-Stable\", \"Early phase-Improving\", \"Recovering without ICU-Improving\" (CD2)"],
-    ["Moderate (n=9)", "\"Recovering post-ICU\", \"Recovering post-ICU -Improving\" (CD2)"],
-    ["Recovered (n=12)", "\"Recovered\" (CVX2), \"COVID recovered\" (CVX1)"],
+    ["Mild (n=41)", "\"mild\" (CD1), \"non-severe\" (CD3)"],
+    ["Moderate (n=9)", "\"Early phase-Stable\", \"Early phase-Improving\" (CD2)"],
+    ["Recovered (n=12)", "\"Recovered\" (CVX2), \"COVID recovered\" (CVX1), \"Recovering post-ICU\", \"Recovering post-ICU -Improving\", \"Recovering without ICU-Improving\" (CD2)"],
     ["COVID Naive (n=8)", "\"COVID Naive\" (CVX1)"],
     ["Healthy (n=6)", "\"healthy\" (HC1)"],
   ];
@@ -328,7 +326,7 @@ async function main() {
   children.push(makeTable(["Harmonized Category", "Original Labels (Source Study)"], harmRows, harmWidths));
   children.push(para(""));
 
-  children.push(para("This harmonization was guided by clinical severity: CD2 subjects with hypoxaemia were classified as Severe, those with stable or improving early-phase disease as Mild, and those recovering post-ICU as Moderate, reflecting an intermediate severity between acute illness and recovery."));
+  children.push(para("This harmonization was guided by clinical trajectory: CD2 subjects presenting with hypoxaemia were classified as Severe. Those in the early phase with stable or improving status were classified as Moderate, reflecting an intermediate clinical state with active but non-critical disease. All subjects described as recovering — whether post-ICU, without ICU, or previously infected — were grouped under Recovered, as they represent the post-acute phase regardless of prior severity. Mild was reserved for subjects explicitly labeled as \"mild\" or \"non-severe\" in their source studies (CD1, CD3)."));
 
   // ── Hardware/Software ──
   children.push(heading("Computer Hardware and Software Requirements", HeadingLevel.HEADING_2));
