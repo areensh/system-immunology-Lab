@@ -14,19 +14,26 @@ study_labels <- c(
 )
 relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
 
-# --- Parse JSON ---
-json_data <- fromJSON("data/metadata_sex_disease_age_subject.json", simplifyDataFrame = FALSE)
+# --- Parse JSON (single source: metadata_ALL.json) ---
+json_data <- fromJSON("data/metadata_ALL.json", simplifyDataFrame = FALSE)
 
 records <- lapply(json_data$Result, function(entry) {
   rep <- entry$repertoire
+  rid <- rep$repertoire_id
   keys <- trimws(rep$meta_key)
   vals <- trimws(rep$meta_value)
-  len <- length(keys)
-  if (length(vals) < len) vals <- c(vals, rep(NA, len - length(vals)))
-  if (length(vals) > len) vals <- vals[seq_len(len)]
-  row <- setNames(as.list(vals), keys)
-  row$repertoire_id <- rep$repertoire_id
-  row
+  ds_i   <- which(keys == "disease_stage")
+  sex_i  <- which(keys == "sex")
+  age_i  <- which(keys == "Age minimum")
+  subj_i <- which(keys == "subject_name")
+  data.frame(
+    repertoire_id = rid,
+    disease_stage = if (length(ds_i))   vals[ds_i[1]]   else NA_character_,
+    sex           = if (length(sex_i))  vals[sex_i[1]]  else NA_character_,
+    age           = suppressWarnings(if (length(age_i)) as.numeric(vals[age_i[1]]) else NA_real_),
+    subject       = if (length(subj_i)) vals[subj_i[1]] else sub(".*-", "", rid),
+    stringsAsFactors = FALSE
+  )
 })
 
 df <- bind_rows(records)
@@ -34,12 +41,7 @@ df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine
                                             "lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"))
 
 df$study <- relabel(sub("-.*", "", df$repertoire_id))
-
-# Clean columns
-df$age <- as.numeric(df$`Age minimum`)
-df$disease_stage <- df$disease_stage
 df$sex <- tolower(df$sex)
-df$subject <- df$subject_name
 
 # Normalize disease_stage into broad categories
 df$ds_trimmed <- trimws(df$disease_stage)
