@@ -211,22 +211,45 @@ raw_disease_colors <- c(
   "healthy"                          = "#2e7d32"
 )
 
+raw_disease_order <- c(
+  "severe", "Early phase hypoxaemia", "non-severe",
+  "mild", "Early phase-Stable", "Early phase-Improving",
+  "Recovering post-ICU", "Recovering post-ICU -Improving",
+  "Recovering without ICU-Improving",
+  "Recovered", "COVID recovered",
+  "healthy", "COVID Naive"
+)
+
+study_fill_colors <- c(
+  "CD1" = "#1f77b4", "CD2" = "#ff7f0e", "CD3" = "#2ca02c",
+  "CVX1" = "#d62728", "CVX2" = "#9467bd", "HC1" = "#8c564b", "GT1" = "#7f7f7f"
+)
+
 df_raw_disease <- df %>%
   filter(!is.na(ds_trimmed), ds_trimmed != "NA") %>%
-  count(ds_trimmed) %>%
-  mutate(ds_trimmed = factor(ds_trimmed, levels = names(raw_disease_colors)))
+  count(ds_trimmed, study) %>%
+  mutate(ds_trimmed = factor(ds_trimmed, levels = raw_disease_order),
+         study = factor(study, levels = names(study_fill_colors)))
 
-p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed)) +
-  geom_col(show.legend = FALSE, width = 0.7) +
-  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
-  scale_fill_manual(values = raw_disease_colors) +
+df_raw_totals <- df_raw_disease %>%
+  group_by(ds_trimmed) %>%
+  summarise(total = sum(n), .groups = "drop")
+
+p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = study)) +
+  geom_col(width = 0.7, color = "white", linewidth = 0.3) +
+  geom_text(data = df_raw_totals, aes(x = ds_trimmed, y = total, label = total, fill = NULL),
+            vjust = -0.3, size = 7, fontface = "bold") +
+  scale_fill_manual(values = study_fill_colors, name = "Dataset") +
   labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
   theme_bw(base_size = 24) +
   theme(axis.title = element_text(size = 24, face = "bold"),
         axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
         axis.text.y = element_text(size = 18),
         plot.margin = margin(15, 15, 10, 15),
-        plot.title = element_blank())
+        plot.title = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_text(size = 20, face = "bold"),
+        legend.text = element_text(size = 18))
 ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 16, height = 9, dpi = 200)
 cat("Saved: 02_disease_stage_raw.png\n")
 
