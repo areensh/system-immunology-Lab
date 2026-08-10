@@ -182,16 +182,28 @@ cat("Saved: 00_metadata_per_dataset.png\n")
 df_all_subjects <- df_meta_long %>%
   distinct(repertoire_id, study)
 
+dataset_colors <- c(
+  "CD1" = "#b71c1c", "CD2" = "#e53935", "CD3" = "#ff9800",
+  "CVX1" = "#7e57c2", "CVX2" = "#9467bd",
+  "HC1" = "#2e7d32", "GT1" = "#78909c"
+)
+
 p1 <- df_all_subjects %>%
   count(study) %>%
   mutate(study = factor(study, levels = study_order_0)) %>%
   ggplot(aes(x = study, y = n, fill = study)) +
-  geom_col(show.legend = FALSE) +
-  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  geom_col(show.legend = FALSE, width = 0.7) +
+  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
   labs(x = "Dataset", y = "# Subjects") +
-  scale_fill_brewer(palette = "Set2")
+  scale_fill_manual(values = dataset_colors) +
+  theme_bw(base_size = 24) +
+  theme(axis.title = element_text(size = 24, face = "bold"),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
+        plot.margin = margin(15, 15, 10, 15),
+        plot.title = element_blank())
 
-ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 12, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 14, height = 9, dpi = 200)
 cat("Saved: 01_subjects_per_dataset.png\n")
 
 # ============================================================
