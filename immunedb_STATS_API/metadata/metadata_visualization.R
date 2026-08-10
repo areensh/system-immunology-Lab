@@ -183,7 +183,7 @@ df_all_subjects <- df_meta_long %>%
   distinct(repertoire_id, study)
 
 dataset_colors <- c(
-  "CD1" = "#b71c1c", "CD2" = "#e53935", "CD3" = "#ff9800",
+  "CD1" = "#b71c1c", "CD2" = "#e65100", "CD3" = "#ff9800",
   "CVX1" = "#7e57c2", "CVX2" = "#9467bd",
   "HC1" = "#2e7d32", "GT1" = "#78909c"
 )
@@ -314,6 +314,41 @@ p04_harm <- ggplot(df_harm_bar, aes(x = disease_category, y = n, fill = ds_trimm
         plot.title = element_blank())
 ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 16, height = 9, dpi = 200)
 cat("Saved: 04_disease_harmonized_with_labels.png\n")
+
+# ============================================================
+# Participant Demographics Scatter (Age × Disease, colored by dataset, shaped by sex)
+# ============================================================
+dataset_colors <- c(
+  "CD1" = "#b71c1c", "CD2" = "#e65100", "CD3" = "#ff9800",
+  "CVX1" = "#7e57c2", "CVX2" = "#9467bd",
+  "HC1" = "#2e7d32", "GT1" = "#78909c"
+)
+
+df_demo <- df %>%
+  filter(!is.na(age), disease_category != "NA/Unknown") %>%
+  mutate(disease_category = factor(disease_category, levels = harmonized_order),
+         study = factor(study, levels = names(dataset_colors)),
+         sex_shape = case_when(
+           sex %in% c("female") ~ "Female",
+           sex %in% c("male") ~ "Male",
+           TRUE ~ "NA"
+         ))
+
+p05_demo <- ggplot(df_demo, aes(x = disease_category, y = age, color = study, shape = sex_shape)) +
+  geom_jitter(width = 0.2, size = 4, alpha = 0.8, stroke = 0.8) +
+  scale_color_manual(values = dataset_colors, name = "Dataset") +
+  scale_shape_manual(values = c("Female" = 17, "Male" = 16, "NA" = 4), name = "Sex") +
+  labs(x = "Disease Category", y = "Age") +
+  theme_bw(base_size = 24) +
+  theme(axis.title = element_text(size = 24, face = "bold"),
+        axis.text.x = element_text(size = 18, angle = 20, hjust = 1),
+        axis.text.y = element_text(size = 18),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = "bold"),
+        plot.margin = margin(15, 15, 10, 15),
+        plot.title = element_blank())
+ggsave(file.path(output_dir, "05_demographics_scatter.png"), p05_demo, width = 16, height = 9, dpi = 200)
+cat("Saved: 05_demographics_scatter.png\n")
 
 # ============================================================
 # LEVEL 2: Subjects per metadata category
