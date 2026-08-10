@@ -222,36 +222,37 @@ raw_disease_order <- c(
   "healthy", "COVID Naive"
 )
 
-study_fill_colors <- c(
-  "CD1" = "#1f77b4", "CD2" = "#ff7f0e", "CD3" = "#2ca02c",
-  "CVX1" = "#d62728", "CVX2" = "#9467bd", "HC1" = "#8c564b", "GT1" = "#7f7f7f"
-)
-
 df_raw_disease <- df %>%
   filter(!is.na(ds_trimmed), ds_trimmed != "NA") %>%
   count(ds_trimmed, study) %>%
-  mutate(ds_trimmed = factor(ds_trimmed, levels = raw_disease_order),
-         study = factor(study, levels = names(study_fill_colors)))
+  mutate(ds_trimmed = factor(ds_trimmed, levels = raw_disease_order))
 
 df_raw_totals <- df_raw_disease %>%
   group_by(ds_trimmed) %>%
   summarise(total = sum(n), .groups = "drop")
 
-p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = study)) +
+df_raw_labels <- df_raw_disease %>%
+  arrange(ds_trimmed, desc(n)) %>%
+  group_by(ds_trimmed) %>%
+  mutate(y_pos = cumsum(n) - n / 2,
+         label = paste0(study, " (", n, ")")) %>%
+  ungroup()
+
+p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed)) +
   geom_col(width = 0.7, color = "white", linewidth = 0.3) +
+  geom_text(data = df_raw_labels, aes(y = y_pos, label = label),
+            size = 4.5, fontface = "bold") +
   geom_text(data = df_raw_totals, aes(x = ds_trimmed, y = total, label = total, fill = NULL),
             vjust = -0.3, size = 7, fontface = "bold") +
-  scale_fill_manual(values = study_fill_colors, name = "Dataset") +
+  scale_fill_manual(values = raw_disease_colors) +
   labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
+  guides(fill = "none") +
   theme_bw(base_size = 24) +
   theme(axis.title = element_text(size = 24, face = "bold"),
         axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
         axis.text.y = element_text(size = 18),
         plot.margin = margin(15, 15, 10, 15),
-        plot.title = element_blank(),
-        legend.position = "bottom",
-        legend.title = element_text(size = 20, face = "bold"),
-        legend.text = element_text(size = 18))
+        plot.title = element_blank())
 ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 16, height = 9, dpi = 200)
 cat("Saved: 02_disease_stage_raw.png\n")
 
@@ -265,13 +266,25 @@ df_harmonized <- df %>%
   mutate(disease_category = factor(disease_category, levels = harmonized_order))
 
 df_harm_counts <- df_harmonized %>%
-  count(disease_category, ds_trimmed) %>%
+  count(disease_category, ds_trimmed, study) %>%
   mutate(ds_trimmed = factor(ds_trimmed, levels = names(raw_disease_colors)))
 
-p04_harm <- ggplot(df_harm_counts, aes(x = disease_category, y = n, fill = ds_trimmed)) +
+df_harm_bar <- df_harm_counts %>%
+  group_by(disease_category, ds_trimmed) %>%
+  summarise(n = sum(n), .groups = "drop")
+
+df_harm_labels <- df_harm_counts %>%
+  group_by(disease_category, ds_trimmed) %>%
+  summarise(n_total = sum(n),
+            db_label = paste0(study, " (", n, ")", collapse = "\n"),
+            .groups = "drop")
+
+p04_harm <- ggplot(df_harm_bar, aes(x = disease_category, y = n, fill = ds_trimmed)) +
   geom_col(width = 0.7, color = "white", linewidth = 0.3) +
-  geom_text(aes(label = n), position = position_stack(vjust = 0.5),
-            size = 6, fontface = "bold") +
+  geom_text(data = df_harm_labels,
+            aes(x = disease_category, y = n_total, label = db_label),
+            position = position_stack(vjust = 0.5),
+            size = 4.5, fontface = "bold", lineheight = 0.85) +
   scale_fill_manual(values = raw_disease_colors, name = "Original Label") +
   labs(x = "Harmonized Disease Category", y = "# Subjects") +
   guides(fill = guide_legend(ncol = 1, keywidth = 0.7, keyheight = 0.7)) +
