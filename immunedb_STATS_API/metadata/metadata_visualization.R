@@ -259,7 +259,7 @@ cat("Saved: 02_disease_stage_raw.png\n")
 # ============================================================
 # Harmonized Disease with Original Labels in Legend
 # ============================================================
-harmonized_order <- c("Severe", "Mild", "Moderate", "Recovered", "COVID Naive", "Healthy")
+harmonized_order <- c("Severe", "Mild", "Moderate", "Recovered", "Healthy", "COVID Naive")
 
 df_harmonized <- df %>%
   filter(!is.na(ds_trimmed), ds_trimmed != "NA", disease_category != "NA/Unknown") %>%
