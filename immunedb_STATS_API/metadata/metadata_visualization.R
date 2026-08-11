@@ -14,19 +14,26 @@ study_labels <- c(
 )
 relabel <- function(x) { lbl <- study_labels[x]; ifelse(is.na(lbl), x, lbl) }
 
-# --- Parse JSON ---
-json_data <- fromJSON("data/metadata_sex_disease_age_subject.json", simplifyDataFrame = FALSE)
+# --- Parse JSON (single source: metadata_ALL.json) ---
+json_data <- fromJSON("data/metadata_ALL.json", simplifyDataFrame = FALSE)
 
 records <- lapply(json_data$Result, function(entry) {
   rep <- entry$repertoire
+  rid <- rep$repertoire_id
   keys <- trimws(rep$meta_key)
   vals <- trimws(rep$meta_value)
-  len <- length(keys)
-  if (length(vals) < len) vals <- c(vals, rep(NA, len - length(vals)))
-  if (length(vals) > len) vals <- vals[seq_len(len)]
-  row <- setNames(as.list(vals), keys)
-  row$repertoire_id <- rep$repertoire_id
-  row
+  ds_i   <- which(keys == "disease_stage")
+  sex_i  <- which(keys == "sex")
+  age_i  <- which(keys == "Age minimum")
+  subj_i <- which(keys == "subject_name")
+  data.frame(
+    repertoire_id = rid,
+    disease_stage = if (length(ds_i))   vals[ds_i[1]]   else NA_character_,
+    sex           = if (length(sex_i))  vals[sex_i[1]]  else NA_character_,
+    age           = suppressWarnings(if (length(age_i)) as.numeric(vals[age_i[1]]) else NA_real_),
+    subject       = if (length(subj_i)) vals[subj_i[1]] else sub(".*-", "", rid),
+    stringsAsFactors = FALSE
+  )
 })
 
 df <- bind_rows(records)
@@ -34,12 +41,7 @@ df <- df %>% filter(!repertoire_id %in% c("covid_vaccine_new-Fb", "covid_vaccine
                                             "lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"))
 
 df$study <- relabel(sub("-.*", "", df$repertoire_id))
-
-# Clean columns
-df$age <- as.numeric(df$`Age minimum`)
-df$disease_stage <- df$disease_stage
 df$sex <- tolower(df$sex)
-df$subject <- df$subject_name
 
 # Normalize disease_stage into broad categories
 df$ds_trimmed <- trimws(df$disease_stage)
@@ -180,16 +182,28 @@ cat("Saved: 00_metadata_per_dataset.png\n")
 df_all_subjects <- df_meta_long %>%
   distinct(repertoire_id, study)
 
+dataset_colors <- c(
+  "CD1" = "#b71c1c", "CD2" = "#e65100", "CD3" = "#ff9800",
+  "CVX1" = "#7e57c2", "CVX2" = "#9467bd",
+  "HC1" = "#2e7d32", "GT1" = "#78909c"
+)
+
 p1 <- df_all_subjects %>%
   count(study) %>%
   mutate(study = factor(study, levels = study_order_0)) %>%
   ggplot(aes(x = study, y = n, fill = study)) +
-  geom_col(show.legend = FALSE) +
-  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  geom_col(show.legend = FALSE, width = 0.7) +
+  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
   labs(x = "Dataset", y = "# Subjects") +
-  scale_fill_brewer(palette = "Set2")
+  scale_fill_manual(values = dataset_colors) +
+  theme_bw(base_size = 24) +
+  theme(axis.title = element_text(size = 24, face = "bold"),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18),
+        plot.margin = margin(15, 15, 10, 15),
+        plot.title = element_blank())
 
-ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 12, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 14, height = 9, dpi = 200)
 cat("Saved: 01_subjects_per_dataset.png\n")
 
 # ============================================================
@@ -211,16 +225,40 @@ raw_disease_colors <- c(
   "healthy"                          = "#2e7d32"
 )
 
+raw_disease_order <- c(
+  "severe", "Early phase hypoxaemia", "non-severe",
+  "mild", "Early phase-Stable", "Early phase-Improving",
+  "Recovering post-ICU", "Recovering post-ICU -Improving",
+  "Recovering without ICU-Improving",
+  "Recovered", "COVID recovered",
+  "healthy", "COVID Naive"
+)
+
 df_raw_disease <- df %>%
   filter(!is.na(ds_trimmed), ds_trimmed != "NA") %>%
-  count(ds_trimmed) %>%
-  mutate(ds_trimmed = factor(ds_trimmed, levels = names(raw_disease_colors)))
+  count(ds_trimmed, study) %>%
+  mutate(ds_trimmed = factor(ds_trimmed, levels = raw_disease_order))
+
+df_raw_totals <- df_raw_disease %>%
+  group_by(ds_trimmed) %>%
+  summarise(total = sum(n), .groups = "drop")
+
+df_raw_labels <- df_raw_disease %>%
+  arrange(ds_trimmed, desc(n)) %>%
+  group_by(ds_trimmed) %>%
+  mutate(y_pos = cumsum(n) - n / 2,
+         label = paste0(study, " (", n, ")")) %>%
+  ungroup()
 
 p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed)) +
-  geom_col(show.legend = FALSE, width = 0.7) +
-  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
+  geom_col(width = 0.7, color = "white", linewidth = 0.3) +
+  geom_text(data = df_raw_labels, aes(y = y_pos, label = label),
+            size = 4.5, fontface = "bold") +
+  geom_text(data = df_raw_totals, aes(x = ds_trimmed, y = total, label = total, fill = NULL),
+            vjust = -0.3, size = 7, fontface = "bold") +
   scale_fill_manual(values = raw_disease_colors) +
   labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
+  guides(fill = "none") +
   theme_bw(base_size = 24) +
   theme(axis.title = element_text(size = 24, face = "bold"),
         axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
@@ -233,20 +271,32 @@ cat("Saved: 02_disease_stage_raw.png\n")
 # ============================================================
 # Harmonized Disease with Original Labels in Legend
 # ============================================================
-harmonized_order <- c("Severe", "Mild", "Moderate", "Recovered", "COVID Naive", "Healthy")
+harmonized_order <- c("Severe", "Mild", "Moderate", "Recovered", "Healthy", "COVID Naive")
 
 df_harmonized <- df %>%
   filter(!is.na(ds_trimmed), ds_trimmed != "NA", disease_category != "NA/Unknown") %>%
   mutate(disease_category = factor(disease_category, levels = harmonized_order))
 
 df_harm_counts <- df_harmonized %>%
-  count(disease_category, ds_trimmed) %>%
+  count(disease_category, ds_trimmed, study) %>%
   mutate(ds_trimmed = factor(ds_trimmed, levels = names(raw_disease_colors)))
 
-p04_harm <- ggplot(df_harm_counts, aes(x = disease_category, y = n, fill = ds_trimmed)) +
+df_harm_bar <- df_harm_counts %>%
+  group_by(disease_category, ds_trimmed) %>%
+  summarise(n = sum(n), .groups = "drop")
+
+df_harm_labels <- df_harm_counts %>%
+  group_by(disease_category, ds_trimmed) %>%
+  summarise(n_total = sum(n),
+            db_label = paste0(study, " (", n, ")", collapse = "\n"),
+            .groups = "drop")
+
+p04_harm <- ggplot(df_harm_bar, aes(x = disease_category, y = n, fill = ds_trimmed)) +
   geom_col(width = 0.7, color = "white", linewidth = 0.3) +
-  geom_text(aes(label = n), position = position_stack(vjust = 0.5),
-            size = 6, fontface = "bold") +
+  geom_text(data = df_harm_labels,
+            aes(x = disease_category, y = n_total, label = db_label),
+            position = position_stack(vjust = 0.5),
+            size = 4.5, fontface = "bold", lineheight = 0.85) +
   scale_fill_manual(values = raw_disease_colors, name = "Original Label") +
   labs(x = "Harmonized Disease Category", y = "# Subjects") +
   guides(fill = guide_legend(ncol = 1, keywidth = 0.7, keyheight = 0.7)) +
@@ -264,6 +314,41 @@ p04_harm <- ggplot(df_harm_counts, aes(x = disease_category, y = n, fill = ds_tr
         plot.title = element_blank())
 ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 16, height = 9, dpi = 200)
 cat("Saved: 04_disease_harmonized_with_labels.png\n")
+
+# ============================================================
+# Participant Demographics Scatter (Age × Disease, colored by dataset, shaped by sex)
+# ============================================================
+dataset_colors <- c(
+  "CD1" = "#b71c1c", "CD2" = "#e65100", "CD3" = "#ff9800",
+  "CVX1" = "#7e57c2", "CVX2" = "#9467bd",
+  "HC1" = "#2e7d32", "GT1" = "#78909c"
+)
+
+df_demo <- df %>%
+  filter(!is.na(age), disease_category != "NA/Unknown") %>%
+  mutate(disease_category = factor(disease_category, levels = harmonized_order),
+         study = factor(study, levels = names(dataset_colors)),
+         sex_shape = case_when(
+           sex %in% c("female") ~ "Female",
+           sex %in% c("male") ~ "Male",
+           TRUE ~ "NA"
+         ))
+
+p05_demo <- ggplot(df_demo, aes(x = disease_category, y = age, color = study, shape = sex_shape)) +
+  geom_jitter(width = 0.2, size = 4, alpha = 0.8, stroke = 0.8) +
+  scale_color_manual(values = dataset_colors, name = "Dataset") +
+  scale_shape_manual(values = c("Female" = 17, "Male" = 16, "NA" = 4), name = "Sex") +
+  labs(x = "Disease Category", y = "Age") +
+  theme_bw(base_size = 24) +
+  theme(axis.title = element_text(size = 24, face = "bold"),
+        axis.text.x = element_text(size = 18, angle = 20, hjust = 1),
+        axis.text.y = element_text(size = 18),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = "bold"),
+        plot.margin = margin(15, 15, 10, 15),
+        plot.title = element_blank())
+ggsave(file.path(output_dir, "05_demographics_scatter.png"), p05_demo, width = 16, height = 9, dpi = 200)
+cat("Saved: 05_demographics_scatter.png\n")
 
 # ============================================================
 # LEVEL 2: Subjects per metadata category
