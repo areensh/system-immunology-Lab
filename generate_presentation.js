@@ -346,7 +346,136 @@ function imgData(relPath) {
   });
 }
 
-// ========== SLIDE 8: Mutation Analysis ==========
+// ========== SLIDE 8: Clone Count ==========
+{
+  const s = pres.addSlide();
+  s.background = { fill: C.white };
+
+  s.addText("Clone Count by Disease Category", {
+    x: 0.8, y: 0.3, w: 11.5, h: 0.8,
+    fontSize: 36, fontFace: FONT_TITLE, color: C.navy, bold: true,
+  });
+
+  s.addText("Number of distinct clones per subject across disease severities", {
+    x: 0.8, y: 1.0, w: 11.5, h: 0.4,
+    fontSize: 14, fontFace: FONT_BODY, color: C.darkGray, italic: true,
+  });
+
+  s.addImage({
+    data: imgData(CLONE_PLOTS + "01_clone_count_by_disease.png"),
+    x: 0.3, y: 1.5, w: 7.5, h: 5.0,
+  });
+
+  s.addShape(pres.ShapeType.roundRect, {
+    x: 8.2, y: 1.5, w: 4.6, h: 4.8,
+    fill: { color: C.offWhite }, rectRadius: 0.15,
+  });
+
+  s.addText("Key Findings", {
+    x: 8.4, y: 1.7, w: 4.2, h: 0.4,
+    fontSize: 16, fontFace: FONT_BODY, color: C.navy, bold: true, margin: 0,
+  });
+
+  const ccFindings = [
+    "Clone count reflects B cell diversity within each subject's repertoire",
+    "Severe COVID patients show variable clone counts, reflecting heterogeneous immune responses",
+    "Healthy controls (HC1) show consistently lower clone counts",
+    "Higher clone counts in Mild/Recovered may indicate broader polyclonal activation",
+  ];
+
+  ccFindings.forEach((f, i) => {
+    s.addText([{ text: f, options: { fontSize: 12, fontFace: FONT_BODY, color: C.darkGray, bullet: true } }], {
+      x: 8.4, y: 2.3 + i * 0.8, w: 4.2, h: 0.7, margin: 0,
+      paraSpaceAfter: 4,
+    });
+  });
+}
+
+// ========== SLIDE 9: Expanded Clones ==========
+{
+  const s = pres.addSlide();
+  s.background = { fill: C.white };
+
+  s.addText("Expanded Clones Analysis", {
+    x: 0.8, y: 0.3, w: 11.5, h: 0.8,
+    fontSize: 36, fontFace: FONT_TITLE, color: C.navy, bold: true,
+  });
+
+  s.addImage({
+    data: imgData(CLONE_PLOTS + "10_expanded_clones_by_disease.png"),
+    x: 0.3, y: 1.2, w: 6.0, h: 4.0,
+  });
+
+  s.addImage({
+    data: imgData(CLONE_PLOTS + "11_expanded_clone_size_by_disease.png"),
+    x: 6.5, y: 1.2, w: 6.0, h: 4.0,
+  });
+
+  s.addText("Count of Expanded Clones (>100 unique seqs)", {
+    x: 0.5, y: 5.2, w: 5.8, h: 0.3,
+    fontSize: 11, fontFace: FONT_BODY, color: C.midGray, italic: true, align: "center",
+  });
+  s.addText("Mean Size of Expanded Clones", {
+    x: 6.7, y: 5.2, w: 5.8, h: 0.3,
+    fontSize: 11, fontFace: FONT_BODY, color: C.midGray, italic: true, align: "center",
+  });
+
+  s.addShape(pres.ShapeType.roundRect, {
+    x: 0.8, y: 5.6, w: 11.5, h: 1.2,
+    fill: { color: C.offWhite }, rectRadius: 0.1,
+  });
+  s.addText("Expanded clones (>100 unique sequences) represent antigen-driven clonal expansion. Severe and COVID Naive groups show the highest expansion counts, while expanded clone size reveals the magnitude of individual clonal responses.", {
+    x: 1.0, y: 5.7, w: 11.1, h: 1.0,
+    fontSize: 13, fontFace: FONT_BODY, color: C.darkGray, margin: 0,
+  });
+}
+
+// ========== SLIDE 10: R/S Ratio ==========
+{
+  const s = pres.addSlide();
+  s.background = { fill: C.white };
+
+  s.addText("Replacement/Silent Mutation Ratio", {
+    x: 0.8, y: 0.3, w: 11.5, h: 0.8,
+    fontSize: 36, fontFace: FONT_TITLE, color: C.navy, bold: true,
+  });
+
+  s.addText("R/S ratio as a measure of antigen-driven selection pressure", {
+    x: 0.8, y: 1.0, w: 11.5, h: 0.4,
+    fontSize: 14, fontFace: FONT_BODY, color: C.darkGray, italic: true,
+  });
+
+  s.addImage({
+    data: imgData(CLONE_PLOTS + "08_rs_ratio_by_disease.png"),
+    x: 0.3, y: 1.5, w: 7.5, h: 5.0,
+  });
+
+  s.addShape(pres.ShapeType.roundRect, {
+    x: 8.2, y: 1.5, w: 4.6, h: 4.8,
+    fill: { color: C.offWhite }, rectRadius: 0.15,
+  });
+
+  s.addText("Key Findings", {
+    x: 8.4, y: 1.7, w: 4.2, h: 0.4,
+    fontSize: 16, fontFace: FONT_BODY, color: C.navy, bold: true, margin: 0,
+  });
+
+  const rsFindings = [
+    "R/S ratio > 1 indicates positive selection — replacement mutations are favored over silent ones",
+    "Higher R/S in CDR regions vs framework reflects antigen-driven selection in binding sites",
+    "COVID Naive and Recovered groups show elevated R/S ratios consistent with affinity maturation",
+    "Healthy controls show baseline R/S levels expected for unselected repertoires",
+  ];
+
+  rsFindings.forEach((f, i) => {
+    s.addText([{ text: f, options: { fontSize: 12, fontFace: FONT_BODY, color: C.darkGray, bullet: true } }], {
+      x: 8.4, y: 2.3 + i * 0.8, w: 4.2, h: 0.7, margin: 0,
+      paraSpaceAfter: 4,
+    });
+  });
+}
+
+// ========== SLIDE 11: Mutation Analysis ==========
 {
   const s = pres.addSlide();
   s.background = { fill: C.white };
@@ -385,7 +514,7 @@ function imgData(relPath) {
   });
 }
 
-// ========== SLIDE 9: CDR3 Length ==========
+// ========== SLIDE 12: CDR3 Length ==========
 {
   const s = pres.addSlide();
   s.background = { fill: C.white };
@@ -424,7 +553,7 @@ function imgData(relPath) {
   });
 }
 
-// ========== SLIDE 10: Summary ==========
+// ========== SLIDE 13: Summary ==========
 {
   const s = pres.addSlide();
   s.background = { fill: C.navy };
