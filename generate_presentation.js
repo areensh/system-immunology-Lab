@@ -299,31 +299,31 @@ function imgData(relPath) {
   });
 }
 
-// ========== SLIDE 7: Sex & Disease ==========
+// ========== SLIDE 7: Clonal Analysis by Sex & Disease ==========
 {
   const s = pres.addSlide();
   s.background = { fill: C.white };
 
-  s.addText("Disease Distribution by Sex", {
+  s.addText("Clonal Analysis by Sex & Disease", {
     x: 0.8, y: 0.3, w: 11.5, h: 0.8,
     fontSize: 36, fontFace: FONT_TITLE, color: C.navy, bold: true,
   });
 
   s.addImage({
-    data: imgData(META_PLOTS + "03a_disease_by_sex.png"),
+    data: imgData(CLONE_PLOTS + "12_mutation_top10_by_sex_disease.png"),
     x: 0.3, y: 1.2, w: 6.0, h: 4.0,
   });
 
   s.addImage({
-    data: imgData(META_PLOTS + "03e_heatmap_disease_age_sex.png"),
+    data: imgData(CLONE_PLOTS + "13_cdr3_top10_by_sex_disease.png"),
     x: 6.5, y: 1.2, w: 6.0, h: 4.0,
   });
 
-  s.addText("Disease Category by Sex", {
+  s.addText("Mutation Count by Sex & Disease (Top 10 Clones)", {
     x: 0.5, y: 5.2, w: 5.8, h: 0.3,
     fontSize: 11, fontFace: FONT_BODY, color: C.midGray, italic: true, align: "center",
   });
-  s.addText("Disease × Age Group × Sex Heatmap", {
+  s.addText("CDR3 Length by Sex & Disease (Top 10 Clones)", {
     x: 6.7, y: 5.2, w: 5.8, h: 0.3,
     fontSize: 11, fontFace: FONT_BODY, color: C.midGray, italic: true, align: "center",
   });
@@ -332,46 +332,7 @@ function imgData(relPath) {
     x: 0.8, y: 5.6, w: 11.5, h: 1.2,
     fill: { color: C.offWhite }, rectRadius: 0.1,
   });
-  s.addText("Sex distribution is relatively balanced across most disease categories. Severe COVID shows a slight male predominance. The heatmap reveals that most subjects are concentrated in the 40–70 age range, with sex-specific patterns varying by disease severity.", {
-    x: 1.0, y: 5.7, w: 11.1, h: 1.0,
-    fontSize: 13, fontFace: FONT_BODY, color: C.darkGray, margin: 0,
-  });
-}
-
-// ========== SLIDE 8: Age & Disease ==========
-{
-  const s = pres.addSlide();
-  s.background = { fill: C.white };
-
-  s.addText("Age Distribution by Disease", {
-    x: 0.8, y: 0.3, w: 11.5, h: 0.8,
-    fontSize: 36, fontFace: FONT_TITLE, color: C.navy, bold: true,
-  });
-
-  s.addImage({
-    data: imgData(META_PLOTS + "03d_age_by_disease_boxplot.png"),
-    x: 0.3, y: 1.2, w: 6.0, h: 4.0,
-  });
-
-  s.addImage({
-    data: imgData(META_PLOTS + "03b_disease_by_age_group.png"),
-    x: 6.5, y: 1.2, w: 6.0, h: 4.0,
-  });
-
-  s.addText("Age by Disease Category (Boxplot)", {
-    x: 0.5, y: 5.2, w: 5.8, h: 0.3,
-    fontSize: 11, fontFace: FONT_BODY, color: C.midGray, italic: true, align: "center",
-  });
-  s.addText("Disease Categories by Age Group", {
-    x: 6.7, y: 5.2, w: 5.8, h: 0.3,
-    fontSize: 11, fontFace: FONT_BODY, color: C.midGray, italic: true, align: "center",
-  });
-
-  s.addShape(pres.ShapeType.roundRect, {
-    x: 0.8, y: 5.6, w: 11.5, h: 1.2,
-    fill: { color: C.offWhite }, rectRadius: 0.1,
-  });
-  s.addText("Severe COVID patients trend older (median ~55) compared to Mild cases (median ~45). COVID Naive subjects are younger on average, consistent with vaccine trial demographics. Age distribution across disease categories highlights potential confounding that must be considered in repertoire comparisons.", {
+  s.addText("Sex-stratified analysis of top 10 expanded clones reveals subtle differences in mutation burden and CDR3 length across disease categories. These patterns suggest that sex may modulate the BCR repertoire response to COVID-19, though larger cohorts are needed to confirm significance.", {
     x: 1.0, y: 5.7, w: 11.1, h: 1.0,
     fontSize: 13, fontFace: FONT_BODY, color: C.darkGray, margin: 0,
   });
