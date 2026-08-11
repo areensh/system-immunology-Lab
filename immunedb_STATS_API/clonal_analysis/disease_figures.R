@@ -569,7 +569,19 @@ df_cs_subj <- df_cs_raw %>%
   )
 cat("Clone size subjects:", nrow(df_cs_subj), "\n")
 
-# Fig 9: Median clone size by disease
+# Fig 8b: Clone size distribution (all clones) by disease
+p8b <- ggplot(df_cs_raw, aes(x = disease_cat, y = clone_size, fill = disease_cat)) +
+  geom_violin(alpha = 0.5, linewidth = 0.4, scale = "width") +
+  geom_boxplot(width = 0.15, alpha = 0.8, outlier.shape = NA, linewidth = 0.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 4, color = "red") +
+  scale_fill_manual(values = disease_colors, guide = "none") +
+  scale_y_log10(labels = scales::comma) +
+  labs(x = NULL, y = "Clone Size (unique sequences per clone)") +
+  theme()
+ggsave("plots/08b_clone_size_distribution.png", p8b, width = 12, height = 8, dpi = 400, bg = "white")
+cat("Figure 8b saved.\n")
+
+# Fig 9: Median clone size by disease (per subject)
 p9 <- ggplot(df_cs_subj, aes(x = disease_cat, y = median_clone_size, fill = disease_cat)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA, linewidth = 0.6) +
   geom_jitter(width = 0.2, alpha = 0.6, size = 2.5) +
@@ -577,7 +589,7 @@ p9 <- ggplot(df_cs_subj, aes(x = disease_cat, y = median_clone_size, fill = dise
   stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   scale_y_log10(labels = scales::comma) +
-  labs(x = NULL, y = "Median Clone Size (copies)") +
+  labs(x = NULL, y = "Median Clone Size per Subject (unique sequences)") +
   theme()
 ggsave("plots/09_clone_size_by_disease.png", p9, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 9 saved.\n")
