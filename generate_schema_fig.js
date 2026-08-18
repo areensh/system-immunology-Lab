@@ -2,7 +2,7 @@ const pptxgen = require("pptxgenjs");
 const path = require("path");
 
 const pres = new pptxgen();
-pres.defineLayout({ name: "TALL", width: 13.33, height: 10 });
+pres.defineLayout({ name: "TALL", width: 13.33, height: 10.7 });
 pres.layout = "TALL";
 
 const C = {
@@ -187,17 +187,29 @@ s.addText("103 subjects total (blood/PBL)", {
   fontSize: 9.5, fontFace: FONT, color: C.teal, bold: true, align: "center", margin: 0,
 });
 
-// Processing
+// Query Parameters box
 s.addShape(pres.ShapeType.roundRect, {
-  x: aX + 0.15, y: 3.8, w: aW - 0.3, h: 0.6,
-  fill: { color: C.tealLight }, line: { color: C.teal, width: 0.7, dashType: "dash" }, rectRadius: 0.05,
+  x: aX + 0.15, y: 3.8, w: aW - 0.3, h: 1.3,
+  fill: { color: C.tealLight }, line: { color: C.teal, width: 0.8 }, rectRadius: 0.05,
+});
+s.addText("Query Parameters", {
+  x: aX + 0.25, y: 3.85, w: aW - 0.5, h: 0.22,
+  fontSize: 10, fontFace: FONT, color: C.teal, bold: true, margin: 0,
 });
 s.addText([
-  { text: "• Queries all databases in parallel\n", options: { fontSize: 8.5, color: C.gray } },
-  { text: "• Filters by metadata key/value\n", options: { fontSize: 8.5, color: C.gray } },
-  { text: "• Returns unified JSON per subject", options: { fontSize: 8.5, color: C.gray } },
+  { text: "Counting mode\n", options: { fontFace: MONO, fontSize: 8.5, color: C.navy, bold: true } },
+  { text: "  unique_cnt  ", options: { fontFace: MONO, fontSize: 8, color: C.gray } },
+  { text: "unique sequences\n", options: { fontSize: 8, color: C.gray } },
+  { text: "  total_cnt   ", options: { fontFace: MONO, fontSize: 8, color: C.gray } },
+  { text: "copies / reads\n", options: { fontSize: 8, color: C.gray } },
+  { text: "  instances   ", options: { fontFace: MONO, fontSize: 8, color: C.gray } },
+  { text: "clone occurrences\n", options: { fontSize: 8, color: C.gray } },
+  { text: "\n", options: { fontSize: 4 } },
+  { text: "Clone size threshold\n", options: { fontFace: MONO, fontSize: 8.5, color: C.navy, bold: true } },
+  { text: "  configurable min. clone size\n", options: { fontSize: 8, color: C.gray } },
+  { text: "  (default: ≥20 unique seqs)", options: { fontSize: 8, color: C.gray } },
 ], {
-  x: aX + 0.25, y: 3.85, w: aW - 0.5, h: 0.5, margin: 0, lineSpacingMultiple: 1.1,
+  x: aX + 0.25, y: 4.1, w: aW - 0.5, h: 0.95, margin: 0, lineSpacingMultiple: 1.05,
 });
 
 // --- ARROW 2 ---
@@ -285,7 +297,7 @@ s.addText([
 // ================================================================
 // PANEL B — Query Matrix Table
 // ================================================================
-const panelBY = 4.75;
+const panelBY = 5.4;
 
 s.addText("B", {
   x: 0.25, y: panelBY, w: 0.35, h: 0.35,
