@@ -72,6 +72,25 @@ if (statistics[0] == "clone_size"){
     `;
 }
 
+if (statistics[0] == "clone_size_copies"){
+    query = `
+      WITH ${sampleMetaCTE}
+      SELECT cs.clone_id,
+        SUM(cs.total_cnt) AS count,
+        cs.subject_id,
+        s.identifier,
+        sma.meta_values AS valuee,
+        sma.meta_keys AS keey
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      JOIN subjects s ON cs.subject_id = s.id
+      GROUP BY
+        cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys, s.identifier
+      HAVING
+        SUM(cs.total_cnt) > 20
+    `;
+}
+
 if (statistics[0] == "clone_count" ){
     query = `
       WITH ${sampleMetaCTE}
@@ -147,10 +166,7 @@ if (statistics[0] == "topX_clone_size_copies"){
               }
             }
 
-            subjectsArray[currentSubject] = {
-              ...subjectsArray[currentSubject],
-              clones: [...subjectsArray[currentSubject].clones, current]
-            }
+            subjectsArray[currentSubject].clones.push(current);
              const data = [];
              const count = Number(current.count)
 
@@ -178,6 +194,13 @@ if (statistics[0] == "topX_clone_size_copies"){
                 });
              }
              if ( statistics[0] =="clone_size"){
+              totaValue = null
+              data.push({
+                  clone_id: current.clone_id,
+                  count: count
+                });
+             }
+             if ( statistics[0] =="clone_size_copies"){
               totaValue = null
               data.push({
                   clone_id: current.clone_id,
@@ -260,10 +283,7 @@ exports.getClonesForMAya = async (req, res) => {
               }
             }
 
-            subjectsArray[currentSubject] = {
-              ...subjectsArray[currentSubject],
-              clones: [...subjectsArray[currentSubject].clones, current]
-            }
+            subjectsArray[currentSubject].clones.push(current);
              const data = [];
              const count = Number(current.count)
                 data.push({
