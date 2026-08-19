@@ -14,7 +14,7 @@ with open("clonal_analysis/clone_size/data/clone_size_ALL.json") as f:
     clone_data = json.load(f)
 
 STUDY_MAP = [
-    ("covid_db2", "CD1"), ("Covid19_db3", "CD3"),
+    ("covid_db2", "CD1"), ("covid19", "CD2"), ("Covid19_db3", "CD3"),
     ("vaccine2", "CVX1"), ("covid_vaccine_new", "CVX2"),
     ("lp16", "HC1"), ("sykesIgblast2020", "GT1"),
 ]
@@ -45,6 +45,22 @@ for entry in meta_data["Result"]:
         study_meta[study]["cell_subsets"].add(cs)
     study_meta[study]["samples"] += 1
 
+# ---- Enrich tissue counts from clone_size_ALL_tissue.json ----
+with open("clonal_analysis/clone_size/data/clone_size_ALL_tissue.json") as f:
+    tissue_data = json.load(f)
+for entry in tissue_data["Result"]:
+    rep = entry["repertoire"]
+    rid = rep["repertoire_id"]
+    study = get_study(rid)
+    if not study:
+        continue
+    keys = [k.strip() for k in rep.get("meta_key", [])]
+    vals = [v.strip() for v in rep.get("meta_value", [])]
+    meta = dict(zip(keys, vals))
+    tissue = meta.get("tissue", "NA")
+    if tissue != "NA":
+        study_meta[study]["tissues"].add(tissue)
+
 # ---- Clone data: sequencing depth per subject ----
 subj_depth = defaultdict(lambda: {"study": "", "n_clones": 0, "total_seqs": 0})
 for entry in clone_data["Result"]:
@@ -69,12 +85,10 @@ for subj, info in subj_depth.items():
     study_depth[s]["clones_per_subj"].append(info["n_clones"])
 
 # ---- Build table data ----
-studies = ["CD1", "CD2", "CD3", "CVX1", "CVX2", "HC1", "GT1"]
-# CD2 is missing from clone data, skip it
-studies_with_data = ["CD1", "CD3", "CVX1", "CVX2", "HC1"]
+studies_with_data = ["CD1", "CD2", "CD3", "CVX1", "CVX2", "HC1"]
 
 study_colors = {
-    "CD1": "#1565c0", "CD2": "#1e88e5", "CD3": "#42a5f5",
+    "CD1": "#1565c0", "CD2": "#1976d2", "CD3": "#42a5f5",
     "CVX1": "#e65100", "CVX2": "#ff9800",
     "HC1": "#2e7d32", "GT1": "#78909c",
 }
