@@ -14,7 +14,7 @@ with open("clonal_analysis/clone_size/data/clone_size_ALL.json") as f:
     clone_data = json.load(f)
 
 STUDY_MAP = [
-    ("covid_db2", "CD1"), ("covid19", "CD2"), ("Covid19_db3", "CD3"),
+    ("Covid19_db3", "CD1"), ("covid_db2", "CD2"), ("covid19", "CD3"),
     ("vaccine2", "CVX1"), ("covid_vaccine_new", "CVX2"),
     ("lp16", "HC1"), ("sykesIgblast2020", "GT1"),
 ]
