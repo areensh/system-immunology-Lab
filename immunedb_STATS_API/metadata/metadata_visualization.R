@@ -109,13 +109,14 @@ df_meta_long$study <- relabel(sub("-.*", "", df_meta_long$repertoire_id))
 
 # For each study: count subjects per metadata value, colored by metadata type
 df_meta_vals <- df_meta_long %>%
-  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications", "Age minimum")) %>%
+  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications")) %>%
   filter(meta_value != "NA" & !is.na(meta_value)) %>%
   distinct(repertoire_id, study, meta_key, meta_value) %>%
   count(study, meta_key, meta_value, name = "n_subjects")
 
 # Nicer labels for metadata types
 meta_type_labels <- c(
+  "Age minimum" = "Age",
   "cell_subset" = "Cell Subset",
   "disease_stage" = "Disease Stage",
   "sex" = "Sex",
@@ -142,6 +143,7 @@ df_meta_vals$study <- factor(df_meta_vals$study, levels = study_order)
 
 # Color palette by metadata type
 type_colors <- c(
+  "Age" = "#a6d854",
   "Tissue" = "#66c2a5",
   "Disease Stage" = "#8da0cb",
   "Sex" = "#e78ac3",
@@ -149,7 +151,7 @@ type_colors <- c(
 )
 
 df_meta_type_count <- df_meta_long %>%
-  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications", "Age minimum")) %>%
+  filter(!meta_key %in% c("study_title", "subject_name", "Relevant publications")) %>%
   filter(meta_value != "NA" & !is.na(meta_value)) %>%
   distinct(repertoire_id, study, meta_key) %>%
   count(study, meta_key, name = "n_subjects")
