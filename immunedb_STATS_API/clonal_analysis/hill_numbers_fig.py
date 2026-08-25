@@ -20,14 +20,13 @@ EXCLUDE = {"lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1",
 BLOOD_TISSUES = {"blood", "Peripheral blood", "PBL", "PBMC"}
 
 DISEASE_LABELS = {
-    "severe": "Severe", "non-severe": "Non-Severe", "mild": "Mild",
+    "severe": "Severe", "Early phase hypoxaemia": "Severe",
+    "mild": "Mild", "non-severe": "Mild",
+    "Early phase-Stable": "Moderate", "Early phase-Improving": "Moderate",
+    "Recovering without ICU-Improving": "Moderate",
+    "Recovering post-ICU -Improving": "Moderate", "Recovering post-ICU": "Moderate",
     "Recovered": "Recovered", "COVID recovered": "Recovered",
     "healthy": "Healthy", "COVID Naive": "COVID Naive",
-    "Early phase-Stable": "Early Stable", "Early phase hypoxaemia": "Early Hypoxaemia",
-    "Early phase-Improving": "Early Improving",
-    "Recovering without ICU-Improving": "Recovering (no ICU)",
-    "Recovering post-ICU -Improving": "Recovering (post-ICU)",
-    "Recovering post-ICU": "Recovering (post-ICU)",
 }
 
 def get_study(rid):
@@ -86,18 +85,12 @@ for rid, info in subj_clones.items():
 
 # Order disease categories by severity
 disease_order = [d for d in [
-    "Severe", "Non-Severe", "Mild", "Recovered",
-    "Early Hypoxaemia", "Early Stable", "Early Improving",
-    "Recovering (no ICU)", "Recovering (post-ICU)",
-    "Healthy", "COVID Naive",
+    "Severe", "Moderate", "Mild", "Recovered", "Healthy", "COVID Naive",
 ] if d in disease_hills]
 
 disease_colors = {
-    "Severe": "#b71c1c", "Non-Severe": "#e53935", "Mild": "#ff7043",
-    "Recovered": "#43a047", "Early Hypoxaemia": "#d84315",
-    "Early Stable": "#ef6c00", "Early Improving": "#ffa726",
-    "Recovering (no ICU)": "#66bb6a", "Recovering (post-ICU)": "#81c784",
-    "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
+    "Severe": "#b71c1c", "Moderate": "#e65100", "Mild": "#ff7043",
+    "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
 }
 
 print("Subjects per disease stage (blood only):")
