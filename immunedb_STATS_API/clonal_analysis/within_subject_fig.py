@@ -13,6 +13,8 @@ STUDY_MAP = [
     ("lp16", "HC1"), ("sykesIgblast2020", "GT1"),
 ]
 
+EXCLUDE = {"lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"}
+
 def get_study(rid):
     for prefix, short in STUDY_MAP:
         if prefix in rid:
@@ -25,6 +27,8 @@ for entry in data["Result"]:
     rid = rep["repertoire_id"]
     study = get_study(rid)
     if not study:
+        continue
+    if rid in EXCLUDE:
         continue
     keys = rep["meta_key"]
     vals = rep["meta_value"]
