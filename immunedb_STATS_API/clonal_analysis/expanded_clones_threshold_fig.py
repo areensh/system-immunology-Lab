@@ -123,13 +123,14 @@ for ti, t in enumerate(thresholds):
             ax.scatter([i + j for j in jitter], vals, color=colors[i], s=25, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
-    # Count subjects with 0 expanded clones
+    # Annotate subjects with 0 expanded clones (show count inside the plot area)
     for i, d in enumerate(disease_order):
         vals = disease_counts[d]
         n_zero = sum(1 for v in vals if v == 0)
         if n_zero > 0:
-            ax.text(i, -0.03, f"{n_zero} zero", ha="center", va="top",
-                    fontsize=7, color="red", transform=ax.get_xaxis_transform())
+            ax.annotate(f"{n_zero} with 0", xy=(i, 0.8), fontsize=7, color="red",
+                        fontweight="bold", ha="center", va="top",
+                        bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="red", alpha=0.8))
 
     ax.set_xticks(range(len(disease_order)))
     ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=35, ha="right")
