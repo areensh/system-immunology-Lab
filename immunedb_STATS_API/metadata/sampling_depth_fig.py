@@ -9,9 +9,9 @@ from collections import defaultdict
 with open("metadata/data/metadata_ALL.json") as f:
     meta_data = json.load(f)
 
-# ---- Load clone size data for sequencing depth ----
-with open("clonal_analysis/clone_size/data/clone_size_ALL.json") as f:
-    clone_data = json.load(f)
+# ---- Load clone size copies data for sequencing depth ----
+with open("clonal_analysis/clone_size/data/clone_size_ALL_tissue_sex_age_with_GT1_copies.json") as f:
+    copies_data = json.load(f)
 
 STUDY_MAP = [
     ("Covid19_db3", "CD1"), ("covid_db2", "CD2"), ("covid19", "CD3"),
@@ -68,24 +68,40 @@ for entry in tissue_data["Result"]:
     if tissue != "NA":
         study_meta[study]["tissues"].add(tissue)
 
-# ---- Clone data: sequencing depth per subject ----
+# ---- Clone data: sequencing depth per subject (total copies) ----
+# copies_data has CD1, CD2, CVX1, CVX2, HC1; tissue_data adds CD3, GT1 (unique only)
 subj_depth = defaultdict(lambda: {"study": "", "n_clones": 0, "total_seqs": 0})
-for src in [clone_data, tissue_data]:
-    for entry in src["Result"]:
-        rep = entry["repertoire"]
-        rid = rep["repertoire_id"]
-        study = get_study(rid)
-        if not study:
-            continue
-        if rid in EXCLUDE:
-            continue
-        stats = entry.get("statistics", [])
-        if stats and stats[0].get("stats_value"):
-            sv = stats[0]["stats_value"][0]
-            count = sv.get("count", 0)
-            subj_depth[rid]["study"] = study
-            subj_depth[rid]["n_clones"] += 1
-            subj_depth[rid]["total_seqs"] += count
+copies_subjects = set()
+for entry in copies_data["Result"]:
+    rep = entry["repertoire"]
+    rid = rep["repertoire_id"]
+    study = get_study(rid)
+    if not study or rid in EXCLUDE:
+        continue
+    copies_subjects.add(rid)
+    stats = entry.get("statistics", [])
+    if stats and stats[0].get("stats_value"):
+        sv = stats[0]["stats_value"][0]
+        count = sv.get("count", 0)
+        subj_depth[rid]["study"] = study
+        subj_depth[rid]["n_clones"] += 1
+        subj_depth[rid]["total_seqs"] += count
+# Fill in studies missing from copies data (CD3, GT1) using tissue data
+for entry in tissue_data["Result"]:
+    rep = entry["repertoire"]
+    rid = rep["repertoire_id"]
+    study = get_study(rid)
+    if not study or rid in EXCLUDE:
+        continue
+    if rid in copies_subjects:
+        continue
+    stats = entry.get("statistics", [])
+    if stats and stats[0].get("stats_value"):
+        sv = stats[0]["stats_value"][0]
+        count = sv.get("count", 0)
+        subj_depth[rid]["study"] = study
+        subj_depth[rid]["n_clones"] += 1
+        subj_depth[rid]["total_seqs"] += count
 
 # Aggregate per study
 study_depth = defaultdict(lambda: {"seqs_per_subj": [], "clones_per_subj": []})
@@ -108,7 +124,7 @@ study_colors = {
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(18, 7))
 fig.suptitle("Sampling Depth Across Studies", fontsize=20, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Number of individuals, sequencing depth (unique sequences per clone), and tissue/cell subset diversity",
+fig.text(0.5, 0.93, "Number of individuals, sequencing depth (total sequences per subject), and tissue/cell subset diversity",
          ha="center", fontsize=13, color="gray")
 
 # Panel A: Subjects per study
@@ -147,7 +163,7 @@ for i, s in enumerate(x_studies):
 ax.set_yscale("log")
 ax.set_xticks(range(len(x_studies)))
 ax.set_xticklabels(x_studies, fontsize=12, fontweight="bold")
-ax.set_ylabel("Total Unique Sequences per Subject (log)", fontsize=13, fontweight="bold")
+ax.set_ylabel("Total Sequences per Subject (log)", fontsize=13, fontweight="bold")
 ax.set_title("B. Sequencing Depth", fontsize=15, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
