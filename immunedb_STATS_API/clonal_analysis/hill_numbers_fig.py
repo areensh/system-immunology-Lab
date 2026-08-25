@@ -138,13 +138,14 @@ for panel_idx, (key, title) in enumerate(zip(keys, titles)):
     ax.set_xticks(range(len(disease_order)))
     ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=35, ha="right")
     ax.set_title(title, fontsize=15, fontweight="bold", loc="left")
+    ax.set_yscale("log")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
     if panel_idx == 0:
-        ax.set_ylabel("Number of Clones", fontsize=13, fontweight="bold")
+        ax.set_ylabel("Number of Clones (log)", fontsize=13, fontweight="bold")
     else:
-        ax.set_ylabel("Effective Number of Clones", fontsize=13, fontweight="bold")
+        ax.set_ylabel("Effective Number of Clones (log)", fontsize=13, fontweight="bold")
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/17_diversity_hill_numbers.png", dpi=400, bbox_inches="tight", facecolor="white")
