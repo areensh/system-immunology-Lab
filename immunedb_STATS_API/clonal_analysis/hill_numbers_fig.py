@@ -85,7 +85,7 @@ for rid, info in subj_clones.items():
 
 # Order disease categories by severity
 disease_order = [d for d in [
-    "Severe", "Moderate", "Mild", "Recovered", "Healthy", "COVID Naive",
+    "Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy",
 ] if d in disease_hills]
 
 disease_colors = {

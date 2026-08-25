@@ -60,7 +60,7 @@ for entry in data["Result"]:
     subj_data[rid]["disease"] = disease_group
     subj_data[rid]["sizes"].append(sv[0]["count"])
 
-disease_order = ["Severe", "Moderate", "Mild", "Recovered", "Healthy", "COVID Naive"]
+disease_order = ["Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy"]
 disease_colors = {
     "Severe": "#b71c1c", "Moderate": "#e65100", "Mild": "#ff7043",
     "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",

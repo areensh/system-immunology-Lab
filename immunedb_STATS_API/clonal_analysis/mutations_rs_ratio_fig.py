@@ -68,7 +68,7 @@ for entry in data["Result"]:
     subj_mutations[rid]["fw_r"] = vals_dict.get("FW_replacement")
     subj_mutations[rid]["fw_s"] = vals_dict.get("FW_synonymous")
 
-disease_order = ["Severe", "Moderate", "Mild", "Recovered", "Healthy", "COVID Naive"]
+disease_order = ["Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy"]
 disease_colors = {
     "Severe": "#b71c1c", "Moderate": "#e65100", "Mild": "#ff7043",
     "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
