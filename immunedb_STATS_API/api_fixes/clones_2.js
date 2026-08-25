@@ -144,7 +144,7 @@ if (statistics[0] == "topX_clone_size_copies"){
 
      const results = [];
       const [rows] = await connection.query(query, { replacements: params });
-      results.push(...rows);
+      for (const row of rows) results.push(row);
 
 
     const processedResults = results.map(row => ({
