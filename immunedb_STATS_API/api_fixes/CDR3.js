@@ -121,9 +121,36 @@ query += `
     GROUP BY rc.subject_id, rc.meta_values, rc.meta_keys, s.identifier
 `;
 }
+if (statistics[0] == "cdr3_length_distribution"){
+    query = `
+    WITH ${sampleMetaCTE}
+    SELECT
+      clones.subject_id,
+      AVG(LENGTH(cdr3_aa)) AS mean_cdr3_aa,
+      STDDEV(LENGTH(cdr3_aa)) AS sd_cdr3_aa,
+      AVG(cdr3_num_nts) AS mean_cdr3_nt,
+      STDDEV(cdr3_num_nts) AS sd_cdr3_nt,
+      COUNT(*) AS clone_count,
+      s.identifier,
+      sma.meta_keys AS keey,
+      sma.meta_values AS valuee
+    FROM clones
+    JOIN clone_stats cs ON clones.id = cs.clone_id
+    JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+    JOIN subjects s ON clones.subject_id = s.id
+    WHERE clones.functional = 1 AND cs.sample_id IS NOT NULL
+`
+if (connection.config.database == "sykesIgblast"){
+    query += `AND clones.subject_id NOT IN (12,13,11,14,15,22,19,18) `
+}
+query += `
+    GROUP BY clones.subject_id, sma.meta_values, sma.meta_keys, s.identifier
+`;
+}
+
      const results = [];
       const [rows] =  await connection.query(query, { replacements: params });
-      results.push(...rows);
+      for (const row of rows) results.push(row);
 
 
     const processedResults = results.map(row => ({
@@ -134,21 +161,16 @@ query += `
 
 
             clonesBySubjects = processedResults.reduce((total, current)=>{
-            let subjectsArray = {...total}
-
             currentSubject = current.subject_id
 
             if (!total[currentSubject]) {
-              subjectsArray[currentSubject] = {
+              total[currentSubject] = {
                 subject_id:currentSubject,
                 clones:[]
               }
             }
 
-            subjectsArray[currentSubject] = {
-              ...subjectsArray[currentSubject],
-              clones: [...subjectsArray[currentSubject].clones, current]
-            }
+            total[currentSubject].clones.push(current);
              const data = [];
             if (statistics[0] == "topX_nt_AVG_CDR3_length"){
                 data.push({
@@ -182,6 +204,28 @@ query += `
                 });
             }
 
+            if (statistics[0] == "cdr3_length_distribution"){
+                data.push({
+                  clone_id: "mean_cdr3_aa",
+                  count: Number(current.mean_cdr3_aa)
+                });
+                data.push({
+                  clone_id: "sd_cdr3_aa",
+                  count: Number(current.sd_cdr3_aa)
+                });
+                data.push({
+                  clone_id: "mean_cdr3_nt",
+                  count: Number(current.mean_cdr3_nt)
+                });
+                data.push({
+                  clone_id: "sd_cdr3_nt",
+                  count: Number(current.sd_cdr3_nt)
+                });
+                data.push({
+                  clone_id: "clone_count",
+                  count: Number(current.clone_count)
+                });
+            }
 
 
                         payload = {
@@ -199,7 +243,7 @@ query += `
               ],
             };
              resultsFinal.push(payload);
-            return subjectsArray
+            return total
           },{})
 
 
