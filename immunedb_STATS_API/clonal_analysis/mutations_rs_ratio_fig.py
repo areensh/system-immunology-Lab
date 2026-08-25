@@ -95,7 +95,7 @@ for d in disease_order:
     n = len(disease_data[d]["cdr_r"])
     cdr_r = np.median(disease_data[d]["cdr_ratio"]) if disease_data[d]["cdr_ratio"] else 0
     fw_r = np.median(disease_data[d]["fw_ratio"]) if disease_data[d]["fw_ratio"] else 0
-    print(f"  {d}: n={n}, median CDR R/S={cdr_r:.2f}, median FW R/S={fw_r:.2f}")
+    print(f"  {d}: n={n}, median CDR NS/S={cdr_r:.2f}, median FW NS/S={fw_r:.2f}")
 
 # ============================================================
 # FIGURE: NS/S (R/S) ratio per region per disease category
@@ -103,7 +103,7 @@ for d in disease_order:
 fig, axes = plt.subplots(1, 3, figsize=(20, 7))
 fig.suptitle("Mutation Analysis: NS/S Ratio by Region and Disease Stage (Blood Only)",
              fontsize=18, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Non-synonymous (replacement) vs synonymous mutations in CDR and FW regions",
+fig.text(0.5, 0.93, "Non-synonymous vs synonymous mutations in CDR and FW regions",
          ha="center", fontsize=13, color="gray")
 
 rng = np.random.default_rng(42)
@@ -128,8 +128,8 @@ for i, d in enumerate(disease_order):
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("R/S Ratio", fontsize=13, fontweight="bold")
-ax.set_title("A. CDR R/S Ratio", fontsize=14, fontweight="bold", loc="left")
+ax.set_ylabel("NS/S Ratio", fontsize=13, fontweight="bold")
+ax.set_title("A. CDR NS/S Ratio", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
@@ -152,8 +152,8 @@ for i, d in enumerate(disease_order):
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("R/S Ratio", fontsize=13, fontweight="bold")
-ax.set_title("B. FW R/S Ratio", fontsize=14, fontweight="bold", loc="left")
+ax.set_ylabel("NS/S Ratio", fontsize=13, fontweight="bold")
+ax.set_title("B. FW NS/S Ratio", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
