@@ -30,6 +30,7 @@ def get_study(rid):
 
 # ---- Metadata: tissues, cell subsets per study ----
 study_meta = defaultdict(lambda: {"subjects": set(), "tissues": set(), "cell_subsets": set(), "samples": 0})
+study_subj_samples = defaultdict(lambda: defaultdict(int))
 for entry in meta_data["Result"]:
     rep = entry["repertoire"]
     rid = rep["repertoire_id"]
@@ -49,6 +50,7 @@ for entry in meta_data["Result"]:
     if cs != "NA":
         study_meta[study]["cell_subsets"].add(cs)
     study_meta[study]["samples"] += 1
+    study_subj_samples[study][rid] += 1
 
 # ---- Enrich tissue counts from clone_size_ALL_tissue.json ----
 with open("clonal_analysis/clone_size/data/clone_size_ALL_tissue.json") as f:
@@ -124,7 +126,7 @@ study_colors = {
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(18, 7))
 fig.suptitle("Sampling Depth Across Studies", fontsize=20, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Number of individuals, sequencing depth (total sequences per subject), and tissue/cell subset diversity",
+fig.text(0.5, 0.93, "Number of individuals, sequencing depth (total sequences per subject), and samples per subject",
          ha="center", fontsize=13, color="gray")
 
 # Panel A: Subjects per study
@@ -168,33 +170,26 @@ ax.set_title("B. Sequencing Depth", fontsize=15, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-# Panel C: Tissue & cell subset diversity
+# Panel C: Samples per subject
 ax = axes[2]
-n_tissues = [len(study_meta[s]["tissues"]) for s in x_studies]
-n_cs = [len(study_meta[s]["cell_subsets"]) for s in x_studies]
+bp_data_c = [list(study_subj_samples[s].values()) if study_subj_samples[s] else [0] for s in x_studies]
+bp_c = ax.boxplot(bp_data_c, positions=range(len(x_studies)), widths=0.5, patch_artist=True,
+                  showfliers=True, flierprops=dict(marker="o", markersize=4, alpha=0.5),
+                  medianprops=dict(color="black", linewidth=2))
+for i, patch in enumerate(bp_c["boxes"]):
+    patch.set_facecolor(colors[i])
+    patch.set_alpha(0.7)
 
-x = np.arange(len(x_studies))
-w = 0.35
-bars1 = ax.bar(x - w/2, n_tissues, w, color=[study_colors[s] for s in x_studies], 
-               edgecolor="white", linewidth=0.5, label="Tissues", alpha=0.9)
-bars2 = ax.bar(x + w/2, n_cs, w, color=[study_colors[s] for s in x_studies],
-               edgecolor="white", linewidth=0.5, label="Cell Subsets", alpha=0.45, hatch="//")
+for i, s in enumerate(x_studies):
+    vals = list(study_subj_samples[s].values())
+    if vals:
+        jitter = np.random.default_rng(42).uniform(-0.12, 0.12, len(vals))
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=20, alpha=0.6, zorder=3, edgecolors="white", linewidth=0.3)
 
-for bar, n in zip(bars1, n_tissues):
-    if n > 0:
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
-                str(n), ha="center", va="bottom", fontsize=10, fontweight="bold")
-for bar, n in zip(bars2, n_cs):
-    if n > 0:
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
-                str(n), ha="center", va="bottom", fontsize=10, fontweight="bold")
-
-ax.set_xticks(x)
+ax.set_xticks(range(len(x_studies)))
 ax.set_xticklabels(x_studies, fontsize=12, fontweight="bold")
-ax.set_ylabel("Count", fontsize=13, fontweight="bold")
-ax.set_title("C. Sample Diversity", fontsize=15, fontweight="bold", loc="left")
-ax.legend(fontsize=11, loc="upper left")
-ax.set_ylim(0, max(max(n_tissues), max(n_cs)) * 1.3)
+ax.set_ylabel("Samples per Subject", fontsize=13, fontweight="bold")
+ax.set_title("C. Samples per Subject", fontsize=15, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
