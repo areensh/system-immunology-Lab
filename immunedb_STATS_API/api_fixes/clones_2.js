@@ -155,18 +155,16 @@ if (statistics[0] == "topX_clone_size_copies"){
 
 
             clonesBySubjects = processedResults.reduce((total, current)=>{
-            let subjectsArray = {...total}
-
             currentSubject = current.subject_id
 
             if (!total[currentSubject]) {
-              subjectsArray[currentSubject] = {
+              total[currentSubject] = {
                 subject_id:currentSubject,
                 clones:[]
               }
             }
 
-            subjectsArray[currentSubject].clones.push(current);
+            total[currentSubject].clones.push(current);
              const data = [];
              const count = Number(current.count)
 
@@ -222,7 +220,7 @@ if (statistics[0] == "topX_clone_size_copies"){
               ],
             };
              resultsFinal.push(payload);
-            return subjectsArray
+            return total
           },{})
 
 
@@ -272,18 +270,16 @@ exports.getClonesForMAya = async (req, res) => {
             let payload;
             const [rows] = await connections[1].query(query);
             clonesBySubjects = rows.reduce((total, current)=>{
-            let subjectsArray = {...total}
-
             currentSubject = current.subject_id
 
             if (!total[currentSubject]) {
-              subjectsArray[currentSubject] = {
+              total[currentSubject] = {
                 subject_id:currentSubject,
                 clones:[]
               }
             }
 
-            subjectsArray[currentSubject].clones.push(current);
+            total[currentSubject].clones.push(current);
              const data = [];
              const count = Number(current.count)
                 data.push({
@@ -305,7 +301,7 @@ exports.getClonesForMAya = async (req, res) => {
               ],
             };
              results.push(payload);
-            return subjectsArray
+            return total
           },{})
 
 

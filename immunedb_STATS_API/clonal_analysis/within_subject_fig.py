@@ -9,73 +9,136 @@ from collections import defaultdict
 with open("clone_size/data/clone_size_ALL_tissue.json") as f:
     data = json.load(f)
 
-# Extract HC1 entries
+STUDY_MAP = [
+    ("lp16", "HC1"), ("sykesIgblast2020", "GT1"),
+]
+
+EXCLUDE = {"lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"}
+
+def get_study(rid):
+    for prefix, short in STUDY_MAP:
+        if prefix in rid:
+            return short
+    return None
+
 records = []
 for entry in data["Result"]:
     rep = entry["repertoire"]
     rid = rep["repertoire_id"]
-    if "lp16" not in rid:
+    study = get_study(rid)
+    if not study:
+        continue
+    if rid in EXCLUDE:
         continue
     keys = rep["meta_key"]
     vals = rep["meta_value"]
-    tissue = None
-    for k, v in zip(keys, vals):
-        if k == "tissue":
-            tissue = v
-    if tissue is None:
+    if isinstance(keys, list):
+        meta = dict(zip(keys, vals))
+    else:
+        meta = {keys: vals}
+    tissue = meta.get("tissue")
+    if not tissue:
         continue
-    sv = entry["statistics"][0]["stats_value"][0]
+    sv = entry["statistics"][0]["stats_value"]
+    if not sv:
+        continue
+    subj_name = rid.split("-", 1)[1] if "-" in rid else rid
     records.append({
-        "subject": rid.replace("lp16_Igblast-", ""),
+        "subject": subj_name,
+        "study": study,
         "tissue": tissue,
-        "clone_id": sv["clone_id"],
-        "clone_size": sv["count"],
+        "clone_id": sv[0]["clone_id"],
+        "clone_size": sv[0]["count"],
     })
 
-key_tissues = ["PBL", "BM", "SPL", "Lung", "Colon", "Ileum", "MLN"]
-records = [r for r in records if r["tissue"] in key_tissues]
+# Shared tissues between HC1 and GT1
+hc1_tissues = set(r["tissue"] for r in records if r["study"] == "HC1")
+gt1_tissues = set(r["tissue"] for r in records if r["study"] == "GT1")
+shared_tissues = sorted(hc1_tissues & gt1_tissues)
+print(f"HC1 tissues: {sorted(hc1_tissues)}")
+print(f"GT1 tissues: {sorted(gt1_tissues)}")
+print(f"Shared tissues: {shared_tissues}")
+
+# Key tissues for HC1 (original set)
+hc1_key_tissues = ["PBL", "BM", "SPL", "Lung", "Colon", "Ileum", "MLN"]
+# Key tissues for GT1 — use tissues with multiple subjects
+gt1_tissue_subjs = defaultdict(set)
+for r in records:
+    if r["study"] == "GT1":
+        gt1_tissue_subjs[r["tissue"]].add(r["subject"])
+gt1_key_tissues = sorted([t for t, s in gt1_tissue_subjs.items() if len(s) >= 2],
+                         key=lambda t: -len(gt1_tissue_subjs[t]))
+print(f"GT1 tissues with >=2 subjects: {gt1_key_tissues}")
+
+# Tissues shared between studies for cross-study comparison
+cross_tissues = [t for t in hc1_key_tissues if t in gt1_tissues]
+print(f"Cross-study tissues: {cross_tissues}")
 
 tissue_colors = {
-    "PBL": "#2D6A8F", "BM": "#b71c1c", "SPL": "#7e57c2",
-    "Lung": "#5B7C3A", "Colon": "#e65100", "Ileum": "#ff9800", "MLN": "#78909c",
+    "PBL": "#2D6A8F", "PBMC": "#2D6A8F", "BM": "#b71c1c", "Bone Marrow": "#b71c1c",
+    "SPL": "#7e57c2", "Spleen": "#7e57c2",
+    "Lung": "#5B7C3A", "Colon": "#e65100", "Ileum": "#ff9800",
+    "MLN": "#78909c", "Jejunum": "#d4a017", "Duodenum": "#8d6e63",
+    "Rectum": "#c62828", "Bowel": "#ef6c00", "Small Intestine": "#ffa726",
+    "Cecum_allograft": "#a1887f", "Colon_allograft": "#e65100",
+    "Duodenum_allograft": "#8d6e63", "Ileum_allograft": "#ff9800",
+    "Jejunum_allograft": "#d4a017", "MLN_allograft": "#78909c",
+    "Stomach": "#5d4037", "Stomach_allograft": "#5d4037",
+    "AxLN": "#455a64",
 }
 
-# Group by subject and tissue
-subj_tissue_clones = defaultdict(lambda: defaultdict(list))
+study_colors = {"HC1": "#2e7d32", "GT1": "#78909c"}
+
+# Group by study, subject, tissue
+subj_tissue_clones = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 for r in records:
-    subj_tissue_clones[r["subject"]][r["tissue"]].append(r["clone_size"])
-
-subjects = sorted(subj_tissue_clones.keys())
+    subj_tissue_clones[r["study"]][r["subject"]][r["tissue"]].append(r["clone_size"])
 
 # ============================================================
-# FIGURE 1: Clone count per tissue per subject (faceted bar)
+# FIGURE 14: Clone count per tissue — HC1 subjects (faceted, uniform scale)
 # ============================================================
-fig, axes = plt.subplots(2, 3, figsize=(16, 11))
-fig.suptitle("Within-Subject Comparison: Clone Count by Tissue",
+hc1_subjects = sorted(subj_tissue_clones["HC1"].keys())
+ncols = 3
+nrows = (len(hc1_subjects) + ncols - 1) // ncols
+
+# Find global max for uniform y-axis
+global_max = 0
+for subj in hc1_subjects:
+    td = subj_tissue_clones["HC1"][subj]
+    for t in hc1_key_tissues:
+        if t in td:
+            global_max = max(global_max, len(td[t]))
+
+fig, axes = plt.subplots(nrows, ncols, figsize=(16, 5 * nrows))
+if nrows == 1:
+    axes = [axes]
+fig.suptitle("Within-Subject Comparison: Clone Count by Tissue (HC1)",
              fontsize=20, fontweight="bold", y=0.98)
 fig.text(0.5, 0.94,
-         "HC1 healthy subjects — number of distinct clones (≥20 unique sequences) per tissue",
+         "HC1 healthy subjects — number of distinct clones per tissue",
          ha="center", fontsize=13, color="gray")
 
-for idx, subj in enumerate(subjects):
-    ax = axes[idx // 3][idx % 3]
-    tissue_data = subj_tissue_clones[subj]
-    tissues_present = [t for t in key_tissues if t in tissue_data]
-    counts = [len(tissue_data[t]) for t in tissues_present]
-    colors = [tissue_colors[t] for t in tissues_present]
-
-    bars = ax.bar(range(len(tissues_present)), counts, color=colors, edgecolor="white", linewidth=0.5)
-    ax.set_xticks(range(len(tissues_present)))
-    ax.set_xticklabels(tissues_present, rotation=30, ha="right", fontsize=11)
+for idx, subj in enumerate(hc1_subjects):
+    ax = axes[idx // ncols][idx % ncols]
+    td = subj_tissue_clones["HC1"][subj]
+    tissues = [t for t in hc1_key_tissues if t in td]
+    counts = [len(td[t]) for t in tissues]
+    colors = [tissue_colors.get(t, "#999") for t in tissues]
+    bars = ax.bar(range(len(tissues)), counts, color=colors, edgecolor="white", linewidth=0.5)
+    ax.set_xticks(range(len(tissues)))
+    ax.set_xticklabels(tissues, rotation=30, ha="right", fontsize=11)
     ax.set_title(subj, fontsize=15, fontweight="bold")
     ax.set_ylabel("# Clones", fontsize=12)
-    ax.set_ylim(0, None)
+    ax.set_ylim(0, global_max * 1.12)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-
     for bar, c in zip(bars, counts):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(counts)*0.02,
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + global_max*0.02,
                 str(c), ha="center", va="bottom", fontsize=9, fontweight="bold")
+
+# Hide empty subplots
+for idx in range(len(hc1_subjects), nrows * ncols):
+    axes[idx // ncols][idx % ncols].set_visible(False)
 
 plt.tight_layout(rect=[0, 0, 1, 0.92])
 plt.savefig("plots/14_within_subject_clone_count.png", dpi=400, bbox_inches="tight", facecolor="white")
@@ -83,80 +146,134 @@ plt.close()
 print("Saved: 14_within_subject_clone_count.png")
 
 # ============================================================
-# FIGURE 2: Clone size distribution per tissue (D207)
+# FIGURE 15: Same-tissue comparison between HC1 D207 and GT1 subject
 # ============================================================
-subj = "D207"
-tissue_data = subj_tissue_clones[subj]
-tissues_present = [t for t in key_tissues if t in tissue_data]
+# Find GT1 subject with most overlap in shared tissues
+shared_tissues = ["Colon", "Ileum", "Jejunum", "MLN"]
+gt1_subjects = subj_tissue_clones["GT1"]
 
-fig, ax = plt.subplots(figsize=(13, 8))
-positions = range(len(tissues_present))
-bp_data = [tissue_data[t] for t in tissues_present]
+gt1_best = None
+gt1_best_count = 0
+for subj, td in gt1_subjects.items():
+    overlap = sum(1 for t in shared_tissues if t in td and len(td[t]) >= 5)
+    if overlap > gt1_best_count:
+        gt1_best_count = overlap
+        gt1_best = subj
+print(f"GT1 subject for comparison: {gt1_best} ({gt1_best_count} shared tissues with enough clones)")
 
-vp = ax.violinplot(bp_data, positions=positions, showmeans=False, showmedians=False, showextrema=False, widths=0.7)
-for i, body in enumerate(vp["bodies"]):
-    body.set_facecolor(tissue_colors[tissues_present[i]])
-    body.set_alpha(0.4)
-    body.set_edgecolor(tissue_colors[tissues_present[i]])
+# Use only tissues present in both subjects
+hc1_subj = "D207"
+td_hc1 = subj_tissue_clones["HC1"][hc1_subj]
+td_gt1 = gt1_subjects[gt1_best]
+compare_tissues = [t for t in shared_tissues if t in td_hc1 and t in td_gt1]
+print(f"Tissues for comparison: {compare_tissues}")
 
-bp = ax.boxplot(bp_data, positions=positions, widths=0.15, patch_artist=True,
-                showfliers=False, zorder=3,
-                medianprops=dict(color="black", linewidth=1.5))
-for i, patch in enumerate(bp["boxes"]):
-    patch.set_facecolor(tissue_colors[tissues_present[i]])
-    patch.set_alpha(0.8)
+fig, axes = plt.subplots(1, len(compare_tissues), figsize=(5 * len(compare_tissues), 7))
+if len(compare_tissues) == 1:
+    axes = [axes]
+fig.suptitle(f"Cross-Study Tissue Comparison: HC1 (D207) vs GT1 ({gt1_best})",
+             fontsize=18, fontweight="bold", y=0.98)
+fig.text(0.5, 0.93, "Clone size distribution in matched tissues across two studies",
+         ha="center", fontsize=13, color="gray")
 
-# Mean diamonds
-for i, t in enumerate(tissues_present):
-    mean_val = np.mean(tissue_data[t])
-    ax.scatter(i, mean_val, color="red", marker="D", s=50, zorder=4)
+for i, tissue in enumerate(compare_tissues):
+    ax = axes[i]
+    data_pair = [td_hc1[tissue], td_gt1[tissue]]
+    labels = [f"HC1\nD207\n(n={len(data_pair[0])})", f"GT1\n{gt1_best}\n(n={len(data_pair[1])})"]
+    colors_pair = [study_colors["HC1"], study_colors["GT1"]]
 
-ax.set_yscale("log")
-ax.set_xticks(positions)
-ax.set_xticklabels(tissues_present, fontsize=13)
-ax.set_ylabel("Clone Size (unique sequences per clone, log scale)", fontsize=14, fontweight="bold")
-ax.set_xlabel("Tissue", fontsize=14, fontweight="bold")
-ax.set_title("Within-Subject Clone Size Distribution: Subject D207",
-             fontsize=18, fontweight="bold")
-ax.text(0.5, 1.02, "Clone size across 7 tissues from one healthy individual",
-        transform=ax.transAxes, ha="center", fontsize=13, color="gray")
-ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
+    # Violin + boxplot side by side
+    if all(len(d) >= 2 for d in data_pair):
+        vp = ax.violinplot(data_pair, positions=[0, 1], showmeans=False, showmedians=False,
+                           showextrema=False, widths=0.6)
+        for j, body in enumerate(vp["bodies"]):
+            body.set_facecolor(colors_pair[j])
+            body.set_alpha(0.35)
+            body.set_edgecolor(colors_pair[j])
 
-plt.tight_layout()
-plt.savefig("plots/15_within_subject_clone_size_D207.png", dpi=400, bbox_inches="tight", facecolor="white")
+    bp = ax.boxplot(data_pair, positions=[0, 1], widths=0.2, patch_artist=True,
+                    showfliers=False, zorder=3, medianprops=dict(color="black", linewidth=1.5))
+    for j, patch in enumerate(bp["boxes"]):
+        patch.set_facecolor(colors_pair[j])
+        patch.set_alpha(0.8)
+
+    for j, d in enumerate(data_pair):
+        ax.scatter(j, np.mean(d), color="red", marker="D", s=50, zorder=4)
+
+    ax.set_yscale("log")
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(labels, fontsize=11)
+    ax.set_title(tissue, fontsize=16, fontweight="bold")
+    if i == 0:
+        ax.set_ylabel("Clone Size (unique sequences, log scale)", fontsize=13, fontweight="bold")
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.savefig("plots/15_within_subject_clone_size_cross_study.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
-print("Saved: 15_within_subject_clone_size_D207.png")
+print("Saved: 15_within_subject_clone_size_cross_study.png")
 
 # ============================================================
-# FIGURE 3: Median clone size per tissue - lines across subjects
+# FIGURE 16: Median clone size by tissue — HC1 vs GT1 (grouped dots)
 # ============================================================
-fig, ax = plt.subplots(figsize=(13, 8))
+# Only use tissues shared between both studies
+compare_all_tissues = [t for t in shared_tissues
+                       if any(t in s for s in subj_tissue_clones["HC1"].values())
+                       and any(t in s for s in subj_tissue_clones["GT1"].values())]
 
-subj_colors = plt.cm.Set2(np.linspace(0, 1, len(subjects)))
+fig, ax = plt.subplots(figsize=(10, 7))
+rng = np.random.default_rng(42)
 
-for idx, subj in enumerate(subjects):
-    tissue_data = subj_tissue_clones[subj]
-    tissues_present = [t for t in key_tissues if t in tissue_data]
-    x_pos = [key_tissues.index(t) for t in tissues_present]
-    medians = [np.median(tissue_data[t]) for t in tissues_present]
-    n_clones = [len(tissue_data[t]) for t in tissues_present]
+for ti, tissue in enumerate(compare_all_tissues):
+    # HC1 subjects
+    hc1_medians = []
+    for subj, td in subj_tissue_clones["HC1"].items():
+        if tissue in td:
+            hc1_medians.append(np.median(td[tissue]))
+    # GT1 subjects
+    gt1_medians = []
+    for subj, td in subj_tissue_clones["GT1"].items():
+        if tissue in td:
+            gt1_medians.append(np.median(td[tissue]))
 
-    ax.plot(x_pos, medians, alpha=0.5, linewidth=1.2, color=subj_colors[idx])
-    ax.scatter(x_pos, medians, s=[max(20, min(n*0.8, 200)) for n in n_clones],
-               alpha=0.7, color=subj_colors[idx], label=subj, zorder=3, edgecolors="white", linewidth=0.5)
+    x_hc1 = ti - 0.15
+    x_gt1 = ti + 0.15
+    jitter_hc1 = rng.uniform(-0.06, 0.06, len(hc1_medians))
+    jitter_gt1 = rng.uniform(-0.06, 0.06, len(gt1_medians))
+
+    ax.scatter([x_hc1 + j for j in jitter_hc1], hc1_medians,
+               color=study_colors["HC1"], s=60, alpha=0.7, zorder=3,
+               edgecolors="white", linewidth=0.5)
+    ax.scatter([x_gt1 + j for j in jitter_gt1], gt1_medians,
+               color=study_colors["GT1"], s=60, alpha=0.7, zorder=3,
+               edgecolors="white", linewidth=0.5)
+
+    # Group medians
+    if hc1_medians:
+        ax.scatter(x_hc1, np.median(hc1_medians), color=study_colors["HC1"],
+                   s=200, marker="_", linewidths=3, zorder=4)
+    if gt1_medians:
+        ax.scatter(x_gt1, np.median(gt1_medians), color=study_colors["GT1"],
+                   s=200, marker="_", linewidths=3, zorder=4)
+
+from matplotlib.lines import Line2D
+legend_handles = [
+    Line2D([0], [0], color=study_colors["HC1"], marker="o", markersize=8, linestyle="None", label="HC1 (healthy)"),
+    Line2D([0], [0], color=study_colors["GT1"], marker="o", markersize=8, linestyle="None", label="GT1 (gut transplant)"),
+]
+ax.legend(handles=legend_handles, fontsize=12, title="Study", title_fontsize=13, loc="upper right")
 
 ax.set_yscale("log")
-ax.set_xticks(range(len(key_tissues)))
-ax.set_xticklabels(key_tissues, fontsize=13)
-ax.set_ylabel("Median Clone Size (unique sequences, log scale)", fontsize=14, fontweight="bold")
+ax.set_xticks(range(len(compare_all_tissues)))
+ax.set_xticklabels(compare_all_tissues, fontsize=14, fontweight="bold")
+ax.set_ylabel("Median Clone Size per Subject (log scale)", fontsize=14, fontweight="bold")
 ax.set_xlabel("Tissue", fontsize=14, fontweight="bold")
-ax.set_title("Within-Subject Tissue Comparison: Median Clone Size",
+ax.set_title("Cross-Study Tissue Comparison: Median Clone Size",
              fontsize=18, fontweight="bold")
-ax.text(0.5, 1.02, "Each line = one HC1 subject. Point size ∝ number of clones in that tissue.",
+ax.text(0.5, 1.02, "Each dot = one subject's median clone size in that tissue. Bar = group median.",
         transform=ax.transAxes, ha="center", fontsize=12, color="gray")
-ax.legend(title="Subject", fontsize=11, title_fontsize=12, loc="upper right")
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
@@ -166,4 +283,9 @@ plt.savefig("plots/16_within_subject_tissue_lines.png", dpi=400, bbox_inches="ti
 plt.close()
 print("Saved: 16_within_subject_tissue_lines.png")
 
-print(f"\nSummary: {len(subjects)} subjects, {len(key_tissues)} tissues, {len(records)} total clones")
+# Summary
+hc1_recs = [r for r in records if r["study"] == "HC1"]
+gt1_recs = [r for r in records if r["study"] == "GT1"]
+print(f"\nSummary:")
+print(f"  HC1: {len(set(r['subject'] for r in hc1_recs))} subjects, {len(hc1_recs)} clones")
+print(f"  GT1: {len(set(r['subject'] for r in gt1_recs))} subjects, {len(gt1_recs)} clones")
