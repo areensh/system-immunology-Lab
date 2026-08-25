@@ -88,29 +88,35 @@ fig.suptitle("Clone Size Distribution by Disease Stage (Blood Only)",
 fig.text(0.5, 0.93, "Expanded clones (unique sequences > 20)",
          ha="center", fontsize=13, color="gray")
 
-# Panel A: All clone sizes pooled per disease
+# Panel A: All clone sizes pooled per disease (violin + boxplot)
 ax = axes[0]
-bp_data = [disease_sizes[d] for d in disease_order]
+bp_data = [np.log10(np.array(disease_sizes[d])) for d in disease_order]
 colors = [disease_colors[d] for d in disease_order]
 rng = np.random.default_rng(42)
 
-bp = ax.boxplot(bp_data, positions=range(len(disease_order)), widths=0.5, patch_artist=True,
+vp = ax.violinplot(bp_data, positions=range(len(disease_order)), showmeans=False,
+                   showmedians=False, showextrema=False, widths=0.7)
+for i, body in enumerate(vp["bodies"]):
+    body.set_facecolor(colors[i])
+    body.set_alpha(0.35)
+    body.set_edgecolor(colors[i])
+
+bp = ax.boxplot(bp_data, positions=range(len(disease_order)), widths=0.15, patch_artist=True,
                 showfliers=False, medianprops=dict(color="black", linewidth=2))
 for i, patch in enumerate(bp["boxes"]):
     patch.set_facecolor(colors[i])
-    patch.set_alpha(0.7)
+    patch.set_alpha(0.8)
 
-ax.set_yscale("log")
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=10, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Clone Size (unique sequences, log)", fontsize=13, fontweight="bold")
+ax.set_ylabel("Clone Size (log₁₀ unique sequences)", fontsize=13, fontweight="bold")
 ax.set_title("A. Clone Size Distribution (all clones)", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 # Add n= labels
 for i, d in enumerate(disease_order):
-    ax.text(i, ax.get_ylim()[0] * 1.1, f"n={len(disease_sizes[d])}",
+    ax.text(i, ax.get_ylim()[0] + 0.02, f"n={len(disease_sizes[d])}",
             ha="center", va="bottom", fontsize=8, color="gray")
 
 # Panel B: Median clone size per subject
