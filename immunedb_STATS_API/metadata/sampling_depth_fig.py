@@ -19,6 +19,9 @@ STUDY_MAP = [
     ("lp16", "HC1"), ("sykesIgblast2020", "GT1"),
 ]
 
+EXCLUDE = {"lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1",
+           "covid_vaccine_new-Fb", "covid_vaccine_new-Water"}
+
 def get_study(rid):
     for prefix, short in STUDY_MAP:
         if prefix in rid:
@@ -32,6 +35,8 @@ for entry in meta_data["Result"]:
     rid = rep["repertoire_id"]
     study = get_study(rid)
     if not study:
+        continue
+    if rid in EXCLUDE:
         continue
     keys = [k.strip() for k in rep.get("meta_key", [])]
     vals = [v.strip() for v in rep.get("meta_value", [])]
@@ -54,6 +59,8 @@ for entry in tissue_data["Result"]:
     study = get_study(rid)
     if not study:
         continue
+    if rid in EXCLUDE:
+        continue
     keys = [k.strip() for k in rep.get("meta_key", [])]
     vals = [v.strip() for v in rep.get("meta_value", [])]
     meta = dict(zip(keys, vals))
@@ -63,19 +70,22 @@ for entry in tissue_data["Result"]:
 
 # ---- Clone data: sequencing depth per subject ----
 subj_depth = defaultdict(lambda: {"study": "", "n_clones": 0, "total_seqs": 0})
-for entry in clone_data["Result"]:
-    rep = entry["repertoire"]
-    rid = rep["repertoire_id"]
-    study = get_study(rid)
-    if not study:
-        continue
-    stats = entry.get("statistics", [])
-    if stats and stats[0].get("stats_value"):
-        sv = stats[0]["stats_value"][0]
-        count = sv.get("count", 0)
-        subj_depth[rid]["study"] = study
-        subj_depth[rid]["n_clones"] += 1
-        subj_depth[rid]["total_seqs"] += count
+for src in [clone_data, tissue_data]:
+    for entry in src["Result"]:
+        rep = entry["repertoire"]
+        rid = rep["repertoire_id"]
+        study = get_study(rid)
+        if not study:
+            continue
+        if rid in EXCLUDE:
+            continue
+        stats = entry.get("statistics", [])
+        if stats and stats[0].get("stats_value"):
+            sv = stats[0]["stats_value"][0]
+            count = sv.get("count", 0)
+            subj_depth[rid]["study"] = study
+            subj_depth[rid]["n_clones"] += 1
+            subj_depth[rid]["total_seqs"] += count
 
 # Aggregate per study
 study_depth = defaultdict(lambda: {"seqs_per_subj": [], "clones_per_subj": []})
@@ -85,7 +95,7 @@ for subj, info in subj_depth.items():
     study_depth[s]["clones_per_subj"].append(info["n_clones"])
 
 # ---- Build table data ----
-studies_with_data = ["CD1", "CD2", "CD3", "CVX1", "CVX2", "HC1"]
+studies_with_data = ["CD1", "CD2", "CD3", "CVX1", "CVX2", "HC1", "GT1"]
 
 study_colors = {
     "CD1": "#1565c0", "CD2": "#1976d2", "CD3": "#42a5f5",
