@@ -95,11 +95,20 @@ for r in records:
     subj_tissue_clones[r["study"]][r["subject"]][r["tissue"]].append(r["clone_size"])
 
 # ============================================================
-# FIGURE 14: Clone count per tissue — HC1 subjects (faceted)
+# FIGURE 14: Clone count per tissue — HC1 subjects (faceted, uniform scale)
 # ============================================================
 hc1_subjects = sorted(subj_tissue_clones["HC1"].keys())
 ncols = 3
 nrows = (len(hc1_subjects) + ncols - 1) // ncols
+
+# Find global max for uniform y-axis
+global_max = 0
+for subj in hc1_subjects:
+    td = subj_tissue_clones["HC1"][subj]
+    for t in hc1_key_tissues:
+        if t in td:
+            global_max = max(global_max, len(td[t]))
+
 fig, axes = plt.subplots(nrows, ncols, figsize=(16, 5 * nrows))
 if nrows == 1:
     axes = [axes]
@@ -120,10 +129,11 @@ for idx, subj in enumerate(hc1_subjects):
     ax.set_xticklabels(tissues, rotation=30, ha="right", fontsize=11)
     ax.set_title(subj, fontsize=15, fontweight="bold")
     ax.set_ylabel("# Clones", fontsize=12)
+    ax.set_ylim(0, global_max * 1.12)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     for bar, c in zip(bars, counts):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(counts)*0.02,
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + global_max*0.02,
                 str(c), ha="center", va="bottom", fontsize=9, fontweight="bold")
 
 # Hide empty subplots
@@ -136,143 +146,133 @@ plt.close()
 print("Saved: 14_within_subject_clone_count.png")
 
 # ============================================================
-# FIGURE 15: Clone size distribution — D207 (HC1) vs a GT1 subject
+# FIGURE 15: Same-tissue comparison between HC1 D207 and GT1 subject
 # ============================================================
-# Pick GT1 subject with most tissues
+# Find GT1 subject with most overlap in shared tissues
+shared_tissues = ["Colon", "Ileum", "Jejunum", "MLN"]
 gt1_subjects = subj_tissue_clones["GT1"]
-gt1_best = max(gt1_subjects.keys(), key=lambda s: len(gt1_subjects[s]))
-gt1_best_tissues = sorted(gt1_subjects[gt1_best].keys())
-print(f"GT1 subject with most tissues: {gt1_best} ({len(gt1_best_tissues)} tissues: {gt1_best_tissues})")
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
-fig.suptitle("Within-Subject Clone Size Distribution: HC1 vs GT1",
-             fontsize=20, fontweight="bold", y=0.98)
+gt1_best = None
+gt1_best_count = 0
+for subj, td in gt1_subjects.items():
+    overlap = sum(1 for t in shared_tissues if t in td and len(td[t]) >= 5)
+    if overlap > gt1_best_count:
+        gt1_best_count = overlap
+        gt1_best = subj
+print(f"GT1 subject for comparison: {gt1_best} ({gt1_best_count} shared tissues with enough clones)")
 
-# Panel A: D207 (HC1)
-td = subj_tissue_clones["HC1"]["D207"]
-tissues = [t for t in hc1_key_tissues if t in td]
-bp_data = [td[t] for t in tissues]
-positions = range(len(tissues))
+# Use only tissues present in both subjects
+hc1_subj = "D207"
+td_hc1 = subj_tissue_clones["HC1"][hc1_subj]
+td_gt1 = gt1_subjects[gt1_best]
+compare_tissues = [t for t in shared_tissues if t in td_hc1 and t in td_gt1]
+print(f"Tissues for comparison: {compare_tissues}")
 
-vp = ax1.violinplot(bp_data, positions=positions, showmeans=False, showmedians=False, showextrema=False, widths=0.7)
-for i, body in enumerate(vp["bodies"]):
-    body.set_facecolor(tissue_colors.get(tissues[i], "#999"))
-    body.set_alpha(0.4)
-    body.set_edgecolor(tissue_colors.get(tissues[i], "#999"))
-bp = ax1.boxplot(bp_data, positions=positions, widths=0.15, patch_artist=True,
-                showfliers=False, zorder=3, medianprops=dict(color="black", linewidth=1.5))
-for i, patch in enumerate(bp["boxes"]):
-    patch.set_facecolor(tissue_colors.get(tissues[i], "#999"))
-    patch.set_alpha(0.8)
-for i, t in enumerate(tissues):
-    ax1.scatter(i, np.mean(td[t]), color="red", marker="D", s=50, zorder=4)
+fig, axes = plt.subplots(1, len(compare_tissues), figsize=(5 * len(compare_tissues), 7))
+if len(compare_tissues) == 1:
+    axes = [axes]
+fig.suptitle(f"Cross-Study Tissue Comparison: HC1 (D207) vs GT1 ({gt1_best})",
+             fontsize=18, fontweight="bold", y=0.98)
+fig.text(0.5, 0.93, "Clone size distribution in matched tissues across two studies",
+         ha="center", fontsize=13, color="gray")
 
-ax1.set_yscale("log")
-ax1.set_xticks(positions)
-ax1.set_xticklabels(tissues, fontsize=12, rotation=30, ha="right")
-ax1.set_ylabel("Clone Size (unique sequences, log scale)", fontsize=13, fontweight="bold")
-ax1.set_xlabel("Tissue", fontsize=13, fontweight="bold")
-ax1.set_title(f"A. HC1 — Subject D207", fontsize=16, fontweight="bold", loc="left")
-ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
-ax1.spines["top"].set_visible(False)
-ax1.spines["right"].set_visible(False)
+for i, tissue in enumerate(compare_tissues):
+    ax = axes[i]
+    data_pair = [td_hc1[tissue], td_gt1[tissue]]
+    labels = [f"HC1\nD207\n(n={len(data_pair[0])})", f"GT1\n{gt1_best}\n(n={len(data_pair[1])})"]
+    colors_pair = [study_colors["HC1"], study_colors["GT1"]]
 
-# Panel B: GT1 best subject
-td2 = gt1_subjects[gt1_best]
-tissues2 = gt1_best_tissues
-bp_data2 = [td2[t] for t in tissues2]
-positions2 = range(len(tissues2))
+    # Violin + boxplot side by side
+    if all(len(d) >= 2 for d in data_pair):
+        vp = ax.violinplot(data_pair, positions=[0, 1], showmeans=False, showmedians=False,
+                           showextrema=False, widths=0.6)
+        for j, body in enumerate(vp["bodies"]):
+            body.set_facecolor(colors_pair[j])
+            body.set_alpha(0.35)
+            body.set_edgecolor(colors_pair[j])
 
-if any(len(d) >= 2 for d in bp_data2):
-    vp2 = ax2.violinplot([d for d in bp_data2 if len(d) >= 2],
-                         positions=[i for i, d in enumerate(bp_data2) if len(d) >= 2],
-                         showmeans=False, showmedians=False, showextrema=False, widths=0.7)
-    for body_idx, i in enumerate([i for i, d in enumerate(bp_data2) if len(d) >= 2]):
-        vp2["bodies"][body_idx].set_facecolor(tissue_colors.get(tissues2[i], "#999"))
-        vp2["bodies"][body_idx].set_alpha(0.4)
-        vp2["bodies"][body_idx].set_edgecolor(tissue_colors.get(tissues2[i], "#999"))
+    bp = ax.boxplot(data_pair, positions=[0, 1], widths=0.2, patch_artist=True,
+                    showfliers=False, zorder=3, medianprops=dict(color="black", linewidth=1.5))
+    for j, patch in enumerate(bp["boxes"]):
+        patch.set_facecolor(colors_pair[j])
+        patch.set_alpha(0.8)
 
-bp2_valid = [i for i, d in enumerate(bp_data2) if len(d) >= 2]
-if bp2_valid:
-    bp2 = ax2.boxplot([bp_data2[i] for i in bp2_valid], positions=bp2_valid, widths=0.15,
-                      patch_artist=True, showfliers=False, zorder=3,
-                      medianprops=dict(color="black", linewidth=1.5))
-    for j, i in enumerate(bp2_valid):
-        bp2["boxes"][j].set_facecolor(tissue_colors.get(tissues2[i], "#999"))
-        bp2["boxes"][j].set_alpha(0.8)
+    for j, d in enumerate(data_pair):
+        ax.scatter(j, np.mean(d), color="red", marker="D", s=50, zorder=4)
 
-for i, t in enumerate(tissues2):
-    if len(td2[t]) == 1:
-        ax2.scatter(i, td2[t][0], color=tissue_colors.get(t, "#999"), s=60, zorder=4, edgecolors="black", linewidth=0.5)
-    else:
-        ax2.scatter(i, np.mean(td2[t]), color="red", marker="D", s=50, zorder=4)
+    ax.set_yscale("log")
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(labels, fontsize=11)
+    ax.set_title(tissue, fontsize=16, fontweight="bold")
+    if i == 0:
+        ax.set_ylabel("Clone Size (unique sequences, log scale)", fontsize=13, fontweight="bold")
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
-ax2.set_yscale("log")
-ax2.set_xticks(positions2)
-ax2.set_xticklabels(tissues2, fontsize=10, rotation=45, ha="right")
-ax2.set_ylabel("Clone Size (unique sequences, log scale)", fontsize=13, fontweight="bold")
-ax2.set_xlabel("Tissue", fontsize=13, fontweight="bold")
-ax2.set_title(f"B. GT1 — Subject {gt1_best}", fontsize=16, fontweight="bold", loc="left")
-ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
-ax2.spines["top"].set_visible(False)
-ax2.spines["right"].set_visible(False)
-
-plt.tight_layout(rect=[0, 0, 1, 0.94])
+plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/15_within_subject_clone_size_cross_study.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 15_within_subject_clone_size_cross_study.png")
 
 # ============================================================
-# FIGURE 16: Median clone size lines — HC1 and GT1 together
+# FIGURE 16: Median clone size by tissue — HC1 vs GT1 (grouped dots)
 # ============================================================
-# Use tissues present in both studies
-all_tissues = sorted(set(
-    [t for s in subj_tissue_clones["HC1"].values() for t in s.keys()] +
-    [t for s in subj_tissue_clones["GT1"].values() for t in s.keys()]
-))
-# Focus on tissues with data from multiple subjects in either study
-common_tissues = []
-for t in all_tissues:
-    hc1_count = sum(1 for s in subj_tissue_clones["HC1"].values() if t in s)
-    gt1_count = sum(1 for s in subj_tissue_clones["GT1"].values() if t in s)
-    if hc1_count >= 2 or gt1_count >= 2:
-        common_tissues.append(t)
+# Only use tissues shared between both studies
+compare_all_tissues = [t for t in shared_tissues
+                       if any(t in s for s in subj_tissue_clones["HC1"].values())
+                       and any(t in s for s in subj_tissue_clones["GT1"].values())]
 
-fig, ax = plt.subplots(figsize=(14, 8))
+fig, ax = plt.subplots(figsize=(10, 7))
+rng = np.random.default_rng(42)
 
-for study in ["HC1", "GT1"]:
-    subjects = sorted(subj_tissue_clones[study].keys())
-    color = study_colors[study]
-    for idx, subj in enumerate(subjects):
-        td = subj_tissue_clones[study][subj]
-        tissues = [t for t in common_tissues if t in td]
-        if not tissues:
-            continue
-        x_pos = [common_tissues.index(t) for t in tissues]
-        medians = [np.median(td[t]) for t in tissues]
-        n_clones = [len(td[t]) for t in tissues]
-        label = f"{study}: {subj}" if idx == 0 or True else None
-        ax.plot(x_pos, medians, alpha=0.4, linewidth=1.0, color=color)
-        ax.scatter(x_pos, medians,
-                   s=[max(20, min(n*0.8, 200)) for n in n_clones],
-                   alpha=0.6, color=color, zorder=3, edgecolors="white", linewidth=0.5)
+for ti, tissue in enumerate(compare_all_tissues):
+    # HC1 subjects
+    hc1_medians = []
+    for subj, td in subj_tissue_clones["HC1"].items():
+        if tissue in td:
+            hc1_medians.append(np.median(td[tissue]))
+    # GT1 subjects
+    gt1_medians = []
+    for subj, td in subj_tissue_clones["GT1"].items():
+        if tissue in td:
+            gt1_medians.append(np.median(td[tissue]))
 
-# Legend: one entry per study
+    x_hc1 = ti - 0.15
+    x_gt1 = ti + 0.15
+    jitter_hc1 = rng.uniform(-0.06, 0.06, len(hc1_medians))
+    jitter_gt1 = rng.uniform(-0.06, 0.06, len(gt1_medians))
+
+    ax.scatter([x_hc1 + j for j in jitter_hc1], hc1_medians,
+               color=study_colors["HC1"], s=60, alpha=0.7, zorder=3,
+               edgecolors="white", linewidth=0.5)
+    ax.scatter([x_gt1 + j for j in jitter_gt1], gt1_medians,
+               color=study_colors["GT1"], s=60, alpha=0.7, zorder=3,
+               edgecolors="white", linewidth=0.5)
+
+    # Group medians
+    if hc1_medians:
+        ax.scatter(x_hc1, np.median(hc1_medians), color=study_colors["HC1"],
+                   s=200, marker="_", linewidths=3, zorder=4)
+    if gt1_medians:
+        ax.scatter(x_gt1, np.median(gt1_medians), color=study_colors["GT1"],
+                   s=200, marker="_", linewidths=3, zorder=4)
+
 from matplotlib.lines import Line2D
 legend_handles = [
-    Line2D([0], [0], color=study_colors["HC1"], marker="o", markersize=8, linewidth=2, label="HC1 (healthy)"),
-    Line2D([0], [0], color=study_colors["GT1"], marker="o", markersize=8, linewidth=2, label="GT1 (gut transplant)"),
+    Line2D([0], [0], color=study_colors["HC1"], marker="o", markersize=8, linestyle="None", label="HC1 (healthy)"),
+    Line2D([0], [0], color=study_colors["GT1"], marker="o", markersize=8, linestyle="None", label="GT1 (gut transplant)"),
 ]
 ax.legend(handles=legend_handles, fontsize=12, title="Study", title_fontsize=13, loc="upper right")
 
 ax.set_yscale("log")
-ax.set_xticks(range(len(common_tissues)))
-ax.set_xticklabels(common_tissues, fontsize=11, rotation=45, ha="right")
-ax.set_ylabel("Median Clone Size (unique sequences, log scale)", fontsize=14, fontweight="bold")
+ax.set_xticks(range(len(compare_all_tissues)))
+ax.set_xticklabels(compare_all_tissues, fontsize=14, fontweight="bold")
+ax.set_ylabel("Median Clone Size per Subject (log scale)", fontsize=14, fontweight="bold")
 ax.set_xlabel("Tissue", fontsize=14, fontweight="bold")
-ax.set_title("Within-Subject Tissue Comparison: HC1 vs GT1",
+ax.set_title("Cross-Study Tissue Comparison: Median Clone Size",
              fontsize=18, fontweight="bold")
-ax.text(0.5, 1.02, "Each line = one subject. Point size proportional to number of clones.",
+ax.text(0.5, 1.02, "Each dot = one subject's median clone size in that tissue. Bar = group median.",
         transform=ax.transAxes, ha="center", fontsize=12, color="gray")
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
 ax.spines["top"].set_visible(False)
@@ -287,5 +287,5 @@ print("Saved: 16_within_subject_tissue_lines.png")
 hc1_recs = [r for r in records if r["study"] == "HC1"]
 gt1_recs = [r for r in records if r["study"] == "GT1"]
 print(f"\nSummary:")
-print(f"  HC1: {len(hc1_subjects)} subjects, {len(hc1_recs)} clones")
-print(f"  GT1: {len(gt1_subjects)} subjects, {len(gt1_recs)} clones")
+print(f"  HC1: {len(set(r['subject'] for r in hc1_recs))} subjects, {len(hc1_recs)} clones")
+print(f"  GT1: {len(set(r['subject'] for r in gt1_recs))} subjects, {len(gt1_recs)} clones")
