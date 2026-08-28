@@ -23,8 +23,8 @@ DISEASE_LABELS = {
     "severe": "Severe", "Early phase hypoxaemia": "Severe",
     "mild": "Mild", "non-severe": "Mild",
     "Early phase-Stable": "Moderate", "Early phase-Improving": "Moderate",
-    "Recovering without ICU-Improving": "Moderate",
-    "Recovering post-ICU -Improving": "Moderate", "Recovering post-ICU": "Moderate",
+    "Recovering without ICU-Improving": "Recovered",
+    "Recovering post-ICU -Improving": "Recovered", "Recovering post-ICU": "Recovered",
     "Recovered": "Recovered", "COVID recovered": "Recovered",
     "healthy": "Healthy", "COVID Naive": "COVID Naive",
 }
