@@ -212,7 +212,7 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
 
      const results = [];
       const [rows] =  await connection.query(query, { replacements: params });
-      results.push(...rows);
+      for (const row of rows) results.push(row);
 
 
     const processedResults = results.map(row => ({
@@ -223,21 +223,16 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
 
 
             clonesBySubjects = processedResults.reduce((total, current)=>{
-            let subjectsArray = {...total}
-
             currentSubject = current.subject_id
 
             if (!total[currentSubject]) {
-              subjectsArray[currentSubject] = {
+              total[currentSubject] = {
                 subject_id:currentSubject,
                 clones:[]
               }
             }
 
-            subjectsArray[currentSubject] = {
-              ...subjectsArray[currentSubject],
-              clones: [...subjectsArray[currentSubject].clones, current]
-            }
+            total[currentSubject].clones.push(current);
              const data = [];
             if (statistics[0] == "topX_mutation_level"){
                 data.push({
@@ -313,7 +308,7 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
               ],
             };
              resultsFinal.push(payload);
-            return subjectsArray
+            return total
           },{})
 
 
