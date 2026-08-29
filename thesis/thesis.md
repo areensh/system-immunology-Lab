@@ -60,63 +60,145 @@ To demonstrate the power of IS-API, I present here a two-part analysis. First, I
 
 **Methods Figure 1.** IS-API pipeline: from raw DNA sequences to cross-study analysis.
 
+![Methods Figure 1](../methods_fig1.png)
+
 **Methods Figure 2.** IS-API system architecture: client queries fan out to multiple ImmuneDB instances.
 
+![Methods Figure 2](../methods_fig2.png)
+
 **Methods Figure 3.** Three-tier analysis approach: metadata, biological-statistical measurements, and specific biological questions.
+
+![Methods Figure 3](../methods_fig3.png)
+
+## Metadata Figures
+
+**Metadata Figure 1.** Number of subjects per dataset across all seven databases.
+
+![Metadata Figure 1](../immunedb_STATS_API/metadata/plots/01_subjects_per_dataset.png)
+
+**Metadata Figure 2.** Metadata availability per dataset — which metadata fields are present in each study.
+
+![Metadata Figure 2](../immunedb_STATS_API/metadata/plots/00_metadata_per_dataset.png)
+
+**Metadata Figure 3.** Number of subjects per disease category (after harmonization).
+
+![Metadata Figure 3](../immunedb_STATS_API/metadata/plots/02a_subjects_per_disease_category.png)
+
+**Metadata Figure 4.** Disease stage harmonization mapping from raw annotations to unified categories.
+
+![Metadata Figure 4](../immunedb_STATS_API/metadata/plots/04_disease_harmonized_with_labels.png)
+
+**Metadata Figure 5.** Demographics scatter plot: age by disease category, colored by dataset, shaped by sex.
+
+![Metadata Figure 5](../immunedb_STATS_API/metadata/plots/05_demographics_scatter.png)
+
+**Metadata Figure 6.** Heatmap of individual counts across disease category, age group, and sex.
+
+![Metadata Figure 6](../immunedb_STATS_API/metadata/plots/03e_heatmap_disease_age_sex.png)
 
 ## Part 1: IS-API Tool Capabilities
 
 **Figure 1.** Clone count distribution by disease stage across all studies.
 
+![Figure 1](../immunedb_STATS_API/clonal_analysis/plots/01_clone_count_by_disease.png)
+
 **Figure 2.** Fraction of top X clones out of total copies per individual by disease stage.
+
+![Figure 2](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png)
 
 **Figure 3.** CDR3 length distribution by disease stage for top clones.
 
+![Figure 3](../immunedb_STATS_API/clonal_analysis/plots/03_cdr3_by_disease.png)
+
 **Figure 4.** CDR3 length range by disease stage.
+
+![Figure 4](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png)
 
 **Figure 5.** Total mutation level by disease stage.
 
+![Figure 5](../immunedb_STATS_API/clonal_analysis/plots/05_mutation_by_disease.png)
+
 **Figure 6.** Mutation level gradient across clone size ranks by disease stage.
+
+![Figure 6](../immunedb_STATS_API/clonal_analysis/plots/06_mutation_gradient_by_disease.png)
 
 **Figure 7.** CDR and FW region mutations by disease stage.
 
+![Figure 7](../immunedb_STATS_API/clonal_analysis/plots/07_cdr_mutations_by_disease.png)
+
 **Figure 8.** NS/S ratio by disease stage (overview).
+
+![Figure 8](../immunedb_STATS_API/clonal_analysis/plots/08_rs_ratio_by_disease.png)
 
 **Figure 9.** Clone size distribution overview by disease stage.
 
+![Figure 9](../immunedb_STATS_API/clonal_analysis/plots/09_clone_size_by_disease.png)
+
 **Figure 10.** Expanded clone count by disease stage.
+
+![Figure 10](../immunedb_STATS_API/clonal_analysis/plots/10_expanded_clones_by_disease.png)
 
 **Figure 11.** Expanded clone size by disease stage.
 
+![Figure 11](../immunedb_STATS_API/clonal_analysis/plots/11_expanded_clone_size_by_disease.png)
+
 **Figure 12.** Mutation level in top 10 clones by sex and disease stage.
+
+![Figure 12](../immunedb_STATS_API/clonal_analysis/plots/12_mutation_top10_by_sex_disease.png)
 
 **Figure 13.** CDR3 length in top 10 clones by sex and disease stage.
 
+![Figure 13](../immunedb_STATS_API/clonal_analysis/plots/13_cdr3_top10_by_sex_disease.png)
+
 **Figure 14.** Within-individual clone count across tissues (cross-study comparison).
+
+![Figure 14](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png)
 
 **Figure 15.** Within-individual clone size across tissues (cross-study comparison).
 
+![Figure 15](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png)
+
 **Figure 16.** Within-individual tissue comparison (paired line plots).
+
+![Figure 16](../immunedb_STATS_API/clonal_analysis/plots/16_within_subject_tissue_lines.png)
 
 ## Part 2: COVID-19 Clonal Analysis
 
 **Figure 17.** Clonal diversity: Hill numbers (Order 0, 1, 2) by disease stage.
 
+![Figure 17](../immunedb_STATS_API/clonal_analysis/plots/17_diversity_hill_numbers.png)
+
 **Figure 18.** Diversity profiles by disease stage.
+
+![Figure 18](../immunedb_STATS_API/clonal_analysis/plots/18_diversity_profiles.png)
 
 **Figure 19.** Number of expanded clones at different expansion thresholds by disease stage.
 
+![Figure 19](../immunedb_STATS_API/clonal_analysis/plots/19_expanded_clones_threshold.png)
+
 **Figure 20.** Clone size distribution by disease stage (violin + boxplot and per-individual median).
+
+![Figure 20](../immunedb_STATS_API/clonal_analysis/plots/20_clone_size_distribution.png)
 
 **Figure 21.** Mutation analysis: NS/S ratio by region and disease stage.
 
+![Figure 21](../immunedb_STATS_API/clonal_analysis/plots/21_mutations_rs_ratio.png)
+
 **Figure 22.** CDR3 length distribution (mean and SD) by disease stage.
+
+![Figure 22](../immunedb_STATS_API/clonal_analysis/plots/22_cdr3_length_distribution.png)
 
 **Figure 23.** V gene usage heatmap by disease stage.
 
+![Figure 23](../immunedb_STATS_API/clonal_analysis/plots/23_v_gene_usage_heatmap.png)
+
 **Figure 24.** Clonal metrics versus age by disease stage.
 
+![Figure 24](../immunedb_STATS_API/clonal_analysis/plots/24_metrics_vs_age.png)
+
 **Figure 25.** Clonal metrics by gender and disease stage.
+
+![Figure 25](../immunedb_STATS_API/clonal_analysis/plots/25_metrics_vs_gender.png)
 
 \newpage
 
