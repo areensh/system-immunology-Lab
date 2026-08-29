@@ -306,11 +306,30 @@ Figures were generated using both R (ggplot2, dplyr, tidyr, jsonlite) and Python
 
 ## Part 1: IS-API Tool Capabilities
 
+One of the main strengths of IS-API is that it enables researchers to conduct a high-level investigation of the available data and therefore refine their research questions — or at least become aware of potential pitfalls and weaknesses — before investing in detailed biological analysis. This investigation can be made through simple queries that execute within seconds through the IS-API metadata and statistical endpoints.
+
+### Metadata Overview
+
+In the first step, we used IS-API to query the metadata endpoint across all available databases. This immediately revealed the scope of data accessible through the tool: seven datasets totaling 121 individuals (**Metadata Figure 1**). The per-dataset breakdown shows that the largest study (CD1) contributes 51 individuals, while the smallest (CVX2) contributes 5.
+
+Examining the metadata completeness across datasets (**Metadata Figure 2**) revealed important differences. While all datasets provide tissue and disease stage information, not all provide age or sex metadata — for example, CD3 has 13 individuals with tissue and disease stage data but only 10 with age information and no sex data. This kind of metadata investigation, available within seconds through IS-API, immediately alerts the researcher to the limitations of cross-study comparisons involving multiple metadata dimensions.
+
+**Study selection and exclusions.** Based on the metadata overview, we excluded GT1 (pediatric gut transplant, n=15) from further analysis because it does not include COVID-19 disease stage metadata and represents a fundamentally different clinical context (pediatric transplant recipients). This left six COVID-19-related and healthy control datasets with 106 individuals.
+
+**Disease category distribution.** Querying the disease_stage metadata field revealed 13 different raw disease labels across the six studies (**Metadata Figure 3**). These were harmonized into six categories as described in Methods. The harmonized distribution (**Metadata Figure 4**) shows that the cohort is dominated by Mild (n=41) and Severe (n=27) individuals, with smaller groups of NA/Unknown (n=15), Recovered (n=12), Healthy (n=9), Moderate (n=9), and COVID Naive (n=8). The stacked bar visualization also shows the contribution of each original study and label to the harmonized categories — for example, the Severe group includes individuals labeled "severe" from CD2 and "Early phase hypoxaemia" from CD1, while the Recovered group spans four different original labels across three studies (CD1, CD2, CVX1, CVX2). The 15 individuals with NA/Unknown disease stage (from GT1 and some CD3 individuals) were excluded from the disease-stage analysis.
+
+**Demographics.** To assess whether age and gender could be examined alongside disease stage, we queried these metadata fields simultaneously. The demographics scatter plot (**Metadata Figure 5**) displays each individual by their disease category and age, colored by dataset and shaped by sex (circle = male, triangle = female, X = missing). This figure immediately reveals several important features of the data:
+
+- Severe and Mild individuals span a wide age range (20-88 years), while Recovered and COVID Naive individuals tend to be younger (20-50 years).
+- The Healthy group has a moderate age range (23-58 years).
+- Sex data is missing for several individuals in CD3 (shown as X markers), limiting sex-stratified analyses in those disease categories.
+- The dataset of origin is not uniformly distributed across disease categories — CD1 dominates the Severe and Mild groups, while CVX1 and CVX2 dominate the Recovered and COVID Naive groups.
+
+**Cross-stratification: disease, age, and sex.** The heatmap of individual counts across disease category, age group, and sex (**Metadata Figure 6**) provides a comprehensive view of which comparisons are statistically feasible. The Mild group has the most balanced distribution across age and sex, while the Moderate group has only females aged 66+ and males spanning all age groups. The Healthy group has predominantly males aged 31-65, and the COVID Naive group consists entirely of young adults (18-30). These imbalances must be considered when interpreting disease-stage comparisons, as they could confound biological differences with demographic ones — a point we address directly in the confounder analysis (Figures 24-25).
+
 ### Querying Repertoire Statistics Across Studies
 
-One of the main strengths of IS-API is that it enables researchers to conduct a high-level investigation of available data and thereby refine their research questions — or at least become aware of potential pitfalls — before investing in detailed analysis. This investigation can be made through simple queries that execute within seconds.
-
-To demonstrate the range of IS-API's capabilities, we queried the clone, mutation, and CDR3 endpoints across all six studies, filtering for blood-derived samples and grouping by disease stage. The following figures illustrate the breadth of questions that can be answered through the API.
+Having characterized the metadata landscape, we used IS-API's biological-statistical endpoints to query repertoire measures across all six studies, filtering for blood-derived samples and grouping by disease stage. The following figures demonstrate the breadth of questions that can be answered through the API.
 
 **Clone count and clonal concentration.** Querying the clone_count endpoint revealed the number of distinct clones (with 20 or more unique sequences) per individual across disease categories (**Figure 1**). This provides an immediate overview of repertoire richness across the cohort. Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 2**), revealing the degree of oligoclonal dominance in each disease category.
 
@@ -326,7 +345,11 @@ To demonstrate the range of IS-API's capabilities, we queried the clone, mutatio
 
 IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in CD1), we compared clone counts (**Figure 14**), clone sizes (**Figure 15**), and paired tissue measurements (**Figure 16**) within the same individual.
 
-This within-individual comparison revealed that clone counts and sizes can differ substantially between tissues in the same individual, highlighting the importance of specifying tissue type when making cross-study comparisons. The observation that bone marrow and blood repertoires from the same individual can have different clonal profiles is consistent with the known compartmentalization of B cell populations [@Meng2017; @Stern2014].
+This within-individual comparison revealed that clone counts and sizes can differ substantially between tissues in the same individual, highlighting the importance of specifying tissue type when making cross-study comparisons. The observation that bone marrow and blood repertoires from the same individual can have different clonal profiles is consistent with the known compartmentalization of B cell populations [34, 41].
+
+### Summary: Characterizing the Possibilities and Limitations of the Data
+
+The metadata analysis enabled by IS-API revealed both the strengths and limitations of the available data. The strengths include a large cohort (94 individuals after exclusions) spanning six disease categories with data from six independent studies. The limitations include: (1) uneven sample sizes across disease categories, with Mild being the largest and COVID Naive the smallest; (2) incomplete sex metadata, particularly for CD3; (3) age distribution that is not uniform across disease categories, with severe individuals tending to be older; and (4) the Recovered group containing a mix of naturally recovered and vaccine-recovered individuals. These observations, all obtainable within minutes through IS-API queries, informed the design of the focused clonal analysis presented in Part 2.
 
 ## Part 2: COVID-19 Clonal Analysis
 
