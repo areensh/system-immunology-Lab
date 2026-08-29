@@ -4,6 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+from stats_utils import add_significance
 
 with open("clone_size/data/clone_size_disease_stage_CTE.json") as f:
     data = json.load(f)
@@ -147,6 +148,8 @@ ax.spines["right"].set_visible(False)
 for i, d in enumerate(disease_order):
     ax.text(i, ax.get_ylim()[0] * 1.1, f"n={len(disease_medians[d])}",
             ha="center", va="bottom", fontsize=8, color="gray")
+
+add_significance(ax, bp_data2, disease_order, log_scale=True)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/20_clone_size_distribution.png", dpi=400, bbox_inches="tight", facecolor="white")

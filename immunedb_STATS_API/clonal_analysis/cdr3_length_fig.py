@@ -4,6 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+from stats_utils import add_significance
 
 with open("cdr3/data/CDR3_length_distribution.json") as f:
     data = json.load(f)
@@ -127,6 +128,7 @@ ax.set_ylabel("Mean CDR3 Length (AA)", fontsize=13, fontweight="bold")
 ax.set_title("A. Mean CDR3 Length per Subject", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+add_significance(ax, [disease_data[d]["mean_aa"] for d in disease_order], disease_order)
 
 # Panel B: SD of CDR3 AA length
 ax = axes[1]
@@ -150,6 +152,7 @@ ax.set_ylabel("SD of CDR3 Length (AA)", fontsize=13, fontweight="bold")
 ax.set_title("B. CDR3 Length Variability per Subject", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+add_significance(ax, [disease_data[d]["sd_aa"] for d in disease_order], disease_order)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/22_cdr3_length_distribution.png", dpi=400, bbox_inches="tight", facecolor="white")
