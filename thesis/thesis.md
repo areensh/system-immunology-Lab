@@ -337,11 +337,11 @@ Having characterized the metadata landscape, we used IS-API's biological-statist
 
 **Clone count and clonal concentration.** Querying the clone_count endpoint revealed the number of distinct clones (with 20 or more unique sequences) per individual across disease categories (**Figure 1**). This provides an immediate overview of repertoire richness across the cohort. Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 2**), revealing the degree of oligoclonal dominance in each disease category.
 
+**Clone size and expansion.** The clone_size endpoint returned the distribution of clone sizes across disease categories (**Figure 9**), the count of expanded clones per individual (**Figure 10**), and the size of expanded clones (**Figure 11**).
+
 **CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 3**), along with the range of CDR3 lengths (**Figure 4**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
 
 **Mutation levels and patterns.** The mutation endpoints provided multiple views of somatic hypermutation. The total mutation level in the top 10 clones per individual showed overall mutation load by disease category (**Figure 5**), while the mutation gradient across clone size ranks (top 10 vs. remaining top 100 vs. remaining top 1000) revealed how mutation accumulation varies with clonal expansion (**Figure 6**). Region-specific queries separated CDR from framework mutations (**Figure 7**), and the NS/S ratio endpoint provided an overview of selection pressure across disease categories (**Figure 8**).
-
-**Clone size and expansion.** The clone_size endpoint returned the distribution of clone sizes across disease categories (**Figure 9**), the count of expanded clones per individual (**Figure 10**), and the size of expanded clones (**Figure 11**).
 
 **Sex-stratified analysis.** By combining disease_stage and sex metadata filters in a single query, IS-API enabled examination of mutation levels (**Figure 12**) and CDR3 lengths (**Figure 13**) in the top 10 clones, stratified by both sex and disease category. This demonstrates the API's ability to perform intersectional queries across multiple metadata dimensions.
 
