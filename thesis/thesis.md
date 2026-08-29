@@ -200,13 +200,17 @@ Data were collected from published studies with raw DNA AIRR BCR sequences from 
 
 Seven studies were available through IS-API (**Table 1**):
 
-- **CD1**: 51 individuals with severe, mild, and moderate COVID-19 from multiple hospital cohorts [29, 30].
-- **CD2**: 19 individuals including severe, non-severe, recovered, and healthy individuals [31].
-- **CD3**: 13 individuals with severe COVID-19 and healthy controls [32].
-- **CVX1**: 12 individuals from a COVID-19 mRNA vaccine study, including COVID-recovered vaccinees and COVID-naive vaccinees [33].
-- **CVX2**: 5 individuals from a second vaccine cohort with recovered individuals.
-- **HC1**: 6 healthy control individuals (deceased organ donors) with no history of COVID-19 or vaccination [34].
-- **GT1**: 7 pediatric gut transplant recipients [47].
+**Table 1.** Datasets available through IS-API v0.3.0.
+
+| Study ID | Description | N | PMID | Ref |
+|---|---|---|---|---|
+| CD1 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
+| CD2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
+| CD3 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
+| CVX1 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [33] |
+| CVX2 | Second vaccine cohort with recovered individuals | 5 | 33858945 | — |
+| HC1 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
+| GT1 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
 
 ## Individual Selection and Exclusions
 
