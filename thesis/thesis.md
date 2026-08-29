@@ -56,6 +56,14 @@ To demonstrate the power of IS-API, I present here a two-part analysis. First, I
 
 # List of Figures
 
+## Methods Figures
+
+**Methods Figure 1.** IS-API pipeline: from raw DNA sequences to cross-study analysis.
+
+**Methods Figure 2.** IS-API system architecture: client queries fan out to multiple ImmuneDB instances.
+
+**Methods Figure 3.** Three-tier analysis approach: metadata, biological-statistical measurements, and specific biological questions.
+
 ## Part 1: IS-API Tool Capabilities
 
 **Figure 1.** Clone count distribution by disease stage across all studies.
@@ -130,7 +138,7 @@ A variety of tools, software platforms, and algorithms have been developed to st
 
 The Adaptive Immune Receptor Repertoire (AIRR) Community has developed standards and protocols to facilitate data sharing and interoperability among different databases [@VanderHeiden2018]. Despite their contributions, these platforms still have challenges that limit B cell repertoire studies and data sharing. Technical challenges include sequencing errors and sample bias due to sampling methods. Data sharing challenges include the lack of uniform standards for data formatting and annotation, which can limit the integration and comparison of datasets from different studies. For example, the iReceptor Gateway provides an excellent platform for collecting, accessing, and standardizing annotated sequences from many different studies [@Corrie2018], but it lacks clonal definitions that can be associated with metadata and therefore does not support queries at the clone level. Many of these tools collect data across multiple studies but do not give the researcher the ability to investigate associated metadata alongside biological measures.
 
-Several computational tools have been developed for repertoire analysis. The Immcantation Framework [@Gupta2015] provides sophisticated packages for defining and analyzing clones and building lineage trees. MiXCR [@Bolotin2015] offers comprehensive adaptive immunity profiling from raw sequences. IgBLAST [@Ye2013] enables immunoglobulin variable domain sequence analysis. While these tools enable researchers to perform various queries and analyses on individual datasets, they do not natively support queries across multiple databases that characterize repertoire diversity across many studies simultaneously.
+Several computational tools have been developed for repertoire analysis. The Immcantation Framework [@Gupta2015] provides sophisticated packages for defining and analyzing clones and building lineage trees. MiXCR [@Bolotin2015] offers comprehensive adaptive immunity profiling from raw sequences. IgBLAST [@Ye2013] enables immunoglobulin variable domain sequence analysis. More recently, nf-core/airrflow [@airrflow] has introduced a standardized Nextflow pipeline for AIRR-seq data processing, providing reproducible workflows from raw reads to annotated repertoires. While these tools enable researchers to perform various queries and analyses on individual datasets, they do not natively support queries across multiple databases that characterize repertoire diversity across many studies simultaneously.
 
 We have previously developed ImmuneDB [@Rosenfeld2017], a relational database and pipeline to store and analyze B and T cell receptor high-throughput sequencing data. ImmuneDB integrates annotation, clonal assignment, mutation analysis, and basic statistical measures into a unified database structure. However, like other single-database tools, it does not enable researchers to make queries that characterize repertoire diversity across many studies or to investigate multiple metadata dimensions simultaneously.
 
@@ -192,18 +200,20 @@ Data were collected from published studies with raw DNA AIRR BCR sequences from 
 
 Six studies were included in the analysis (**Table 1**):
 
-- **CD1** (Covid19_db3): 51 individuals with severe, mild, and moderate COVID-19 from multiple hospital cohorts [@KuriCervantes2020; @Montague2020].
-- **CD2** (covid_db2): 19 individuals including severe, non-severe, recovered, and healthy individuals [@Nielsen2020].
-- **CD3** (covid19): 13 individuals with severe COVID-19 and healthy controls [@Galson2020].
-- **CVX1** (vaccine2): 12 individuals from a COVID-19 mRNA vaccine study, including COVID-recovered vaccinees and COVID-naive vaccinees [@Goel2021].
-- **CVX2** (covid_vaccine_new): 5 individuals from a second vaccine cohort with recovered individuals.
-- **HC1** (lp16): 6 healthy control individuals (deceased organ donors) with no history of COVID-19 or vaccination [@Meng2017].
+- **COVID Hospital Cohort 1**: 51 individuals with severe, mild, and moderate COVID-19 from multiple hospital cohorts [29, 30].
+- **COVID Hospital Cohort 2**: 19 individuals including severe, non-severe, recovered, and healthy individuals [31].
+- **COVID Convergent Signatures Study**: 13 individuals with severe COVID-19 and healthy controls [32].
+- **mRNA Vaccine Study 1**: 12 individuals from a COVID-19 mRNA vaccine study, including COVID-recovered vaccinees and COVID-naive vaccinees [33].
+- **mRNA Vaccine Study 2**: 5 individuals from a second vaccine cohort with recovered individuals.
+- **Healthy Donor Atlas**: 6 healthy control individuals (deceased organ donors) with no history of COVID-19 or vaccination [34].
 
-A seventh study (sykesIgblast2020, pediatric gut transplant) was available in the IS-API but excluded from this analysis as it is not relevant to COVID-19 or adult healthy controls.
+A seventh study (pediatric gut transplant [47]) was available in the IS-API but excluded from this analysis as it is not relevant to COVID-19 or adult healthy controls.
 
 ## Individual Selection and Exclusions
 
-From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from HC1 (D159, D154, Hu-1) and two from CVX2 (Fb, Water — control samples). Three additional individuals from CD3 (H3, H4, H8) were healthy controls who lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
+An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
+
+From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from the Healthy Donor Atlas (individuals with incomplete sequencing data) and two from the second vaccine study (fibroblast and water sequencing controls). Three additional healthy individuals from the COVID Convergent Signatures Study lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
 
 Blood-derived tissues were defined as: blood, Peripheral blood, PBL, and PBMC. Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
 
@@ -211,18 +221,22 @@ Blood-derived tissues were defined as: blood, Peripheral blood, PBL, and PBMC. N
 
 Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 4**):
 
-- **Severe**: "severe" (CD2), "Early phase hypoxaemia" (CD1)
-- **Moderate**: "Early phase-Stable" (CD1), "Early phase-Improving" (CD1)
-- **Mild**: "mild" (CD2), "non-severe" (CD2)
-- **Recovered**: "Recovering without ICU-Improving" (CD1), "Recovering post-ICU -Improving" (CD1), "Recovering post-ICU" (CD1), "Recovered" (CD2), "COVID recovered" (CVX1, CVX2)
-- **COVID Naive**: "COVID Naive" (CVX1) — vaccinated individuals with no history of COVID-19 infection
-- **Healthy**: "healthy" (CD3, HC1) — individuals with no history of COVID-19 infection or vaccination
+- **Severe**: "severe", "Early phase hypoxaemia"
+- **Moderate**: "Early phase-Stable", "Early phase-Improving"
+- **Mild**: "mild", "non-severe"
+- **Recovered**: "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered"
+- **COVID Naive**: "COVID Naive" — vaccinated individuals with no history of COVID-19 infection
+- **Healthy**: "healthy" — individuals with no history of COVID-19 infection or vaccination
 
-The final cohort comprised: Severe (n=26), Moderate (n=9), Mild (n=30), Recovered (n=12), COVID Naive (n=8), and Healthy (n=9) (**Table 5**). It is important to note that the Recovered group includes both naturally recovered individuals (3 from CD2) and vaccinated individuals who had recovered from prior COVID-19 infection (5 from CVX2, 4 from CVX1). The COVID Naive group consists entirely of vaccinated individuals from CVX1 who had never been infected with SARS-CoV-2. The Healthy group consists of individuals with no known COVID-19 history and no vaccination (3 from CD3, 6 from HC1).
+The final cohort comprised: Severe (n=26), Moderate (n=9), Mild (n=30), Recovered (n=12), COVID Naive (n=8), and Healthy (n=9) (**Table 5**). It is important to note that the Recovered group includes both naturally recovered individuals (3 from the second hospital cohort) and vaccinated individuals who had recovered from prior COVID-19 infection (5 from the second vaccine study, 4 from the first vaccine study). The COVID Naive group consists entirely of vaccinated individuals from the first vaccine study who had never been infected with SARS-CoV-2. The Healthy group consists of individuals with no known COVID-19 history and no vaccination (3 from the convergent signatures study, 6 from the healthy donor atlas).
 
 ## IS-API Architecture and Implementation
 
-IS-API is a RESTful API written in Node.js [@Lambert2010] using the Express framework. It connects to multiple independent ImmuneDB MySQL database instances and executes queries across all of them in a single API call. The API is publicly available at https://github.com/DrexelSystemsImmunologyLab/IS-API.
+The overall workflow for building and querying immune repertoire databases is illustrated in **Methods Figure 1**: raw DNA sequences (FASTA/Q or IgBLAST-annotated) are processed with uniform and consistent metadata into ImmuneDB databases, which are then queried through IS-API.
+
+IS-API is a RESTful API written in Node.js [27] using the Express framework. It connects to multiple independent ImmuneDB MySQL database instances and executes queries across all of them in a single API call (**Methods Figure 2**). The five endpoint controllers — Metadata, Clones, Mutations, CDR3, and Gene Usage — each fan out to 1...N ImmuneDB instances and return results in a unified JSON format. The API is publicly available at https://github.com/DrexelSystemsImmunologyLab/IS-API.
+
+The analysis approach follows a three-tier pyramid (**Methods Figure 3**): (1) Metadata investigation at the base — examining available studies, individuals, samples, and processes to understand the data landscape; (2) Biological-statistical measurements in the middle — computing clones, clone size, gene usage, and mutations across all kinds of metadata; and (3) Specific biological questions at the top — testing whether, for example, clone size differences correlate with disease stage.
 
 All endpoints are designed as POST requests. The request body contains two objects in JSON format:
 
@@ -234,29 +248,36 @@ The response contains:
 1. **Info**: project information (title, version, contacts)
 2. **Result**: an array of objects, each containing the matched repertoire metadata and the computed statistics
 
+The full set of available queries, organized by endpoint controller and statistic type, is shown in **Table 3**.
+
 Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples. This ensures correct per-individual results regardless of the number of samples or time points available.
 
 ## Statistical Endpoints
 
-IS-API provides three endpoint controllers:
+IS-API provides a flexible and dynamic set of endpoints across four controllers. Importantly, many parameters are not hard-coded — researchers can choose how to measure and filter clones according to their specific research question.
 
 **Clone endpoints:**
 
-- *clone_count*: Number of distinct clones per individual (clones with 20 or more unique sequences)
-- *clone_size*: Size of each clone, defined as the total number of unique sequences assigned to that clone
-- *topX_clone_size_copies*: Cumulative sequence copies for the top 10, 100, and 1000 clones per individual
+- *clone_count*: Number of distinct clones per individual. The expansion threshold (default: 20 or more unique sequences) is configurable and can be adjusted to study clones at different levels of expansion.
+- *clone_size*: Size of each clone, which can be measured in three different ways depending on the research question: by unique sequences (distinct sequences assigned to the clone), by copies (total sequence copies including duplicates), or by instances (number of samples in which the clone appears). This flexibility allows researchers to study clonal expansion from different perspectives — unique sequences reflect diversity, copies reflect abundance, and instances reflect tissue distribution.
+- *topX_clone_size_copies*: Cumulative sequence copies for the top 10, 100, and 1000 clones per individual, measuring repertoire concentration.
 
 **Mutation endpoints:**
 
-- *mutations_rs_ratio*: Non-synonymous (replacement) and synonymous (silent) mutation counts in CDR and framework (FW) regions per individual
+- *topX_mutation_level*: Average mutation count across the top clones per individual.
+- *mutation_by_region*: Mutation counts split by CDR versus framework regions.
+- *mutation_by_type*: Replacement versus silent mutation counts.
+- *mutations_rs_ratio*: Non-synonymous (replacement) and synonymous (silent) mutation counts in CDR and framework (FW) regions per individual, enabling computation of NS/S ratios.
 
 **CDR3 endpoints:**
 
-- *cdr3_length_distribution*: Mean and standard deviation of CDR3 length in both amino acids and nucleotides per individual
+- *topX_nt_AVG_CDR3_length*: Average CDR3 nucleotide length for the top 10, 100, and 1000 clones per individual.
+- *topX_AA_AVG_CDR3_length*: Average CDR3 amino acid length for the top 10, 100, and 1000 clones per individual.
+- *cdr3_length_distribution*: Mean, standard deviation, and clone count for CDR3 length in both amino acids and nucleotides per individual — providing a comprehensive view of CDR3 length properties across the entire clone repertoire, not just the top clones.
 
 **V gene usage endpoint:**
 
-- *v_gene_usage*: Clone count and total copies per V gene per individual
+- *v_gene_usage*: Clone count and total copies per V gene per individual.
 
 ## Biological Statistical Measures
 
@@ -278,7 +299,7 @@ All statistical comparisons were performed in Python using SciPy. For comparison
 
 ## Visualization
 
-All figures were generated using Python with matplotlib and numpy. JSON-format API outputs were parsed and visualized with consistent color coding across all figures: Severe (dark red, #b71c1c), Moderate (dark orange, #e65100), Mild (salmon, #ff7043), Recovered (green, #43a047), COVID Naive (light blue, #42a5f5), and Healthy (dark blue, #1565c0). Boxplots show median, interquartile range, and whiskers extending to 1.5 times the interquartile range. Individual data points are overlaid with small random jitter for visibility. Statistical significance brackets are shown above the boxplots where pairwise comparisons reached significance after Bonferroni correction.
+Figures were generated using both R (ggplot2, dplyr, tidyr, jsonlite) and Python (matplotlib, numpy). The JSON-format API outputs were parsed and visualized with consistent color coding across all figures: Severe (dark red, #b71c1c), Moderate (dark orange, #e65100), Mild (salmon, #ff7043), Recovered (green, #43a047), COVID Naive (light blue, #42a5f5), and Healthy (dark blue, #1565c0). Boxplots show median, interquartile range, and whiskers extending to 1.5 times the interquartile range. Individual data points are overlaid with small random jitter for visibility. Statistical significance brackets are shown above the boxplots where pairwise comparisons reached significance after Bonferroni correction.
 
 \newpage
 
@@ -499,3 +520,5 @@ The tool and its cross-study analytical framework can be applied to any disease 
 46. Nielsen, S. C. A., Roskin, K. M., Jackson, K. J. L., et al. (2019). Shaping of infant B cell receptor repertoires by environmental factors and infectious disease. *Science Translational Medicine*, 11(481), eaat2004.
 
 47. Fu, J., Hsiao, T., Waffarn, E., et al. (2023). Dynamic establishment and maintenance of the human intestinal B cell population and repertoire following transplantation. *medRxiv*, 2023.11.15.23298517.
+
+48. Pejoski, D., Cuesta-Zuluaga, J., Gkoukou, E., et al. (2023). nf-core/airrflow: An adaptive immune receptor repertoire analysis workflow. *Bioinformatics*. https://github.com/nf-core/airrflow
