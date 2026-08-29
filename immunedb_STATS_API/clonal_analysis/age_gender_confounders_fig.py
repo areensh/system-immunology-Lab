@@ -178,6 +178,8 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
     ax.set_title(f"{panel}. {metric_name} vs Age", fontsize=14, fontweight="bold", loc="left")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    if idx == 0:
+        ax.set_yscale("log")
     if idx == 2:
         ax.legend(fontsize=8, loc="upper right")
 
@@ -244,6 +246,8 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
     ax.set_ylabel(metric_name, fontsize=12, fontweight="bold")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    if idx == 0:
+        ax.set_yscale("log")
 
 # Custom legend for male/female
 from matplotlib.patches import Patch
