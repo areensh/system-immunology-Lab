@@ -198,22 +198,21 @@ Using IS-API, compare repertoire characteristics across six disease categories (
 
 Data were collected from published studies with raw DNA AIRR BCR sequences from healthy and SARS-CoV-2-infected individuals at different stages of disease and recovery, as well as vaccinated individuals. After collecting the raw DNA sequences along with their metadata, we built standardized metadata sheets compliant with AIRR-seq data commons standards [@Rubelt2017] while allowing flexibility for experiment-specific fields. Each study was processed through the ImmuneDB pipeline — annotated with IgBLAST [@Ye2013] for germline assignment, clustered into clones, and stored with associated metadata in individual ImmuneDB database instances.
 
-Six studies were included in the analysis (**Table 1**):
+Seven studies were available through IS-API (**Table 1**):
 
-- **COVID Hospital Cohort 1**: 51 individuals with severe, mild, and moderate COVID-19 from multiple hospital cohorts [29, 30].
-- **COVID Hospital Cohort 2**: 19 individuals including severe, non-severe, recovered, and healthy individuals [31].
-- **COVID Convergent Signatures Study**: 13 individuals with severe COVID-19 and healthy controls [32].
-- **mRNA Vaccine Study 1**: 12 individuals from a COVID-19 mRNA vaccine study, including COVID-recovered vaccinees and COVID-naive vaccinees [33].
-- **mRNA Vaccine Study 2**: 5 individuals from a second vaccine cohort with recovered individuals.
-- **Healthy Donor Atlas**: 6 healthy control individuals (deceased organ donors) with no history of COVID-19 or vaccination [34].
-
-A seventh study (pediatric gut transplant [47]) was available in the IS-API but excluded from this analysis as it is not relevant to COVID-19 or adult healthy controls.
+- **CD1**: 51 individuals with severe, mild, and moderate COVID-19 from multiple hospital cohorts [29, 30].
+- **CD2**: 19 individuals including severe, non-severe, recovered, and healthy individuals [31].
+- **CD3**: 13 individuals with severe COVID-19 and healthy controls [32].
+- **CVX1**: 12 individuals from a COVID-19 mRNA vaccine study, including COVID-recovered vaccinees and COVID-naive vaccinees [33].
+- **CVX2**: 5 individuals from a second vaccine cohort with recovered individuals.
+- **HC1**: 6 healthy control individuals (deceased organ donors) with no history of COVID-19 or vaccination [34].
+- **GT1**: 7 pediatric gut transplant recipients [47].
 
 ## Individual Selection and Exclusions
 
 An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
 
-From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from the Healthy Donor Atlas (individuals with incomplete sequencing data) and two from the second vaccine study (fibroblast and water sequencing controls). Three additional healthy individuals from the COVID Convergent Signatures Study lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
+From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from HC1 (individuals with incomplete sequencing data) and two from CVX2 (fibroblast and water sequencing controls). Three additional healthy individuals from CD3 lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
 
 Blood-derived tissues were defined as: blood, Peripheral blood, PBL, and PBMC. Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
 
@@ -228,7 +227,7 @@ Different studies used different terminology for disease stages. We harmonized t
 - **COVID Naive**: "COVID Naive" — vaccinated individuals with no history of COVID-19 infection
 - **Healthy**: "healthy" — individuals with no history of COVID-19 infection or vaccination
 
-The final cohort comprised: Severe (n=26), Moderate (n=9), Mild (n=30), Recovered (n=12), COVID Naive (n=8), and Healthy (n=9) (**Table 5**). It is important to note that the Recovered group includes both naturally recovered individuals (3 from the second hospital cohort) and vaccinated individuals who had recovered from prior COVID-19 infection (5 from the second vaccine study, 4 from the first vaccine study). The COVID Naive group consists entirely of vaccinated individuals from the first vaccine study who had never been infected with SARS-CoV-2. The Healthy group consists of individuals with no known COVID-19 history and no vaccination (3 from the convergent signatures study, 6 from the healthy donor atlas).
+The final cohort comprised: Severe (n=26), Moderate (n=9), Mild (n=30), Recovered (n=12), COVID Naive (n=8), and Healthy (n=9) (**Table 5**). It is important to note that the Recovered group includes both naturally recovered individuals (3 from CD2) and vaccinated individuals who had recovered from prior COVID-19 infection (5 from CVX2, 4 from CVX1). The COVID Naive group consists entirely of vaccinated individuals from CVX1 who had never been infected with SARS-CoV-2. The Healthy group consists of individuals with no known COVID-19 history and no vaccination (3 from CD3, 6 from HC1).
 
 ## IS-API Architecture and Implementation
 
