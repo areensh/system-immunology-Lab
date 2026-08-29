@@ -66,7 +66,7 @@ To demonstrate the power of IS-API, I present here a two-part analysis. First, I
 
 ## Metadata Figures
 
-**Metadata Figure 1.** Number of subjects per dataset across all seven databases.
+**Metadata Figure 1.** Sampling depth across studies: number of subjects per dataset and sequencing depth per subject.
 
 **Metadata Figure 2.** Metadata availability per dataset — which metadata fields are present in each study.
 
@@ -336,7 +336,7 @@ One of the main strengths of IS-API is that it enables researchers to conduct a 
 
 In the first step, we used IS-API to query the metadata endpoint across all available databases. This immediately revealed the scope of data accessible through the tool: seven datasets totaling 121 individuals (**Metadata Figure 1**). The per-dataset breakdown shows that the largest study (CD1) contributes 51 individuals, while the smallest (CVX2) contributes 5.
 
-![Metadata Figure 1. Number of subjects per dataset across all seven databases.](../immunedb_STATS_API/metadata/plots/01_subjects_per_dataset.png)
+![Metadata Figure 1. Sampling depth across studies: number of subjects per dataset and sequencing depth per subject.](../immunedb_STATS_API/metadata/plots/06_sampling_depth.png)
 
 Examining the metadata completeness across datasets (**Metadata Figure 2**) revealed important differences. While all datasets provide tissue and disease stage information, not all provide age or sex metadata — for example, CD3 has 13 individuals with tissue and disease stage data but only 10 with age information and no sex data. This kind of metadata investigation, available within seconds through IS-API, immediately alerts the researcher to the limitations of cross-study comparisons involving multiple metadata dimensions.
 
@@ -369,21 +369,25 @@ These were harmonized into six categories as described in Methods. The harmonize
 
 Having characterized the metadata landscape, we used IS-API's biological-statistical endpoints to query repertoire measures across all six studies, filtering for blood-derived samples and grouping by disease stage. The following figures demonstrate the breadth of questions that can be answered through the API.
 
-**Clone count and clonal concentration.** Querying the clone_count endpoint revealed the number of distinct clones (with 20 or more unique sequences) per individual across disease categories (**Figure 1**). This provides an immediate overview of repertoire richness across the cohort.
+**Clone count.** Querying the clone_count endpoint revealed the number of distinct clones (with 20 or more unique sequences) per individual across disease categories (**Figure 1**). This provides an immediate overview of repertoire richness across the cohort.
 
 ![Figure 1. Clone count distribution by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/01_clone_count_by_disease.png)
 
-Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 2**), revealing the degree of oligoclonal dominance in each disease category.
-
-![Figure 2. Top X clone fraction by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png)
-
-**Clone size and expansion.** The clone_size endpoint returned the distribution of clone sizes across disease categories (**Figure 9**), the count of expanded clones per individual (**Figure 10**), and the size of expanded clones (**Figure 11**).
-
-![Figure 9. Clone size distribution by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/09_clone_size_by_disease.png)
+**Expanded clone count.** The count of expanded clones per individual showed how many clones exceed the expansion threshold in each disease category (**Figure 10**).
 
 ![Figure 10. Expanded clone count by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/10_expanded_clones_by_disease.png)
 
+**Clone size distribution.** The clone_size endpoint returned the distribution of clone sizes across disease categories (**Figure 9**), providing a view of how clone sizes are distributed within each group.
+
+![Figure 9. Clone size distribution by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/09_clone_size_by_disease.png)
+
+**Mean size of expanded clones.** The mean size of expanded clones per individual revealed differences in clonal expansion magnitude across disease categories (**Figure 11**).
+
 ![Figure 11. Expanded clone size by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/11_expanded_clone_size_by_disease.png)
+
+**Clonal concentration (Top X).** Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 2**), revealing the degree of oligoclonal dominance in each disease category.
+
+![Figure 2. Top X clone fraction by disease stage.](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png)
 
 **CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 3**), along with the range of CDR3 lengths (**Figure 4**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
 
