@@ -258,7 +258,7 @@ IS-API provides a flexible and dynamic set of endpoints across four controllers.
 **Clone endpoints:**
 
 - *clone_count*: Number of distinct clones per individual. The expansion threshold (default: 20 or more unique sequences) is configurable and can be adjusted to study clones at different levels of expansion.
-- *clone_size*: Size of each clone, which can be measured in three different ways depending on the research question: by unique sequences (distinct sequences assigned to the clone), by copies (total sequence copies including duplicates), or by instances (number of samples in which the clone appears). This flexibility allows researchers to study clonal expansion from different perspectives — unique sequences reflect diversity, copies reflect abundance, and instances reflect tissue distribution.
+- *clone_size*: Size of each clone, which can be measured in three different ways depending on the research question: by unique sequences (distinct sequences across an entire individual), by instances (distinct sequences within a single sample), or by copy number (the number of raw reads associated with an instance or unique sequence). This flexibility allows researchers to study clonal expansion from different perspectives — unique sequences reflect overall diversity across all samples, instances capture sample-level diversity, and copy number reflects the raw abundance of each sequence.
 - *topX_clone_size_copies*: Cumulative sequence copies for the top 10, 100, and 1000 clones per individual, measuring repertoire concentration.
 
 **Mutation endpoints:**
