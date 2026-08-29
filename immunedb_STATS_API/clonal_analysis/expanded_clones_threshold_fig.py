@@ -4,6 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+from stats_utils import add_significance
 
 with open("clone_size/data/clone_size_disease_stage_CTE.json") as f:
     data = json.load(f)
@@ -23,8 +24,8 @@ DISEASE_MAP = {
     "severe": "Severe", "Early phase hypoxaemia": "Severe",
     "mild": "Mild", "non-severe": "Mild",
     "Early phase-Stable": "Moderate", "Early phase-Improving": "Moderate",
-    "Recovering without ICU-Improving": "Moderate",
-    "Recovering post-ICU -Improving": "Moderate", "Recovering post-ICU": "Moderate",
+    "Recovering without ICU-Improving": "Recovered",
+    "Recovering post-ICU -Improving": "Recovered", "Recovering post-ICU": "Recovered",
     "Recovered": "Recovered", "COVID recovered": "Recovered",
     "healthy": "Healthy", "COVID Naive": "COVID Naive",
 }
@@ -144,6 +145,9 @@ for ti, t in enumerate(thresholds):
     ax.set_ylim(bottom=0.8)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+
+    real_data = [disease_counts[d] for d in disease_order]
+    add_significance(ax, real_data, disease_order, log_scale=True)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/19_expanded_clones_threshold.png", dpi=400, bbox_inches="tight", facecolor="white")

@@ -4,6 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+from stats_utils import add_significance
 
 with open("mutation/data/mutations_rs_ratio_disease_tissue.json") as f:
     data = json.load(f)
@@ -23,8 +24,8 @@ DISEASE_MAP = {
     "severe": "Severe", "Early phase hypoxaemia": "Severe",
     "mild": "Mild", "non-severe": "Mild",
     "Early phase-Stable": "Moderate", "Early phase-Improving": "Moderate",
-    "Recovering without ICU-Improving": "Moderate",
-    "Recovering post-ICU -Improving": "Moderate", "Recovering post-ICU": "Moderate",
+    "Recovering without ICU-Improving": "Recovered",
+    "Recovering post-ICU -Improving": "Recovered", "Recovering post-ICU": "Recovered",
     "Recovered": "Recovered", "COVID recovered": "Recovered",
     "healthy": "Healthy", "COVID Naive": "COVID Naive",
 }
@@ -132,6 +133,7 @@ ax.set_ylabel("NS/S Ratio", fontsize=13, fontweight="bold")
 ax.set_title("A. CDR NS/S Ratio", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+add_significance(ax, [disease_data[d]["cdr_ratio"] for d in disease_order], disease_order)
 
 # Panel B: FW R/S ratio
 ax = axes[1]
@@ -156,6 +158,7 @@ ax.set_ylabel("NS/S Ratio", fontsize=13, fontweight="bold")
 ax.set_title("B. FW NS/S Ratio", fontsize=14, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+add_significance(ax, [disease_data[d]["fw_ratio"] for d in disease_order], disease_order)
 
 # Panel C: Stacked bar — avg NS vs S per region per disease
 ax = axes[2]

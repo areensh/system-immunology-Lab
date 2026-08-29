@@ -4,6 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+from stats_utils import add_significance
 
 with open("clone_size/data/clone_size_disease_stage_CTE.json") as f:
     data = json.load(f)
@@ -23,8 +24,8 @@ DISEASE_LABELS = {
     "severe": "Severe", "Early phase hypoxaemia": "Severe",
     "mild": "Mild", "non-severe": "Mild",
     "Early phase-Stable": "Moderate", "Early phase-Improving": "Moderate",
-    "Recovering without ICU-Improving": "Moderate",
-    "Recovering post-ICU -Improving": "Moderate", "Recovering post-ICU": "Moderate",
+    "Recovering without ICU-Improving": "Recovered",
+    "Recovering post-ICU -Improving": "Recovered", "Recovering post-ICU": "Recovered",
     "Recovered": "Recovered", "COVID recovered": "Recovered",
     "healthy": "Healthy", "COVID Naive": "COVID Naive",
 }
@@ -139,6 +140,9 @@ for panel_idx, (key, title) in enumerate(zip(keys, titles)):
         ax.set_ylabel("Number of Clones (log)", fontsize=13, fontweight="bold")
     else:
         ax.set_ylabel("Effective Number of Clones (log)", fontsize=13, fontweight="bold")
+
+    real_data = [disease_hills[d][key] for d in disease_order]
+    add_significance(ax, real_data, disease_order, log_scale=True)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/17_diversity_hill_numbers.png", dpi=400, bbox_inches="tight", facecolor="white")
