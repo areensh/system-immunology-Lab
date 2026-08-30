@@ -236,16 +236,47 @@ Blood-derived tissues were defined as: blood, Peripheral blood, PBL, and PBMC. N
 
 ## Disease Stage Harmonization
 
-Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 4**):
+Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 4**).
 
-- **Severe**: "severe", "Early phase hypoxaemia"
-- **Moderate**: "Early phase-Stable", "Early phase-Improving"
-- **Mild**: "mild", "non-severe"
-- **Recovered**: "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered"
-- **COVID Naive**: "COVID Naive" — vaccinated individuals with no history of COVID-19 infection
-- **Healthy**: "healthy" — individuals with no history of COVID-19 infection or vaccination
+**Table 4.** Disease stage harmonization. Original labels from each study mapped to unified categories.
 
-The final cohort comprised: Severe (n=26), Moderate (n=9), Mild (n=30), Recovered (n=12), COVID Naive (n=8), and Healthy (n=9) (**Table 5**). It is important to note that the Recovered group includes both naturally recovered individuals (3 from CD2) and vaccinated individuals who had recovered from prior COVID-19 infection (5 from CVX2, 4 from CVX1). The COVID Naive group consists entirely of vaccinated individuals from CVX1 who had never been infected with SARS-CoV-2. The Healthy group consists of individuals with no known COVID-19 history and no vaccination (3 from CD3, 6 from HC1).
+| Harmonized Category | Original Labels | Source Studies |
+|---|---|---|
+| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
+| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
+| Mild | "mild", "non-severe" | CD1, CD2 |
+| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
+| COVID Naive | "COVID Naive" | CVX1 |
+| Healthy | "healthy" | CD3, HC1 |
+
+The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
+
+The final cohort composition is shown in **Table 5**.
+
+**Table 5.** Individual counts per harmonized disease category.
+
+| Disease Category | N | Contributing Studies | Notes |
+|---|---|---|---|
+| Severe | 26 | CD1, CD2, CD3 | |
+| Moderate | 9 | CD1 | |
+| Mild | 30 | CD1, CD2 | |
+| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
+| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
+| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
+| **Total** | **94** | | |
+
+## IS-API Metadata Endpoints
+
+IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 2**).
+
+**Table 2.** IS-API metadata endpoints.
+
+| Endpoint | Description | Example Query Filters |
+|---|---|---|
+| metadata | Returns available metadata fields and values per individual across all databases | database, tissue, disease_stage |
+| subjects | Lists individuals matching specified metadata criteria | disease_stage, sex, age, tissue |
+| samples | Lists samples (repertoires) per individual with associated metadata | tissue, cell_type, sample_processing |
+| studies | Returns study-level information (title, lab, species, sequencing platform) | database name |
 
 ## IS-API Architecture and Implementation
 
@@ -272,6 +303,24 @@ The response contains:
 2. **Result**: an array of objects, each containing the matched repertoire metadata and the computed statistics
 
 The full set of available queries, organized by endpoint controller and statistic type, is shown in **Table 3**.
+
+**Table 3.** IS-API biological/statistical endpoints organized by controller.
+
+| Controller | Endpoint | Statistic | Configurable Parameters |
+|---|---|---|---|
+| Clones | clone_count | Number of distinct clones per individual | Expansion threshold (default: ≥20 unique sequences) |
+| Clones | clone_size | Size of each clone | Measure by: unique sequences, instances, or copy number |
+| Clones | topX_clone_size_copies | Cumulative copies for top 10/100/1000 clones | Top X rank |
+| Mutations | topX_mutation_level | Average mutation count in top clones | Top X rank |
+| Mutations | mutation_by_region | Mutation counts split by CDR vs. FW | Region (CDR, FW) |
+| Mutations | mutation_by_type | Non-synonymous vs. synonymous mutation counts | — |
+| Mutations | mutations_rs_ratio | NS/S mutation counts in CDR and FW regions | Region (CDR, FW) |
+| CDR3 | topX_nt_AVG_CDR3_length | Average CDR3 nucleotide length for top clones | Top X rank |
+| CDR3 | topX_AA_AVG_CDR3_length | Average CDR3 amino acid length for top clones | Top X rank |
+| CDR3 | cdr3_length_distribution | Mean, SD, and clone count for CDR3 length | Nucleotide or amino acid |
+| Gene Usage | v_gene_usage | Clone count and total copies per V gene | — |
+
+All endpoints accept metadata filters (disease_stage, tissue, sex, age) in the request body, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously).
 
 Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples. This ensures correct per-individual results regardless of the number of samples or time points available.
 
