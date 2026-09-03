@@ -212,15 +212,15 @@ Seven studies were available through IS-API (**Table 1**):
 
 **Table 1.** Datasets available through IS-API v0.3.0.
 
-| Study ID | Description | N | PMID | Ref |
-|---|---|---|---|---|
-| CD1 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
-| CD2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
-| CD3 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
-| CVX1 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
-| CVX2 | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
-| HC1 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
-| GT1 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
+| Study ID | Database | Description | N | PMID | Ref |
+|---|---|---|---|---|---|
+| CD1 | Covid19_db3 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
+| CD2 | covid_db2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
+| CD3 | covid19 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
+| CVX1 | vaccine2 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
+| CVX2 | covid_vaccine_new | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
+| HC1 | lp16 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
+| GT1 | sykesIgblast2020 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
 
 ## Individual Selection and Exclusions
 
