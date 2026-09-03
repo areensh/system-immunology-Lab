@@ -298,54 +298,28 @@ The response contains:
 1. **Info**: project information (title, version, contacts)
 2. **Result**: an array of objects, each containing the matched repertoire metadata and the computed statistics
 
-The full set of available queries, organized by endpoint controller and statistic type, is shown in **Table 3**.
+The full set of available statistical queries is detailed below in **Table 3**, organized by endpoint controller. All endpoints accept metadata filters (disease_stage, tissue, sex, age) in the request body, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously). Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples, ensuring correct per-individual results regardless of the number of samples or time points available.
 
-**Table 3.** IS-API biological/statistical endpoints organized by controller.
+**Table 3.** IS-API v0.3.0 statistical endpoints — parameters, returns, and configurable options.
 
-| Controller | Endpoint | Statistic | Configurable Parameters |
-|---|---|---|---|
-| Clones | clone_count | Number of distinct clones per individual | Expansion threshold (default: ≥20 unique sequences) |
-| Clones | clone_size | Size of each clone | Measure by: unique sequences, instances, or copy number |
-| Clones | topX_clone_size_copies | Cumulative copies for top 10/100/1000 clones | Top X rank |
-| Mutations | topX_mutation_level | Average mutation count in top clones | Top X rank |
-| Mutations | mutation_by_region | Mutation counts split by CDR vs. FW | Region (CDR, FW) |
-| Mutations | mutation_by_type | Non-synonymous vs. synonymous mutation counts | — |
-| Mutations | mutations_rs_ratio | NS/S mutation counts in CDR and FW regions | Region (CDR, FW) |
-| CDR3 | topX_nt_AVG_CDR3_length | Average CDR3 nucleotide length for top clones | Top X rank |
-| CDR3 | topX_AA_AVG_CDR3_length | Average CDR3 amino acid length for top clones | Top X rank |
-| CDR3 | cdr3_length_distribution | Mean, SD, and clone count for CDR3 length | Nucleotide or amino acid |
-| Gene Usage | v_gene_usage | Clone count and total copies per V gene | — |
+| Controller | Statistic | Parameters | Returns (per individual) | Configurable |
+|---|---|---|---|---|
+| **Clones** | clone_count | meta_key, meta_value | Number of distinct clones exceeding the expansion threshold | Expansion threshold (default: ≥20 unique sequences) |
+| | clone_size | meta_key, meta_value | Size of each clone as a distribution | Measure: unique sequences, instances, or copy number |
+| | clone_size_copies | meta_key, meta_value | Size of each clone measured by raw read counts | — |
+| | topX_clone_size_copies | meta_key, meta_value | Cumulative sequence copies for the top 10, 100, and 1000 clones | Top X rank |
+| **Mutations** | topX_mutation_level | meta_key, meta_value | Average mutation count for the top 10, 100, and 1000 clones | Top X rank |
+| | mutation_by_region | meta_key, meta_value | Average mutation count split by CDR and FW regions | — |
+| | mutation_by_type | meta_key, meta_value | Average non-synonymous and synonymous mutation counts | — |
+| | mutation_cdr_rs_ratio | meta_key, meta_value | NS and S mutation counts in CDR and FW regions separately | — |
+| | mutation_rs_by_clone_size | meta_key, meta_value, min_clone_size, min_expanded_clones | NS and S counts in CDR and FW for expanded vs. rest clones | Clone size threshold (default: 20); minimum expanded clone count |
+| **CDR3** | topX_nt_AVG_CDR3_length | meta_key, meta_value | Average CDR3 nucleotide length for the top 10, 100, and 1000 clones | Top X rank |
+| | topX_AA_AVG_CDR3_length | meta_key, meta_value | Average CDR3 amino acid length for the top 10, 100, and 1000 clones | Top X rank |
+| | cdr3_length_distribution | meta_key, meta_value | Mean, SD, and clone count for CDR3 length (AA and nt) | — |
+| | cdr3_by_clone_size | meta_key, meta_value, min_clone_size, min_expanded_clones | Mean and SD of CDR3 length for expanded vs. rest clones | Clone size threshold (default: 20); minimum expanded clone count |
+| **Gene Usage** | v_gene_usage | meta_key, meta_value | Clone count and total copies per V gene segment | — |
 
-All endpoints accept metadata filters (disease_stage, tissue, sex, age) in the request body, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously).
-
-Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples. This ensures correct per-individual results regardless of the number of samples or time points available.
-
-## Statistical Endpoints
-
-IS-API provides a flexible and dynamic set of endpoints across four controllers. Importantly, many parameters are not hard-coded — researchers can choose how to measure and filter clones according to their specific research question.
-
-**Clone endpoints:**
-
-- *clone_count*: Number of distinct clones per individual. The expansion threshold (default: 20 or more unique sequences) is configurable and can be adjusted to study clones at different levels of expansion.
-- *clone_size*: Size of each clone, which can be measured in three different ways depending on the research question: by unique sequences (distinct sequences across an entire individual), by instances (distinct sequences within a single sample), or by copy number (the number of raw reads associated with an instance or unique sequence). This flexibility allows researchers to study clonal expansion from different perspectives — unique sequences reflect overall diversity across all samples, instances capture sample-level diversity, and copy number reflects the raw abundance of each sequence.
-- *topX_clone_size_copies*: Cumulative sequence copies for the top 10, 100, and 1000 clones per individual, measuring repertoire concentration.
-
-**Mutation endpoints:**
-
-- *topX_mutation_level*: Average mutation count across the top clones per individual.
-- *mutation_by_region*: Mutation counts split by CDR versus framework regions.
-- *mutation_by_type*: Replacement versus silent mutation counts.
-- *mutations_rs_ratio*: Non-synonymous (replacement) and synonymous (silent) mutation counts in CDR and framework (FW) regions per individual, enabling computation of NS/S ratios.
-
-**CDR3 endpoints:**
-
-- *topX_nt_AVG_CDR3_length*: Average CDR3 nucleotide length for the top 10, 100, and 1000 clones per individual.
-- *topX_AA_AVG_CDR3_length*: Average CDR3 amino acid length for the top 10, 100, and 1000 clones per individual.
-- *cdr3_length_distribution*: Mean, standard deviation, and clone count for CDR3 length in both amino acids and nucleotides per individual — providing a comprehensive view of CDR3 length properties across the entire clone repertoire, not just the top clones.
-
-**V gene usage endpoint:**
-
-- *v_gene_usage*: Clone count and total copies per V gene per individual.
+Importantly, many parameters are not hard-coded — researchers can choose how to measure and filter clones according to their specific research question. For example, *clone_size* can measure clonal expansion in three different ways: by unique sequences (distinct sequences across an entire individual, reflecting overall diversity), by instances (distinct sequences within a single sample, capturing sample-level diversity), or by copy number (raw read counts, reflecting sequence abundance). Similarly, the expansion threshold in *clone_count* can be adjusted to study clones at different levels of expansion, and the clone-size-filtered endpoints (*cdr3_by_clone_size*, *mutation_rs_by_clone_size*) allow researchers to compare properties of expanded versus non-expanded clones at any chosen threshold.
 
 ## Biological Statistical Measures
 
