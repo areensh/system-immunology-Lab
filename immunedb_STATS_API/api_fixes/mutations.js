@@ -210,6 +210,82 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
 `;
 }
 
+if (statistics[0] == "mutation_rs_by_clone_size"){
+    const min_clone_size = req.body.min_clone_size || 20;
+    const min_expanded_clones = req.body.min_expanded_clones || 0;
+    query = `
+    WITH ${sampleMetaCTE},
+    clone_data AS (
+      SELECT cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys,
+        SUM(cs.unique_cnt) AS unique_size,
+        AVG(
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0)
+        ) AS cdr_replacement,
+        AVG(
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0)
+        ) AS cdr_synonymous,
+        AVG(
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0)
+        ) AS fw_replacement,
+        AVG(
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
+          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0)
+        ) AS fw_synonymous,
+        AVG(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions'))) AS mutation_cnt
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
+        AND JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) > 0
+    `;
+    if (connection.config.database == "sykesIgblast"){
+        query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `;
+    }
+    query += `
+      GROUP BY cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys
+    )
+    SELECT
+      cd.subject_id,
+      AVG(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN cdr_replacement END) AS expanded_cdr_ns,
+      AVG(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN cdr_synonymous END) AS expanded_cdr_s,
+      AVG(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN fw_replacement END) AS expanded_fw_ns,
+      AVG(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN fw_synonymous END) AS expanded_fw_s,
+      AVG(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN mutation_cnt END) AS expanded_mutation,
+      COUNT(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN 1 END) AS n_expanded,
+      AVG(CASE WHEN unique_size < ${Number(min_clone_size)} THEN cdr_replacement END) AS rest_cdr_ns,
+      AVG(CASE WHEN unique_size < ${Number(min_clone_size)} THEN cdr_synonymous END) AS rest_cdr_s,
+      AVG(CASE WHEN unique_size < ${Number(min_clone_size)} THEN fw_replacement END) AS rest_fw_ns,
+      AVG(CASE WHEN unique_size < ${Number(min_clone_size)} THEN fw_synonymous END) AS rest_fw_s,
+      AVG(CASE WHEN unique_size < ${Number(min_clone_size)} THEN mutation_cnt END) AS rest_mutation,
+      COUNT(CASE WHEN unique_size < ${Number(min_clone_size)} THEN 1 END) AS n_rest,
+      COUNT(*) AS n_all,
+      s.identifier,
+      cd.meta_keys AS keey,
+      cd.meta_values AS valuee
+    FROM clone_data cd
+    JOIN subjects s ON cd.subject_id = s.id
+    GROUP BY cd.subject_id, cd.meta_values, cd.meta_keys, s.identifier
+    `;
+    if (min_expanded_clones > 0) {
+        query += `HAVING COUNT(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN 1 END) >= ${Number(min_expanded_clones)}`;
+    }
+}
+
      const results = [];
       const [rows] =  await connection.query(query, { replacements: params });
       for (const row of rows) results.push(row);
@@ -291,6 +367,21 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
                 });
             }
 
+            if (statistics[0] == "mutation_rs_by_clone_size"){
+                data.push({ clone_id: "expanded_cdr_ns", count: Number(current.expanded_cdr_ns) });
+                data.push({ clone_id: "expanded_cdr_s", count: Number(current.expanded_cdr_s) });
+                data.push({ clone_id: "expanded_fw_ns", count: Number(current.expanded_fw_ns) });
+                data.push({ clone_id: "expanded_fw_s", count: Number(current.expanded_fw_s) });
+                data.push({ clone_id: "expanded_mutation", count: Number(current.expanded_mutation) });
+                data.push({ clone_id: "expanded_n", count: Number(current.n_expanded) });
+                data.push({ clone_id: "rest_cdr_ns", count: Number(current.rest_cdr_ns) });
+                data.push({ clone_id: "rest_cdr_s", count: Number(current.rest_cdr_s) });
+                data.push({ clone_id: "rest_fw_ns", count: Number(current.rest_fw_ns) });
+                data.push({ clone_id: "rest_fw_s", count: Number(current.rest_fw_s) });
+                data.push({ clone_id: "rest_mutation", count: Number(current.rest_mutation) });
+                data.push({ clone_id: "rest_n", count: Number(current.n_rest) });
+                data.push({ clone_id: "all_n", count: Number(current.n_all) });
+            }
 
 
                         payload = {
