@@ -146,7 +146,7 @@ In the past few decades, many techniques have been developed for B cell repertoi
 
 A variety of tools, software platforms, and algorithms have been developed to store and analyze sequencing data [18, 19]. Data sharing fosters collaboration among researchers, enabling cross-study comparisons and accelerating discoveries. Sharing raw and processed data ensures that results can be validated and reproduced by other researchers, avoiding duplication of effort and maximizing the use of available data. Several public repositories and databases — including NCBI's Sequence Read Archive (SRA), the Immune Epitope Database (IEDB), and the iReceptor Gateway [17] — provide platforms for storing and sharing B cell repertoire data.
 
-The Adaptive Immune Receptor Repertoire (AIRR) Community has developed standards and protocols to facilitate data sharing and interoperability among different databases [20]. Despite their contributions, these platforms still have challenges that limit B cell repertoire studies and data sharing. Technical challenges include sequencing errors and sample bias due to sampling methods. Data sharing challenges include the lack of uniform standards for data formatting and annotation, which can limit the integration and comparison of datasets from different studies. For example, the iReceptor Gateway provides an excellent platform for collecting, accessing, and standardizing annotated sequences from many different studies [16], but it lacks clonal definitions that can be associated with metadata and therefore does not support queries at the clone level. Many of these tools collect data across multiple studies but do not give the researcher the ability to investigate associated metadata alongside biological measures.
+The AIRR Community has developed standards and protocols to facilitate data sharing and interoperability among different databases [20]. Despite their contributions, these platforms still have challenges that limit B cell repertoire studies and data sharing. Technical challenges include sequencing errors and sample bias due to sampling methods. Data sharing challenges include the lack of uniform standards for data formatting and annotation, which can limit the integration and comparison of datasets from different studies. For example, the iReceptor Gateway provides an excellent platform for collecting, accessing, and standardizing annotated sequences from many different studies [16], but it lacks clonal definitions that can be associated with metadata and therefore does not support queries at the clone level. Many of these tools collect data across multiple studies but do not give the researcher the ability to investigate associated metadata alongside biological measures.
 
 Several computational tools have been developed for repertoire analysis. The Immcantation Framework [21] provides sophisticated packages for defining and analyzing clones and building lineage trees. MiXCR [22] offers comprehensive adaptive immunity profiling from raw sequences. IgBLAST [23] enables immunoglobulin variable domain sequence analysis. More recently, nf-core/airrflow [48] has introduced a standardized Nextflow pipeline for AIRR-seq data processing, providing reproducible workflows from raw reads to annotated repertoires. While these tools enable researchers to perform various queries and analyses on individual datasets, they do not natively support queries across multiple databases that characterize repertoire diversity across many studies simultaneously.
 
@@ -156,7 +156,7 @@ We have previously developed ImmuneDB [24], a relational database and pipeline t
 
 Building on the ImmuneDB infrastructure, I have designed and implemented the multi-immune database statistics application programming interface (IS-API), aligned with the AIRR Data Commons (ADC) API [25]. IS-API allows researchers to make queries across experiments and across laboratories, taking advantage of the global reach of AIRR-seq. Researchers can characterize multiple datasets or subset repertoires therein for their mutation levels, clone size, selection patterns, diversity measures, and metadata composition — all through a unified programmatic interface.
 
-IS-API version 0.3.0 introduces several key improvements over earlier versions. Most importantly, it employs Common Table Expression (CTE)-based SQL queries (referred to as sampleMetaCTE) that ensure correct per-individual, per-tissue aggregation of statistics. This addresses a fundamental challenge in cross-study analysis: different studies may have different numbers of samples per individual and different tissue types, and naive aggregation can produce misleading results. The CTE approach first identifies the relevant samples for each individual matching the requested metadata filters, then aggregates clone-level statistics across those samples, ensuring that each individual contributes one data point regardless of their number of samples.
+IS-API version 0.3.0 introduces several key improvements over earlier versions. Most importantly, it employs CTE-based SQL queries (referred to as sampleMetaCTE) that ensure correct per-individual, per-tissue aggregation of statistics. This addresses a fundamental challenge in cross-study analysis: different studies may have different numbers of samples per individual and different tissue types, and naive aggregation can produce misleading results. The CTE approach first identifies the relevant samples for each individual matching the requested metadata filters, then aggregates clone-level statistics across those samples, ensuring that each individual contributes one data point regardless of their number of samples.
 
 ## COVID-19 as a Test Case for Cross-Study Analysis
 
@@ -218,7 +218,7 @@ Seven studies were available through IS-API (**Table 1**):
 | CD2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
 | CD3 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
 | CVX1 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [33] |
-| CVX2 | Second vaccine cohort with recovered individuals | 5 | 33858945 | — |
+| CVX2 | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
 | HC1 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
 | GT1 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
 
@@ -355,7 +355,7 @@ For the COVID-19 clonal analysis, we computed the following measures per individ
 
 2. **Expanded clone count and size**: Number of clones exceeding expansion thresholds of 20, 50, and 100 unique sequences, and the median clone size per individual.
 
-3. **NS/S mutation ratio**: The ratio of non-synonymous (replacement) to synonymous (silent) mutations, computed separately for CDR and framework regions. An NS/S ratio greater than 1 in CDR regions indicates positive selection for antigen binding; a ratio near 1 in framework regions indicates purifying selection to maintain structural integrity [12].
+3. **NS/S mutation ratio**: The ratio of non-synonymous to synonymous mutations, computed separately for CDR and FW regions. An NS/S ratio greater than 1 in CDR regions indicates positive selection for antigen binding; a ratio near 1 in framework regions indicates purifying selection to maintain structural integrity [12].
 
 4. **CDR3 length**: Mean and standard deviation of CDR3 amino acid length across all clones per individual.
 
@@ -474,7 +474,7 @@ The standard deviation of CDR3 length (Panel B), reflecting within-individual va
 
 ![Figure 13. Mutation gradient across clone size ranks by disease stage. Shows average mutation counts for the top 10, remaining top 100, and remaining top 1000 clones, revealing how mutation accumulation varies with clonal expansion rank.](../immunedb_STATS_API/clonal_analysis/plots/06_mutation_gradient_by_disease.png){ width=100% }
 
-![Figure 14. CDR and FW region-specific mutation counts by disease stage. Mutations are separated into complementarity-determining regions (CDR) and framework (FW) regions, distinguishing antigen-contact mutations from structural mutations.](../immunedb_STATS_API/clonal_analysis/plots/07_cdr_mutations_by_disease.png){ width=100% }
+![Figure 14. CDR and FW region-specific mutation counts by disease stage. Mutations are separated into CDR and FW regions, distinguishing antigen-contact mutations from structural mutations.](../immunedb_STATS_API/clonal_analysis/plots/07_cdr_mutations_by_disease.png){ width=100% }
 
 ![Figure 15. NS/S ratio overview by disease stage. Non-synonymous to synonymous mutation ratio for all clones per individual. Values above 1.0 indicate positive (diversifying) selection; values below 1.0 indicate purifying selection. Each dot represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/08_rs_ratio_by_disease.png){ width=100% }
 
