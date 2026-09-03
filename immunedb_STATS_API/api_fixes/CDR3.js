@@ -148,6 +148,49 @@ query += `
 `;
 }
 
+if (statistics[0] == "cdr3_by_clone_size"){
+    const min_clone_size = req.body.min_clone_size || 20;
+    const min_expanded_clones = req.body.min_expanded_clones || 0;
+    query = `
+    WITH ${sampleMetaCTE},
+    clone_data AS (
+      SELECT clones.subject_id, clones.id AS clone_id, sma.meta_values, sma.meta_keys,
+        LENGTH(cdr3_aa) AS cdr3_len,
+        SUM(cs.unique_cnt) AS unique_size,
+        SUM(cs.total_cnt) AS total_copies
+      FROM clones
+      JOIN clone_stats cs ON clones.id = cs.clone_id
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      WHERE clones.functional = 1 AND cs.sample_id IS NOT NULL
+    `;
+    if (connection.config.database == "sykesIgblast"){
+        query += `AND clones.subject_id NOT IN (12,13,11,14,15,22,19,18) `;
+    }
+    query += `
+      GROUP BY clones.subject_id, clones.id, sma.meta_values, sma.meta_keys
+    )
+    SELECT
+      cd.subject_id,
+      AVG(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN cdr3_len END) AS avg_cdr3_expanded,
+      STDDEV(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN cdr3_len END) AS sd_cdr3_expanded,
+      COUNT(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN 1 END) AS n_expanded,
+      AVG(CASE WHEN unique_size < ${Number(min_clone_size)} THEN cdr3_len END) AS avg_cdr3_rest,
+      STDDEV(CASE WHEN unique_size < ${Number(min_clone_size)} THEN cdr3_len END) AS sd_cdr3_rest,
+      COUNT(CASE WHEN unique_size < ${Number(min_clone_size)} THEN 1 END) AS n_rest,
+      AVG(cdr3_len) AS avg_cdr3_all,
+      COUNT(*) AS n_all,
+      s.identifier,
+      cd.meta_keys AS keey,
+      cd.meta_values AS valuee
+    FROM clone_data cd
+    JOIN subjects s ON cd.subject_id = s.id
+    GROUP BY cd.subject_id, cd.meta_values, cd.meta_keys, s.identifier
+    `;
+    if (min_expanded_clones > 0) {
+        query += `HAVING COUNT(CASE WHEN unique_size >= ${Number(min_clone_size)} THEN 1 END) >= ${Number(min_expanded_clones)}`;
+    }
+}
+
      const results = [];
       const [rows] =  await connection.query(query, { replacements: params });
       for (const row of rows) results.push(row);
@@ -225,6 +268,17 @@ query += `
                   clone_id: "clone_count",
                   count: Number(current.clone_count)
                 });
+            }
+
+            if (statistics[0] == "cdr3_by_clone_size"){
+                data.push({ clone_id: "expanded_avg_cdr3", count: Number(current.avg_cdr3_expanded) });
+                data.push({ clone_id: "expanded_sd_cdr3", count: Number(current.sd_cdr3_expanded) });
+                data.push({ clone_id: "expanded_n", count: Number(current.n_expanded) });
+                data.push({ clone_id: "rest_avg_cdr3", count: Number(current.avg_cdr3_rest) });
+                data.push({ clone_id: "rest_sd_cdr3", count: Number(current.sd_cdr3_rest) });
+                data.push({ clone_id: "rest_n", count: Number(current.n_rest) });
+                data.push({ clone_id: "all_avg_cdr3", count: Number(current.avg_cdr3_all) });
+                data.push({ clone_id: "all_n", count: Number(current.n_all) });
             }
 
 
