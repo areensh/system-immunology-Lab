@@ -217,7 +217,7 @@ Seven studies were available through IS-API (**Table 1**):
 | CD1 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
 | CD2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
 | CD3 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
-| CVX1 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [33] |
+| CVX1 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
 | CVX2 | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
 | HC1 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
 | GT1 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
@@ -671,3 +671,5 @@ The tool and its cross-study analytical framework can be applied to any disease 
 47. Fu, J., Hsiao, T., Waffarn, E., et al. (2023). Dynamic establishment and maintenance of the human intestinal B cell population and repertoire following transplantation. *medRxiv*, 2023.11.15.23298517.
 
 48. Pejoski, D., Cuesta-Zuluaga, J., Gkoukou, E., et al. (2023). nf-core/airrflow: An adaptive immune receptor repertoire analysis workflow. *Bioinformatics*. https://github.com/nf-core/airrflow
+
+49. Goel, R. R., Painter, M. M., Apostolidis, S. A., et al. (2021). mRNA vaccines induce durable immune memory to SARS-CoV-2 and variants of concern. *Science*, 374(6572), abm0829.
