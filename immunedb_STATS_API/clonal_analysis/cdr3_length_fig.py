@@ -7,7 +7,10 @@ from collections import defaultdict
 from stats_utils import add_significance
 
 with open("cdr3/data/CDR3_length_distribution.json") as f:
-    data = json.load(f)
+    all_data = json.load(f)
+
+with open("/root/.claude/uploads/9ad2f9ef-3c95-5d26-b4b3-317875003fae/3bac72cc-CDR3_dist_tissue_dissease_clone_size__threshold.json") as f:
+    exp_data = json.load(f)
 
 STUDY_MAP = [
     ("Covid19_db3", "CD1"), ("covid_db2", "CD2"), ("covid19", "CD3"),
@@ -36,38 +39,60 @@ def get_study(rid):
             return short
     return None
 
-# Collect mean and SD per subject (blood only)
-subj_cdr3 = defaultdict(lambda: {"disease": "", "mean_aa": None, "sd_aa": None,
-    "mean_nt": None, "sd_nt": None})
+def parse_all_clones(data):
+    subj = defaultdict(lambda: {"disease": "", "mean_aa": None, "sd_aa": None})
+    for entry in data["Result"]:
+        rep = entry["repertoire"]
+        rid = rep["repertoire_id"]
+        study = get_study(rid)
+        if not study or rid in EXCLUDE:
+            continue
+        keys = rep.get("meta_key", [])
+        vals = rep.get("meta_value", [])
+        meta = dict(zip(keys, vals)) if isinstance(keys, list) else {keys: vals}
+        if meta.get("tissue", "") not in BLOOD_TISSUES:
+            continue
+        disease = DISEASE_MAP.get(meta.get("disease_stage", ""), None)
+        if disease is None:
+            continue
+        sv = entry["statistics"][0]["stats_value"]
+        if not sv:
+            continue
+        vals_dict = {item["clone_id"]: item["count"] for item in sv}
+        subj[rid]["disease"] = disease
+        subj[rid]["mean_aa"] = vals_dict.get("mean_cdr3_aa")
+        subj[rid]["sd_aa"] = vals_dict.get("sd_cdr3_aa")
+    return subj
 
-for entry in data["Result"]:
-    rep = entry["repertoire"]
-    rid = rep["repertoire_id"]
-    study = get_study(rid)
-    if not study or rid in EXCLUDE:
-        continue
-    keys = rep.get("meta_key", [])
-    vals = rep.get("meta_value", [])
-    if isinstance(keys, list):
-        meta = dict(zip(keys, vals))
-    else:
-        meta = {keys: vals}
-    tissue = meta.get("tissue", "")
-    if tissue not in BLOOD_TISSUES:
-        continue
-    disease = meta.get("disease_stage", "")
-    disease_group = DISEASE_MAP.get(disease, disease)
+def parse_expanded(data):
+    subj = defaultdict(lambda: {"disease": "", "mean_aa": None, "sd_aa": None})
+    for entry in data["Result"]:
+        rep = entry["repertoire"]
+        rid = rep["repertoire_id"]
+        study = get_study(rid)
+        if not study or rid in EXCLUDE:
+            continue
+        keys = rep.get("meta_key", [])
+        vals = rep.get("meta_value", [])
+        meta = dict(zip(keys, vals)) if isinstance(keys, list) else {keys: vals}
+        if meta.get("tissue", "") not in BLOOD_TISSUES:
+            continue
+        disease = DISEASE_MAP.get(meta.get("disease_stage", ""), None)
+        if disease is None:
+            continue
+        sv = entry["statistics"][0]["stats_value"]
+        if not sv:
+            continue
+        vals_dict = {item["clone_id"]: item["count"] for item in sv}
+        n_exp = vals_dict.get("expanded_n", 0)
+        if n_exp > 0:
+            subj[rid]["disease"] = disease
+            subj[rid]["mean_aa"] = vals_dict.get("expanded_avg_cdr3")
+            subj[rid]["sd_aa"] = vals_dict.get("expanded_sd_cdr3")
+    return subj
 
-    sv = entry["statistics"][0]["stats_value"]
-    if not sv:
-        continue
-    vals_dict = {item["clone_id"]: item["count"] for item in sv}
-
-    subj_cdr3[rid]["disease"] = disease_group
-    subj_cdr3[rid]["mean_aa"] = vals_dict.get("mean_cdr3_aa")
-    subj_cdr3[rid]["sd_aa"] = vals_dict.get("sd_cdr3_aa")
-    subj_cdr3[rid]["mean_nt"] = vals_dict.get("mean_cdr3_nt")
-    subj_cdr3[rid]["sd_nt"] = vals_dict.get("sd_cdr3_nt")
+all_subj = parse_all_clones(all_data)
+exp_subj = parse_expanded(exp_data)
 
 disease_order = ["Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy"]
 disease_colors = {
@@ -75,88 +100,78 @@ disease_colors = {
     "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
 }
 
-# Group by disease
-disease_data = defaultdict(lambda: {"mean_aa": [], "sd_aa": [], "mean_nt": [], "sd_nt": []})
-for rid, info in subj_cdr3.items():
-    d = info["disease"]
-    if d not in disease_order:
-        continue
-    if info["mean_aa"] is not None:
-        disease_data[d]["mean_aa"].append(info["mean_aa"])
-        disease_data[d]["sd_aa"].append(info["sd_aa"])
-        disease_data[d]["mean_nt"].append(info["mean_nt"])
-        disease_data[d]["sd_nt"].append(info["sd_nt"])
+def group_by_disease(subj_dict, field):
+    result = defaultdict(list)
+    for rid, info in subj_dict.items():
+        d = info["disease"]
+        if d in disease_order and info[field] is not None:
+            result[d].append(info[field])
+    return result
+
+all_mean = group_by_disease(all_subj, "mean_aa")
+all_sd = group_by_disease(all_subj, "sd_aa")
+exp_mean = group_by_disease(exp_subj, "mean_aa")
+exp_sd = group_by_disease(exp_subj, "sd_aa")
 
 print("CDR3 Length Distribution (blood only):")
 for d in disease_order:
-    n = len(disease_data[d]["mean_aa"])
-    m = np.median(disease_data[d]["mean_aa"]) if disease_data[d]["mean_aa"] else 0
-    s = np.median(disease_data[d]["sd_aa"]) if disease_data[d]["sd_aa"] else 0
+    n = len(all_mean[d])
+    m = np.median(all_mean[d]) if all_mean[d] else 0
+    s = np.median(all_sd[d]) if all_sd[d] else 0
+    print(f"  {d}: n={n}, median mean AA={m:.1f}, median SD AA={s:.1f}")
+
+print("\nExpanded clones CDR3:")
+for d in disease_order:
+    n = len(exp_mean[d])
+    m = np.median(exp_mean[d]) if exp_mean[d] else 0
+    s = np.median(exp_sd[d]) if exp_sd[d] else 0
     print(f"  {d}: n={n}, median mean AA={m:.1f}, median SD AA={s:.1f}")
 
 # ============================================================
-# FIGURE: CDR3 Length Mean and SD by Disease Stage
+# FIGURE: 2x2 — All clones (row 1) + Expanded clones (row 2)
 # ============================================================
-fig, axes = plt.subplots(1, 2, figsize=(20, 9))
+fig, axes = plt.subplots(2, 2, figsize=(20, 16))
 fig.suptitle("CDR3 Length Distribution by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Mean and standard deviation of CDR3 amino acid length per subject",
-         ha="center", fontsize=16, color="gray")
+             fontsize=24, fontweight="bold", y=0.97)
 
 rng = np.random.default_rng(42)
 
-# Panel A: Mean CDR3 AA length
-ax = axes[0]
-bp_data = [disease_data[d]["mean_aa"] if disease_data[d]["mean_aa"] else [0] for d in disease_order]
-colors = [disease_colors[d] for d in disease_order]
+def boxplot_panel(ax, data_dict, title, ylabel):
+    bp_data = [data_dict.get(d, []) if data_dict.get(d, []) else [0] for d in disease_order]
+    colors = [disease_colors[d] for d in disease_order]
+    bp = ax.boxplot(bp_data, positions=range(len(disease_order)), widths=0.5, patch_artist=True,
+                    showfliers=False, medianprops=dict(color="black", linewidth=2))
+    for i, patch in enumerate(bp["boxes"]):
+        patch.set_facecolor(colors[i])
+        patch.set_alpha(0.7)
+    for i, d in enumerate(disease_order):
+        vals = data_dict.get(d, [])
+        if vals:
+            jitter = rng.uniform(-0.12, 0.12, len(vals))
+            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=35, alpha=0.7,
+                       zorder=3, edgecolors="white", linewidth=0.5)
+    ax.set_xticks(range(len(disease_order)))
+    ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
+    ax.set_ylabel(ylabel, fontsize=16, fontweight="bold")
+    ax.set_title(title, fontsize=18, fontweight="bold", loc="left")
+    ax.tick_params(axis='y', labelsize=13)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    add_significance(ax, [data_dict.get(d, []) for d in disease_order], disease_order)
 
-bp = ax.boxplot(bp_data, positions=range(len(disease_order)), widths=0.5, patch_artist=True,
-                showfliers=False, medianprops=dict(color="black", linewidth=2))
-for i, patch in enumerate(bp["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.7)
-for i, d in enumerate(disease_order):
-    vals = disease_data[d]["mean_aa"]
-    if vals:
-        jitter = rng.uniform(-0.12, 0.12, len(vals))
-        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.7,
-                   zorder=3, edgecolors="white", linewidth=0.5)
+# Row 1: All clones
+fig.text(0.5, 0.935, "All clones — mean and variability of CDR3 amino acid length per subject",
+         ha="center", fontsize=15, color="gray")
+boxplot_panel(axes[0, 0], all_mean, "A. Mean CDR3 Length per Subject", "Mean CDR3 Length (AA)")
+boxplot_panel(axes[0, 1], all_sd, "B. CDR3 Length Variability per Subject", "SD of CDR3 Length (AA)")
 
-ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Mean CDR3 Length (AA)", fontsize=16, fontweight="bold")
-ax.set_title("A. Mean CDR3 Length per Subject", fontsize=18, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=13)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-add_significance(ax, [disease_data[d]["mean_aa"] for d in disease_order], disease_order)
+# Row 2: Expanded clones
+fig.text(0.5, 0.48, "Expanded clones (≥20 unique sequences) — CDR3 length per subject",
+         ha="center", fontsize=15, color="gray")
+boxplot_panel(axes[1, 0], exp_mean, "C. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)")
+boxplot_panel(axes[1, 1], exp_sd, "D. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)")
 
-# Panel B: SD of CDR3 AA length
-ax = axes[1]
-bp_data = [disease_data[d]["sd_aa"] if disease_data[d]["sd_aa"] else [0] for d in disease_order]
-
-bp = ax.boxplot(bp_data, positions=range(len(disease_order)), widths=0.5, patch_artist=True,
-                showfliers=False, medianprops=dict(color="black", linewidth=2))
-for i, patch in enumerate(bp["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.7)
-for i, d in enumerate(disease_order):
-    vals = disease_data[d]["sd_aa"]
-    if vals:
-        jitter = rng.uniform(-0.12, 0.12, len(vals))
-        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.7,
-                   zorder=3, edgecolors="white", linewidth=0.5)
-
-ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("SD of CDR3 Length (AA)", fontsize=16, fontweight="bold")
-ax.set_title("B. CDR3 Length Variability per Subject", fontsize=18, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=13)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-add_significance(ax, [disease_data[d]["sd_aa"] for d in disease_order], disease_order)
-
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout(rect=[0, 0, 1, 0.93])
 plt.savefig("plots/22_cdr3_length_distribution.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 22_cdr3_length_distribution.png")
