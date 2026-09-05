@@ -155,9 +155,9 @@ metrics = [
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(21, 7))
 fig.suptitle("Clonal Metrics vs Age by Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Each dot = one subject, colored by disease stage",
-         ha="center", fontsize=13, color="gray")
+             fontsize=20, fontweight="bold", y=1.0)
+fig.text(0.5, 0.94, "Each dot = one subject, colored by disease stage",
+         ha="center", fontsize=14, color="gray")
 
 for idx, (metric_name, metric_dict) in enumerate(metrics):
     ax = axes[idx]
@@ -174,16 +174,16 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
                        zorder=3)
     ax.set_xlabel("Age", fontsize=13, fontweight="bold")
     ax.set_ylabel(metric_name, fontsize=13, fontweight="bold")
+    ax.tick_params(axis='both', labelsize=11)
     panel = chr(65 + idx)
     ax.set_title(f"{panel}. {metric_name} vs Age", fontsize=14, fontweight="bold", loc="left")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if idx == 0:
         ax.set_yscale("log")
-    if idx == 2:
-        ax.legend(fontsize=8, loc="upper right")
+    ax.legend(fontsize=11, loc="upper right")
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout(rect=[0, 0, 1, 0.88])
 plt.savefig("plots/24_metrics_vs_age.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 24_metrics_vs_age.png")
@@ -193,9 +193,9 @@ print("Saved: 24_metrics_vs_age.png")
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(21, 7))
 fig.suptitle("Clonal Metrics by Gender and Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Male vs Female within each disease stage",
-         ha="center", fontsize=13, color="gray")
+             fontsize=20, fontweight="bold", y=1.0)
+fig.text(0.5, 0.94, "Male vs Female within each disease stage",
+         ha="center", fontsize=14, color="gray")
 
 rng = np.random.default_rng(42)
 
@@ -240,10 +240,11 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
                        edgecolors="white", linewidth=0.3)
 
     ax.set_xticks(tick_positions)
-    ax.set_xticklabels(tick_labels, fontsize=9, fontweight="bold", rotation=25, ha="right")
+    ax.set_xticklabels(tick_labels, fontsize=11, fontweight="bold", rotation=25, ha="right")
+    ax.tick_params(axis='y', labelsize=11)
     panel = chr(65 + idx)
     ax.set_title(f"{panel}. {metric_name}", fontsize=14, fontweight="bold", loc="left")
-    ax.set_ylabel(metric_name, fontsize=12, fontweight="bold")
+    ax.set_ylabel(metric_name, fontsize=13, fontweight="bold")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if idx == 0:
@@ -253,9 +254,9 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
 from matplotlib.patches import Patch
 legend_elements = [Patch(facecolor="gray", alpha=0.8, label="Male"),
                    Patch(facecolor="gray", alpha=0.6, hatch="///", label="Female")]
-axes[2].legend(handles=legend_elements, fontsize=9, loc="upper right")
+axes[2].legend(handles=legend_elements, fontsize=12, loc="upper right")
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout(rect=[0, 0, 1, 0.88])
 plt.savefig("plots/25_metrics_vs_gender.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 25_metrics_vs_gender.png")

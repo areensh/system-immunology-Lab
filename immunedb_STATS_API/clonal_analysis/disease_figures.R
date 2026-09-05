@@ -189,10 +189,15 @@ p2 <- ggplot(df_tx_long, aes(x = reorder(repertoire_id, subj_order), y = pct, fi
   scale_fill_manual(values = stacked_tier_colors, name = "Clone Tier") +
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
-  labs(x = NULL, y = "Fraction of Total Copies") +
+  labs(x = NULL, y = "Fraction of Total Copies",
+       title = "Clonal Dominance: Top-X Clone Proportions by Disease Stage") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        strip.text.x = element_text(face = "bold", size = 22))
-ggsave("plots/02_topX_stacked_by_disease.png", p2, width = 16, height = 8, dpi = 400, bg = "white")
+        strip.text.x = element_text(face = "bold", size = 16, margin = margin(b = 4, t = 4)),
+        strip.background = element_rect(fill = "grey90", color = NA),
+        plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+        plot.margin = margin(15, 25, 10, 25),
+        panel.spacing = unit(0.8, "lines"))
+ggsave("plots/02_topX_stacked_by_disease.png", p2, width = 26, height = 8, dpi = 400, bg = "white")
 cat("Figure 2 saved.\n")
 
 # ============================================================
@@ -248,8 +253,15 @@ p3 <- ggplot(df_cdr3_long, aes(x = disease_cat, y = cdr3_length, fill = tier)) +
                position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
   scale_color_manual(values = tier_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. CDR3 Length (AA)") +
-  theme()
+  labs(x = NULL, y = "Avg. CDR3 Length (AA)",
+       title = "CDR3 AA Length by Disease Category") +
+  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text = element_text(size = 12),
+        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size = 11, face = "bold"),
+        plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/03_cdr3_by_disease.png", p3, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 3 saved.\n")
 
@@ -264,8 +276,15 @@ p3b <- ggplot(df_cdr3_range, aes(x = disease_cat, y = cdr3_range, fill = disease
   stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
-  labs(x = NULL, y = "CDR3 Length Difference (Top10 - Top1000, AA)") +
-  theme()
+  labs(x = NULL, y = "CDR3 Length Difference\n(Top10 - Top1000, AA)",
+       title = "CDR3 Length Variability by Disease Category") +
+  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 13, face = "bold"),
+        axis.text = element_text(size = 12),
+        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size = 11, face = "bold"),
+        plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/04_cdr3_range_by_disease.png", p3b, width = 12, height = 8, dpi = 400, bg = "white")
 cat("Figure 4 saved.\n")
 
@@ -669,8 +688,15 @@ p12 <- ggplot(df_mut_sex, aes(x = disease_cat, y = mut_top10, fill = sex)) +
                position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = sex_colors, name = "Sex") +
   scale_color_manual(values = sex_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. Mutation Count (Top 10 Clones)") +
-  theme()
+  labs(x = NULL, y = "Avg. Mutation Count\n(Top 10 Clones)",
+       title = "Mutation Level in Top 10 Clones by Sex and Disease") +
+  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 13, face = "bold"),
+        axis.text = element_text(size = 12),
+        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size = 11, face = "bold"),
+        plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/12_mutation_top10_by_sex_disease.png", p12, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 12 saved.\n")
 
@@ -689,7 +715,14 @@ p13 <- ggplot(df_cdr3_sex, aes(x = disease_cat, y = top10_aa, fill = sex)) +
                position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = sex_colors, name = "Sex") +
   scale_color_manual(values = sex_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. CDR3 Length (AA, Top 10 Clones)") +
-  theme()
+  labs(x = NULL, y = "Avg. CDR3 Length\n(AA, Top 10 Clones)",
+       title = "CDR3 Length in Top 10 Clones by Sex and Disease") +
+  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 13, face = "bold"),
+        axis.text = element_text(size = 12),
+        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size = 11, face = "bold"),
+        plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/13_cdr3_top10_by_sex_disease.png", p13, width = 14, height = 8, dpi = 400, bg = "white")
 cat("Figure 13 saved.\n")
