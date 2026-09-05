@@ -280,15 +280,15 @@ IS-API provides metadata endpoints that allow researchers to explore the availab
 
 The overall workflow for building and querying immune repertoire databases is illustrated in **Methods Figure 1**: raw DNA sequences (FASTA/Q or IgBLAST-annotated) are processed with uniform and consistent metadata into ImmuneDB databases, which are then queried through IS-API.
 
-![Methods Figure 1. IS-API pipeline: from raw DNA sequences to cross-study analysis.](../methods_fig1.png){ width=100% }
+![Methods Figure 1. IS-API data preparation pipeline. Raw DNA sequences in FASTA/Q or IgBLAST-annotated format are combined with uniform and consistent metadata, then loaded into individual ImmuneDB database instances (one per study, dashed box). IS-API connects to all instances, enabling cross-study queries through a single interface.](../methods_fig1.png){ width=100% }
 
 IS-API is a RESTful API written in Node.js [27] using the Express framework. It connects to multiple independent ImmuneDB MySQL database instances and executes queries across all of them in a single API call (**Methods Figure 2**). The five endpoint controllers — Metadata, Clones, Mutations, CDR3, and Gene Usage — each fan out to 1...N ImmuneDB instances and return results in a unified JSON format. The API is publicly available at https://github.com/DrexelSystemsImmunologyLab/IS-API.
 
-![Methods Figure 2. IS-API system architecture: client queries fan out to multiple ImmuneDB instances.](../methods_fig2.png){ width=100% }
+![Methods Figure 2. IS-API system architecture. A client sends a request specifying an endpoint controller (Metadata, Clones, Mutations, CDR3, or Gene Usage) along with metadata filters. IS-API fans out the query to 1...N independent ImmuneDB MySQL database instances, aggregates the results, and returns a unified JSON output that can be further processed into graphical visualizations.](../methods_fig2.png){ width=100% }
 
 The analysis approach follows a three-tier pyramid (**Methods Figure 3**): (1) Metadata investigation at the base — examining available studies, individuals, samples, and processes to understand the data landscape; (2) Biological-statistical measurements in the middle — computing clones, clone size, gene usage, and mutations across all kinds of metadata; and (3) Specific biological questions at the top — testing whether, for example, clone size differences correlate with disease stage.
 
-![Methods Figure 3. Three-tier analysis approach.](../methods_fig3.png){ width=100% }
+![Methods Figure 3. Three-tier analysis approach. Tier 1 (base): metadata investigation — examining available studies, subjects, samples, and processing pipelines to assess data availability. Tier 2 (middle): biological-statistical measurements — computing clones, clone size, gene usage, and mutations across all kinds of metadata. Tier 3 (top): specific biological questions — testing targeted hypotheses such as whether clone size differences correlate with disease stage.](../methods_fig3.png){ width=100% }
 
 All endpoints are designed as POST requests. The request body contains two objects in JSON format:
 
