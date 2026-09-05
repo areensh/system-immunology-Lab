@@ -171,6 +171,17 @@ fig.text(0.5, 0.48, "Expanded clones (≥20 unique sequences) — CDR3 length pe
 boxplot_panel(axes[1, 0], exp_mean, "C. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)")
 boxplot_panel(axes[1, 1], exp_sd, "D. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)")
 
+# Sync y-axis: mean panels (A, C) share one range; SD panels (B, D) share another
+mean_ymin = min(axes[0, 0].get_ylim()[0], axes[1, 0].get_ylim()[0])
+mean_ymax = max(axes[0, 0].get_ylim()[1], axes[1, 0].get_ylim()[1])
+axes[0, 0].set_ylim(mean_ymin, mean_ymax)
+axes[1, 0].set_ylim(mean_ymin, mean_ymax)
+
+sd_ymin = min(axes[0, 1].get_ylim()[0], axes[1, 1].get_ylim()[0])
+sd_ymax = max(axes[0, 1].get_ylim()[1], axes[1, 1].get_ylim()[1])
+axes[0, 1].set_ylim(sd_ymin, sd_ymax)
+axes[1, 1].set_ylim(sd_ymin, sd_ymax)
+
 plt.tight_layout(rect=[0, 0, 1, 0.93])
 plt.savefig("plots/22_cdr3_length_distribution.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
