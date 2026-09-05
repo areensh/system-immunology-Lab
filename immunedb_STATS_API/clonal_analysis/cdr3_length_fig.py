@@ -97,11 +97,11 @@ for d in disease_order:
 # ============================================================
 # FIGURE: CDR3 Length Mean and SD by Disease Stage
 # ============================================================
-fig, axes = plt.subplots(1, 2, figsize=(16, 7))
+fig, axes = plt.subplots(1, 2, figsize=(20, 9))
 fig.suptitle("CDR3 Length Distribution by Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
+             fontsize=24, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Mean and standard deviation of CDR3 amino acid length per subject",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=16, color="gray")
 
 rng = np.random.default_rng(42)
 
@@ -123,9 +123,10 @@ for i, d in enumerate(disease_order):
                    zorder=3, edgecolors="white", linewidth=0.5)
 
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Mean CDR3 Length (AA)", fontsize=13, fontweight="bold")
-ax.set_title("A. Mean CDR3 Length per Subject", fontsize=14, fontweight="bold", loc="left")
+ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Mean CDR3 Length (AA)", fontsize=16, fontweight="bold")
+ax.set_title("A. Mean CDR3 Length per Subject", fontsize=18, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=13)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 add_significance(ax, [disease_data[d]["mean_aa"] for d in disease_order], disease_order)
@@ -147,14 +148,15 @@ for i, d in enumerate(disease_order):
                    zorder=3, edgecolors="white", linewidth=0.5)
 
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("SD of CDR3 Length (AA)", fontsize=13, fontweight="bold")
-ax.set_title("B. CDR3 Length Variability per Subject", fontsize=14, fontweight="bold", loc="left")
+ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("SD of CDR3 Length (AA)", fontsize=16, fontweight="bold")
+ax.set_title("B. CDR3 Length Variability per Subject", fontsize=18, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=13)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 add_significance(ax, [disease_data[d]["sd_aa"] for d in disease_order], disease_order)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
-plt.savefig("plots/22_cdr3_length_distribution.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/22_cdr3_length_distribution.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 22_cdr3_length_distribution.png")
