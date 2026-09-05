@@ -371,17 +371,25 @@ CDR and FW region boundaries follow the ImmuneDB database schema, where CDR is d
 
 ## Biological Statistical Measures
 
-For the COVID-19 clonal analysis, we computed the following measures per individual (blood samples only):
+IS-API returns per-individual, per-metadata-group measurements in a structured JSON format. Most of the biological measures used in this analysis are returned directly by the API endpoints, while some require additional client-side computation from the API output.
 
-1. **Clonal diversity (Hill numbers)**: For each individual, we computed Hill numbers of orders 0, 1, and 2 from their clone size distribution. Order 0 (^0^D) equals clone richness (number of clones). Order 1 (^1^D = exp(Shannon entropy)) represents the effective number of equally abundant clones. Order 2 (^2^D = 1/Simpson concentration) reflects the effective number of dominant clones, giving more weight to abundant clones [35, 36].
+**Measures returned directly by the API:**
 
-2. **Expanded clone count and size**: Number of clones exceeding expansion thresholds of 20, 50, and 100 unique sequences, and the median clone size per individual.
+1. **Clone count and expanded clone count**: The *clone_count* endpoint returns the number of distinct clones exceeding the expansion threshold per individual. By adjusting the threshold, researchers can examine expansion at multiple levels (e.g., 20, 50, 100 unique sequences).
 
-3. **NS/S mutation ratio**: The ratio of non-synonymous to synonymous mutations, computed separately for CDR and FW regions. An NS/S ratio greater than 1 in CDR regions indicates positive selection for antigen binding; a ratio near 1 in framework regions indicates purifying selection to maintain structural integrity [12].
+2. **Clone size distribution**: The *clone_size* endpoint returns the size of each clone per individual, providing the raw distribution from which any summary statistic can be derived.
 
-4. **CDR3 length**: Mean and standard deviation of CDR3 amino acid length across all clones per individual.
+3. **CDR3 length**: The *cdr3_length_distribution* endpoint returns mean and standard deviation of CDR3 length (both amino acid and nucleotide) per individual. The *topX* CDR3 endpoints return average CDR3 lengths for the top 10, 100, and 1000 clones. The *cdr3_by_clone_size* endpoint returns mean and standard deviation of CDR3 length separately for expanded and non-expanded clones.
 
-5. **V gene usage**: Frequency of each V gene across individuals, filtered to V genes present at 1% or higher frequency in at least 85% of individuals.
+4. **Mutation counts and NS/S ratios**: The mutation endpoints return per-individual averages of mutation counts split by region (CDR, FW) and type (NS, S). The *mutation_cdr_rs_ratio* endpoint provides NS and S counts in CDR and FW regions separately, from which NS/S ratios are computed. The *mutation_rs_by_clone_size* endpoint provides the same breakdown stratified by clone expansion status.
+
+5. **V gene usage**: The *v_gene_usage* endpoint returns clone count and total copies per V gene segment per individual.
+
+**Measures computed client-side from API output:**
+
+6. **Clonal diversity (Hill numbers)**: From the clone size distribution returned by the API, we computed Hill numbers of orders 0, 1, and 2 for each individual. Order 0 (^0^D) equals clone richness (number of clones). Order 1 (^1^D = exp(Shannon entropy)) represents the effective number of equally abundant clones. Order 2 (^2^D = 1/Simpson concentration) reflects the effective number of dominant clones, giving more weight to abundant clones [35, 36].
+
+**Beyond this analysis.** Because IS-API returns per-individual measurements across arbitrary metadata groupings, researchers can use the output as the starting point for a wide range of downstream analyses beyond those presented here. For example, the clone size distributions can be used to compute variance and coefficient of variation across individuals within a group, test for differences in distributional shape (not just central tendency), or fit parametric models of clonal expansion. The per-individual mutation and CDR3 data enable correlation analyses between measures (e.g., whether individuals with higher mutation loads also have shorter CDR3 lengths), regression models incorporating multiple covariates (age, sex, disease stage), and longitudinal tracking when time-series metadata is available. Cross-stratified queries (e.g., tissue × disease stage × sex) enable factorial designs that test for interaction effects. In general, any statistical question that can be framed in terms of per-individual repertoire measurements across metadata-defined groups can be addressed using the IS-API output.
 
 ## Statistical Analysis
 
