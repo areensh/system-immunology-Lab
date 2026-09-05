@@ -90,13 +90,13 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 **Figure 5.** CDR3 length by clone size and disease stage (expanded vs. rest).
 
-**Figure 6.** Mutation profile by clone size and disease stage (expanded vs. rest).
+**Figure 6.** CDR3 length distribution: all clones and expanded clones by disease stage.
 
-**Figure 7.** CDR3 length of top 10 clones by disease stage.
+**Figure 7.** Mutation profile by clone size and disease stage (expanded vs. rest).
 
-**Figure 8.** CDR3 length range of top 10 clones by disease stage.
+**Figure 8.** CDR3 length of top 10 clones by disease stage.
 
-**Figure 9.** CDR3 length distribution across all clones by disease stage.
+**Figure 9.** CDR3 length range of top 10 clones by disease stage.
 
 **Figure 10.** Total somatic hypermutation in top 10 clones by disease stage.
 
@@ -462,25 +462,21 @@ Having established the clone size distribution and the expansion threshold of �
 
 ![Figure 5. CDR3 amino acid length by clone size and disease stage. Expanded clones (≥20 unique sequences, red) compared to non-expanded clones (<20, blue) across six disease categories. Error bars show standard deviation. Sample sizes annotated above each bar. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/09_cdr3_expanded_vs_rest.png){ width=100% }
 
-**Mutation profile by clone size.** The mutation_rs_by_clone_size endpoint stratified NS and S mutation counts in CDR and FW regions by clone expansion status (**Figure 6**). Expanded clones carried substantially higher mutation loads than non-expanded clones across all regions and disease categories. CDR NS mutations in expanded clones averaged 13–20 mutations per clone compared to 1–4 in non-expanded clones, while FW NS mutations showed a similar pattern (16–38 vs. 3–8). This pattern held across all disease categories, confirming that expanded clones have undergone extensive somatic hypermutation. Mild cases showed the highest absolute mutation counts in expanded clones, while Healthy individuals showed the lowest, consistent with the lower levels of antigen-driven selection in unexposed individuals.
+**CDR3 length distribution: all clones versus expanded clones.** To place the expanded-clone CDR3 differences in context, we examined the full CDR3 length distribution per individual (**Figure 6**). Panels A and B show that across all clones, mean CDR3 length differed significantly across disease categories (Kruskal-Wallis p < 0.0001): Moderate individuals had the longest mean CDR3 lengths (median 17.8 AA), while Mild and Healthy individuals had shorter CDR3 (median ~17.0 AA). The standard deviation of CDR3 length also varied (p = 0.0009), with Severe individuals showing the highest within-individual variability. Panels C and D restrict the analysis to expanded clones (≥20 unique sequences). The disease-stage differences became more pronounced (Kruskal-Wallis p = 0.0008 for both mean and SD): Healthy individuals showed dramatically shorter expanded-clone CDR3 lengths (median 14.4 AA) compared to disease groups (16–18 AA), and Severe individuals had the highest expanded-clone CDR3 variability (median SD ~4.5 AA), suggesting a more structurally diverse set of expanded clones during acute infection.
 
-![Figure 6. Mutation profile by clone size and disease stage. Four panels show CDR NS, CDR S, FW NS, and FW S mutation counts for expanded (≥20 unique sequences, red) versus non-expanded clones (<20, blue) across disease categories. Error bars show standard deviation. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/10_mutations_expanded_vs_rest.png){ width=100% }
+![Figure 6. CDR3 amino acid length distribution by disease stage. Panels A–B: all clones — mean CDR3 length (A) and standard deviation (B) per individual. Panels C–D: expanded clones only (≥20 unique sequences) — mean CDR3 length (C) and standard deviation (D). Each dot represents one individual; boxplots show median and IQR. Kruskal-Wallis p-values annotated. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/22_cdr3_length_distribution.png){ width=100% }
+
+**Mutation profile by clone size.** The mutation_rs_by_clone_size endpoint stratified NS and S mutation counts in CDR and FW regions by clone expansion status (**Figure 7**). Expanded clones carried substantially higher mutation loads than non-expanded clones across all regions and disease categories. CDR NS mutations in expanded clones averaged 13–20 mutations per clone compared to 1–4 in non-expanded clones, while FW NS mutations showed a similar pattern (16–38 vs. 3–8). This pattern held across all disease categories, confirming that expanded clones have undergone extensive somatic hypermutation. Mild cases showed the highest absolute mutation counts in expanded clones, while Healthy individuals showed the lowest, consistent with the lower levels of antigen-driven selection in unexposed individuals.
+
+![Figure 7. Mutation profile by clone size and disease stage. Four panels show CDR NS, CDR S, FW NS, and FW S mutation counts for expanded (≥20 unique sequences, red) versus non-expanded clones (<20, blue) across disease categories. Error bars show standard deviation. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/10_mutations_expanded_vs_rest.png){ width=100% }
 
 ## CDR3 Length Distribution
 
-**CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 7**), along with the range of CDR3 lengths (**Figure 8**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
+**CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 8**), along with the range of CDR3 lengths (**Figure 9**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
 
-![Figure 7. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. CDR3 length reflects the antigen-binding loop size of the most expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/03_cdr3_by_disease.png){ width=100% }
+![Figure 8. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. CDR3 length reflects the antigen-binding loop size of the most expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/03_cdr3_by_disease.png){ width=100% }
 
-![Figure 8. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
-
-**CDR3 length across all clones.** The CDR3 amino acid length distribution was also analyzed per individual across all clones, with both the mean and standard deviation computed (**Figure 9**).
-
-![Figure 9. CDR3 amino acid length distribution across all clones per individual. Panel A: mean CDR3 length by disease stage with Kruskal-Wallis p-value. Panel B: standard deviation of CDR3 length, reflecting within-individual variability. Each dot represents one individual; boxplots show median and IQR.](../immunedb_STATS_API/clonal_analysis/plots/22_cdr3_length_distribution.png){ width=100% }
-
-Mean CDR3 length showed significant variation across disease categories (Kruskal-Wallis p < 0.001, Panel A). Moderate individuals had the longest mean CDR3 lengths (median approximately 17.8 AA), while Mild and Healthy individuals had shorter CDR3 lengths (median approximately 17.0 AA). This is consistent with previous observations that actively responding repertoires may include clones with longer CDR3 loops, which can form more complex antigen-binding structures.
-
-The standard deviation of CDR3 length (Panel B), reflecting within-individual variability, also differed across groups (Kruskal-Wallis p = 0.017). Severe individuals tended to have higher CDR3 length variability, suggesting a more heterogeneous repertoire in terms of CDR3 structure. A significant difference was observed between Moderate and Mild individuals (p < 0.05).
+![Figure 9. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
 
 ## Somatic Hypermutation and Selection Pressure
 
