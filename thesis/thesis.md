@@ -290,17 +290,61 @@ The analysis approach follows a three-tier pyramid (**Methods Figure 3**): (1) M
 
 ![Methods Figure 3. Three-tier analysis approach. Tier 1 (base): metadata investigation — examining available studies, subjects, samples, and processing pipelines to assess data availability. Tier 2 (middle): biological-statistical measurements — computing clones, clone size, gene usage, and mutations across all kinds of metadata. Tier 3 (top): specific biological questions — testing targeted hypotheses such as whether clone size differences correlate with disease stage.](../methods_fig3.png){ width=100% }
 
-All endpoints are designed as POST requests. The request body contains two objects in JSON format:
+All endpoints are designed as POST requests. The request body contains two JSON objects:
 
-1. **repertoires**: specifies the metadata filters (e.g., disease_stage, tissue, sex, age)
-2. **statistics**: specifies the statistical measure of interest
+1. **repertoires**: specifies the metadata filters using two parallel arrays — `meta_key` and `meta_value`. Each entry in `meta_key` names a metadata dimension (e.g., `"disease_stage"`, `"tissue"`, `"sex"`), and the corresponding entry in `meta_value` specifies the desired value (e.g., `"severe"`, `"blood"`, `"M"`). Setting a value to `"ALL"` returns all non-NA values for that dimension. Multiple keys can be specified simultaneously to perform cross-stratified queries — for example, filtering by both disease stage and tissue in a single request.
+2. **statistics**: an array containing the name of the statistical measure to compute (e.g., `["clone_count"]`). Some endpoints accept additional parameters such as `min_clone_size` for clone-size-stratified analyses.
 
-The response contains:
+An example POST request querying CDR3 length by clone size for blood samples across all disease stages:
 
-1. **Info**: project information (title, version, contacts)
-2. **Result**: an array of objects, each containing the matched repertoire metadata and the computed statistics
+```json
+{
+  "repertoires": {
+    "meta_key": ["disease_stage", "tissue"],
+    "meta_value": ["ALL", "blood"]
+  },
+  "statistics": ["cdr3_by_clone_size"],
+  "min_clone_size": 20,
+  "min_expanded_clones": 0
+}
+```
 
-The full set of available statistical queries is detailed below in **Table 5**, organized by endpoint controller. All endpoints accept metadata filters (disease_stage, tissue, sex, age) in the request body, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously). Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples, ensuring correct per-individual results regardless of the number of samples or time points available.
+The response follows a standardized JSON structure:
+
+```json
+{
+  "Info": {
+    "title": "iReceptorPlus Statistics API",
+    "version": "0.3.0",
+    "description": "Statistics API for the iReceptor Plus platform"
+  },
+  "Result": [
+    {
+      "repertoire": {
+        "repertoire_id": "covid19-S24",
+        "meta_key": ["disease_stage", "tissue"],
+        "meta_value": ["severe", "blood"]
+      },
+      "statistics": [
+        {
+          "statistic_name": "cdr3_by_clone_size",
+          "total": null,
+          "stats_value": [
+            { "clone_id": "expanded_avg_cdr3", "count": 17.78 },
+            { "clone_id": "expanded_n", "count": 1536 },
+            { "clone_id": "rest_avg_cdr3", "count": 18.17 },
+            { "clone_id": "rest_n", "count": 16579 }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Each entry in the `Result` array corresponds to one individual matching the metadata filters. The `repertoire` object echoes the matched metadata (database, individual identifier, and the key-value pairs), while the `statistics` array contains the computed values as name-value pairs in `stats_value`. This structure is consistent across all endpoints, enabling uniform parsing regardless of the statistic queried.
+
+The full set of available statistical queries is detailed below in **Table 5**, organized by endpoint controller. All endpoints accept `meta_key` and `meta_value` arrays as their primary parameters for metadata filtering, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously). Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples, ensuring correct per-individual results regardless of the number of samples or time points available.
 
 **Table 5.** IS-API v0.3.0 statistical endpoints — parameters, returns, and configurable options.
 
