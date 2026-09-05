@@ -113,10 +113,10 @@ fig, axes = plt.subplots(nrows, ncols, figsize=(16, 5 * nrows))
 if nrows == 1:
     axes = [axes]
 fig.suptitle("Within-Subject Comparison: Clone Count by Tissue (HC1)",
-             fontsize=20, fontweight="bold", y=0.98)
-fig.text(0.5, 0.94,
+             fontsize=20, fontweight="bold", y=1.02)
+fig.text(0.5, 0.97,
          "HC1 healthy subjects — number of distinct clones per tissue",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=14, color="gray")
 
 for idx, subj in enumerate(hc1_subjects):
     ax = axes[idx // ncols][idx % ncols]
@@ -140,7 +140,7 @@ for idx, subj in enumerate(hc1_subjects):
 for idx in range(len(hc1_subjects), nrows * ncols):
     axes[idx // ncols][idx % ncols].set_visible(False)
 
-plt.tight_layout(rect=[0, 0, 1, 0.92])
+plt.tight_layout(rect=[0, 0, 1, 0.93])
 plt.savefig("plots/14_within_subject_clone_count.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 14_within_subject_clone_count.png")
@@ -172,9 +172,9 @@ fig, axes = plt.subplots(1, len(compare_tissues), figsize=(5 * len(compare_tissu
 if len(compare_tissues) == 1:
     axes = [axes]
 fig.suptitle(f"Cross-Study Tissue Comparison: HC1 (D207) vs GT1 ({gt1_best})",
-             fontsize=18, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Clone size distribution in matched tissues across two studies",
-         ha="center", fontsize=13, color="gray")
+             fontsize=20, fontweight="bold", y=1.02)
+fig.text(0.5, 0.96, "Clone size distribution in matched tissues across two studies",
+         ha="center", fontsize=14, color="gray")
 
 for i, tissue in enumerate(compare_tissues):
     ax = axes[i]
@@ -210,7 +210,7 @@ for i, tissue in enumerate(compare_tissues):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout(rect=[0, 0, 1, 0.91])
 plt.savefig("plots/15_within_subject_clone_size_cross_study.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 15_within_subject_clone_size_cross_study.png")
@@ -271,9 +271,9 @@ ax.set_xticklabels(compare_all_tissues, fontsize=14, fontweight="bold")
 ax.set_ylabel("Median Clone Size per Subject (log scale)", fontsize=14, fontweight="bold")
 ax.set_xlabel("Tissue", fontsize=14, fontweight="bold")
 ax.set_title("Cross-Study Tissue Comparison: Median Clone Size",
-             fontsize=18, fontweight="bold")
-ax.text(0.5, 1.02, "Each dot = one subject's median clone size in that tissue. Bar = group median.",
-        transform=ax.transAxes, ha="center", fontsize=12, color="gray")
+             fontsize=20, fontweight="bold", pad=35)
+ax.text(0.5, 1.06, "Each dot = one subject's median clone size in that tissue. Bar = group median.",
+        transform=ax.transAxes, ha="center", fontsize=13, color="gray")
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
