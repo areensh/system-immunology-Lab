@@ -62,7 +62,7 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 **Methods Figure 2.** IS-API system architecture: client queries fan out to multiple ImmuneDB instances.
 
-**Methods Figure 3.** Three-tier analysis approach: metadata, biological-statistical measurements, and specific biological questions.
+**Methods Figure 2.** Three-tier analysis approach: metadata, biological-statistical measurements, and specific biological questions.
 
 ## Metadata Figures
 
@@ -70,65 +70,63 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 **Metadata Figure 2.** Metadata availability per dataset — which metadata fields are present in each study.
 
-**Metadata Figure 3.** Raw disease stage labels across studies (13 categories before harmonization).
+**Metadata Figure 2.** Raw disease stage labels across studies (13 categories before harmonization).
 
-**Metadata Figure 4.** Disease stage harmonization mapping from raw annotations to unified categories.
+**Metadata Figure 3.** Disease stage harmonization mapping from raw annotations to unified categories.
 
-**Metadata Figure 5.** Demographics scatter plot: age by disease category, colored by dataset, shaped by sex.
+**Metadata Figure 4.** Demographics scatter plot: age by disease category, colored by dataset, shaped by sex.
 
-**Metadata Figure 6.** Heatmap of individual counts across disease category, age group, and sex.
+**Metadata Figure 5.** Heatmap of individual counts across disease category, age group, and sex.
 
 ## Results Figures
 
-**Figure 1.** Clonal diversity by disease stage (Hill numbers).
+**Figure 1.** Diversity profiles by disease stage.
 
-**Figure 2.** Diversity profiles by disease stage.
+**Figure 2.** Expanded clone count at three expansion thresholds by disease stage.
 
-**Figure 3.** Expanded clone count at three expansion thresholds by disease stage.
+**Figure 3.** Clone size distribution by disease stage.
 
-**Figure 4.** Clone size distribution by disease stage.
+**Figure 4.** Clone size: copies versus unique sequences by disease stage.
 
-**Figure 5.** Clone size: copies versus unique sequences by disease stage.
+**Figure 5.** Mean size of expanded clones by disease stage.
 
-**Figure 6.** Mean size of expanded clones by disease stage.
+**Figure 6.** Clonal concentration (Top X) by disease stage.
 
-**Figure 7.** Clonal concentration (Top X) by disease stage.
+**Figure 7.** CDR3 length by clone size and disease stage (expanded vs. rest).
 
-**Figure 8.** CDR3 length by clone size and disease stage (expanded vs. rest).
+**Figure 8.** Mutation profile by clone size and disease stage (expanded vs. rest).
 
-**Figure 9.** Mutation profile by clone size and disease stage (expanded vs. rest).
+**Figure 9.** CDR3 length of top 10 clones by disease stage.
 
-**Figure 10.** CDR3 length of top 10 clones by disease stage.
+**Figure 10.** CDR3 length range of top 10 clones by disease stage.
 
-**Figure 11.** CDR3 length range of top 10 clones by disease stage.
+**Figure 11.** CDR3 length distribution across all clones by disease stage.
 
-**Figure 12.** CDR3 length distribution across all clones by disease stage.
+**Figure 12.** Total somatic hypermutation in top 10 clones by disease stage.
 
-**Figure 13.** Total somatic hypermutation in top 10 clones by disease stage.
+**Figure 13.** Mutation gradient across clone size ranks by disease stage.
 
-**Figure 14.** Mutation gradient across clone size ranks by disease stage.
+**Figure 14.** CDR and FW region-specific mutation counts by disease stage.
 
-**Figure 15.** CDR and FW region-specific mutation counts by disease stage.
+**Figure 15.** NS/S ratio overview by disease stage.
 
-**Figure 16.** NS/S ratio overview by disease stage.
+**Figure 16.** NS/S ratio by region and disease stage.
 
-**Figure 17.** NS/S ratio by region and disease stage.
+**Figure 17.** V gene usage heatmap by disease stage.
 
-**Figure 18.** V gene usage heatmap by disease stage.
+**Figure 18.** Clonal metrics versus age by disease stage.
 
-**Figure 19.** Clonal metrics versus age by disease stage.
+**Figure 19.** Clonal metrics by gender and disease stage.
 
-**Figure 20.** Clonal metrics by gender and disease stage.
+**Figure 20.** Mutation level in top 10 clones stratified by sex and disease stage.
 
-**Figure 21.** Mutation level in top 10 clones stratified by sex and disease stage.
+**Figure 21.** CDR3 length in top 10 clones stratified by sex and disease stage.
 
-**Figure 22.** CDR3 length in top 10 clones stratified by sex and disease stage.
+**Figure 22.** Within-individual clone count across tissues.
 
-**Figure 23.** Within-individual clone count across tissues.
+**Figure 23.** Within-individual clone size across tissues.
 
-**Figure 24.** Within-individual clone size across tissues.
-
-**Figure 25.** Within-individual tissue comparison (paired line plots).
+**Figure 24.** Within-individual tissue comparison (paired line plots).
 
 \newpage
 
@@ -440,65 +438,57 @@ These were harmonized into six categories as described in Methods. The harmonize
 
 ## Clonal Diversity and Clone Count
 
-To assess clonal diversity, we computed Hill numbers of orders 0 (richness), 1 (Shannon), and 2 (Simpson) from the clone size distribution of each individual (**Figure 1**).
+To assess clonal diversity, we computed Hill numbers of orders 0 (richness), 1 (Shannon), and 2 (Simpson) from the clone size distribution of each individual. The diversity profiles (**Figure 1**) plot all three Hill numbers for each individual with group medians highlighted. All three diversity measures showed significant differences across disease categories (Kruskal-Wallis p < 0.001 for all three orders). The most striking pattern was that Mild and Recovered individuals had the lowest diversity across all three orders, while COVID Naive and Healthy individuals had the highest. Severe individuals showed intermediate diversity with high variability. The drop from Order 0 to Order 2 was steepest in disease groups (Severe, Moderate, Mild), indicating that these repertoires are dominated by a smaller number of large clones. In contrast, COVID Naive and Healthy individuals showed a more gradual decline, indicating a more even clone size distribution.
 
-![Figure 1. Clonal diversity measured by Hill numbers of orders 0 (richness), 1 (Shannon entropy), and 2 (Simpson) by disease stage. Each dot represents one individual; boxplots show median and IQR. Kruskal-Wallis p-values and pairwise Mann-Whitney U comparisons with Bonferroni correction are annotated. Higher values indicate greater clonal diversity.](../immunedb_STATS_API/clonal_analysis/plots/17_diversity_hill_numbers.png){ width=100% }
-
-All three diversity measures showed significant differences across disease categories (Kruskal-Wallis p < 0.001 for all three orders). The most striking pattern was that Mild and Recovered individuals had the lowest diversity across all three orders, while COVID Naive and Healthy individuals had the highest. Severe individuals showed intermediate diversity with high variability.
-
-Specifically, Order 0 (clone richness) was significantly higher in COVID Naive compared to Mild (p < 0.01) and Recovered (p < 0.001) individuals. The same pattern was evident in Order 1 (Shannon diversity), where COVID Naive and Healthy individuals had significantly higher effective clone numbers than Mild individuals (p < 0.01 and p < 0.001, respectively). Order 2 (Simpson diversity) similarly showed that Mild and Recovered individuals had repertoires dominated by fewer clones.
-
-The diversity profiles (**Figure 2**), which plot all three Hill numbers for each individual with group medians highlighted, confirmed that the drop from Order 0 to Order 2 was steepest in disease groups (Severe, Moderate, Mild), indicating that these repertoires are dominated by a smaller number of large clones. In contrast, COVID Naive and Healthy individuals showed a more gradual decline, indicating a more even clone size distribution.
-
-![Figure 2. Diversity profiles by disease stage. Each thin line represents one individual's Hill number profile from Order 0 to Order 2; thick lines show group medians. A steep drop indicates dominance by a few large clones; a gradual decline indicates a more even clone size distribution.](../immunedb_STATS_API/clonal_analysis/plots/18_diversity_profiles.png){ width=100% }
+![Figure 1. Diversity profiles by disease stage. Each thin line represents one individual's Hill number profile from Order 0 to Order 2; thick lines show group medians. A steep drop indicates dominance by a few large clones; a gradual decline indicates a more even clone size distribution.](../immunedb_STATS_API/clonal_analysis/plots/18_diversity_profiles.png){ width=100% }
 
 ## Expanded Clones and Clone Size Distribution
 
-**Expanded clone count.** We examined the number of expanded clones at three expansion thresholds: 20, 50, and 100 unique sequences per clone (**Figure 3**).
+**Expanded clone count.** We examined the number of expanded clones at three expansion thresholds: 20, 50, and 100 unique sequences per clone (**Figure 2**).
 
-![Figure 3. Number of expanded clones at three expansion thresholds (>20, >50, >100 unique sequences) by disease stage. Each panel shows one threshold. At higher thresholds, differences between disease groups become more pronounced, with COVID Naive individuals retaining more expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/19_expanded_clones_threshold.png){ width=100% }
+![Figure 2. Number of expanded clones at three expansion thresholds (>20, >50, >100 unique sequences) by disease stage. Each panel shows one threshold. At higher thresholds, differences between disease groups become more pronounced, with COVID Naive individuals retaining more expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/19_expanded_clones_threshold.png){ width=100% }
 
 At the lowest threshold (>20 unique sequences), 100% of individuals had at least one expanded clone. At the >50 threshold, some individuals in the Mild and Recovered groups had no expanded clones, while most COVID Naive and Healthy individuals retained multiple expanded clones. At the >100 threshold, the differences became more pronounced, with COVID Naive individuals consistently showing more expanded clones than disease groups.
 
-**Clone size distribution.** The clone size distribution analysis (**Figure 4**) showed two complementary views. Panel A displayed the distribution of all individual clone sizes (log-transformed) as violin plots with overlaid boxplots, revealing that clone sizes were broadly similar across categories but with longer tails in the COVID Naive and Healthy groups. Panel B showed the median clone size per individual, which was significantly higher in COVID Naive individuals compared to the disease groups (Kruskal-Wallis p = 0.019).
+**Clone size distribution.** The clone size distribution analysis (**Figure 3**) showed two complementary views. Panel A displayed the distribution of all individual clone sizes (log-transformed) as violin plots with overlaid boxplots, revealing that clone sizes were broadly similar across categories but with longer tails in the COVID Naive and Healthy groups. Panel B showed the median clone size per individual, which was significantly higher in COVID Naive individuals compared to the disease groups (Kruskal-Wallis p = 0.019).
 
-![Figure 4. Clone size distribution by disease stage. Panel A: violin plots with overlaid boxplots of all individual clone sizes (log-transformed), showing the shape of each group's distribution. Panel B: median clone size per individual by disease category, with Kruskal-Wallis p-value annotated. Each dot represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/20_clone_size_distribution.png){ width=100% }
+![Figure 3. Clone size distribution by disease stage. Panel A: violin plots with overlaid boxplots of all individual clone sizes (log-transformed), showing the shape of each group's distribution. Panel B: median clone size per individual by disease category, with Kruskal-Wallis p-value annotated. Each dot represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/20_clone_size_distribution.png){ width=100% }
 
-**Clone size: unique sequences versus copies.** To understand the relationship between the two measures of clone size, we compared the number of unique sequences per clone with the total number of copies (raw reads) per clone (**Figure 5**). Panel A shows a strong positive correlation between unique sequences and copies across all disease categories, confirming that both measures capture the same underlying biological signal. Panel B shows the copy-to-unique ratio by disease stage — Mild individuals exhibited the highest and most variable ratios, while Recovered and COVID Naive individuals showed consistently low ratios. Panel C displays per-subject median values, revealing that disease groups (Severe, Moderate, Mild) tend to cluster with higher copy counts relative to unique sequences compared to non-disease groups.
+**Clone size: unique sequences versus copies.** To understand the relationship between the two measures of clone size, we compared the number of unique sequences per clone with the total number of copies (raw reads) per clone (**Figure 4**). Panel A shows a strong positive correlation between unique sequences and copies across all disease categories, confirming that both measures capture the same underlying biological signal. Panel B shows the copy-to-unique ratio by disease stage — Mild individuals exhibited the highest and most variable ratios, while Recovered and COVID Naive individuals showed consistently low ratios. Panel C displays per-subject median values, revealing that disease groups (Severe, Moderate, Mild) tend to cluster with higher copy counts relative to unique sequences compared to non-disease groups.
 
-![Figure 5. Clone size: copies versus unique sequences by disease stage. Panel A: scatter plot of copies (raw reads) vs. unique sequences per clone across all individuals and disease categories (log-log scale). Panel B: copy-to-unique ratio by disease stage. Panel C: per-subject median copies vs. median unique sequences, colored by disease category. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/26_copies_vs_unique.png){ width=100% }
+![Figure 4. Clone size: copies versus unique sequences by disease stage. Panel A: scatter plot of copies (raw reads) vs. unique sequences per clone across all individuals and disease categories (log-log scale). Panel B: copy-to-unique ratio by disease stage. Panel C: per-subject median copies vs. median unique sequences, colored by disease category. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/26_copies_vs_unique.png){ width=100% }
 
-**Mean size of expanded clones.** The mean size of expanded clones per individual revealed differences in clonal expansion magnitude across disease categories (**Figure 6**).
+**Mean size of expanded clones.** The mean size of expanded clones per individual revealed differences in clonal expansion magnitude across disease categories (**Figure 5**).
 
-![Figure 6. Mean size of expanded clones by disease stage. Each dot represents the mean number of unique sequences across expanded clones for one individual; boxplots show median and IQR. Reflects the magnitude of clonal expansion in each disease category.](../immunedb_STATS_API/clonal_analysis/plots/11_expanded_clone_size_by_disease.png){ width=100% }
+![Figure 5. Mean size of expanded clones by disease stage. Each dot represents the mean number of unique sequences across expanded clones for one individual; boxplots show median and IQR. Reflects the magnitude of clonal expansion in each disease category.](../immunedb_STATS_API/clonal_analysis/plots/11_expanded_clone_size_by_disease.png){ width=100% }
 
-**Clonal concentration (Top X).** Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 7**), revealing the degree of oligoclonal dominance in each disease category.
+**Clonal concentration (Top X).** Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 6**), revealing the degree of oligoclonal dominance in each disease category.
 
-![Figure 7. Clonal concentration: fraction of total sequence copies accounted for by the top 10, top 100, and top 1000 clones per individual, shown as stacked bars by disease stage. Higher values indicate greater oligoclonal dominance. Each bar represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png){ width=100% }
+![Figure 6. Clonal concentration: fraction of total sequence copies accounted for by the top 10, top 100, and top 1000 clones per individual, shown as stacked bars by disease stage. Higher values indicate greater oligoclonal dominance. Each bar represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png){ width=100% }
 
 ## Clone-Size-Stratified Analysis
 
-Having established the clone size distribution and the expansion threshold of ≥20 unique sequences — chosen because at this threshold 100% of individuals across all disease categories retain at least one expanded clone (**Figure 3**, left panel), making it suitable for cross-group comparison — we next asked whether expanded and non-expanded clones differ in their molecular characteristics. IS-API's cdr3_by_clone_size and mutation_rs_by_clone_size endpoints enable this comparison directly, stratifying CDR3 length and mutation profiles by clone expansion status.
+Having established the clone size distribution and the expansion threshold of ≥20 unique sequences — chosen because at this threshold 100% of individuals across all disease categories retain at least one expanded clone (**Figure 2**, left panel), making it suitable for cross-group comparison — we next asked whether expanded and non-expanded clones differ in their molecular characteristics. IS-API's cdr3_by_clone_size and mutation_rs_by_clone_size endpoints enable this comparison directly, stratifying CDR3 length and mutation profiles by clone expansion status.
 
-**CDR3 length by clone size.** Comparing CDR3 amino acid lengths between expanded clones (≥20 unique sequences) and non-expanded clones (<20 unique sequences) revealed that expanded clones tend to have shorter CDR3 regions (**Figure 8**). The difference was most pronounced in the Healthy group (expanded: 14.69 ± 1.49 AA vs. rest: 16.82 ± 1.14 AA). Among infected individuals, Severe cases exhibited the highest expanded-clone CDR3 lengths (17.99 ± 1.60 AA), closer to the non-expanded background, possibly reflecting recruitment of clones with diverse CDR3 structures during acute infection. Mild and Recovered individuals showed intermediate values, while COVID Naive individuals had expanded clones with CDR3 lengths similar to those observed in disease groups, consistent with vaccine-driven expansion of antigen-specific clones.
+**CDR3 length by clone size.** Comparing CDR3 amino acid lengths between expanded clones (≥20 unique sequences) and non-expanded clones (<20 unique sequences) revealed that expanded clones tend to have shorter CDR3 regions (**Figure 7**). The difference was most pronounced in the Healthy group (expanded: 14.69 ± 1.49 AA vs. rest: 16.82 ± 1.14 AA). Among infected individuals, Severe cases exhibited the highest expanded-clone CDR3 lengths (17.99 ± 1.60 AA), closer to the non-expanded background, possibly reflecting recruitment of clones with diverse CDR3 structures during acute infection. Mild and Recovered individuals showed intermediate values, while COVID Naive individuals had expanded clones with CDR3 lengths similar to those observed in disease groups, consistent with vaccine-driven expansion of antigen-specific clones.
 
-![Figure 8. CDR3 amino acid length by clone size and disease stage. Expanded clones (≥20 unique sequences, red) compared to non-expanded clones (<20, blue) across six disease categories. Error bars show standard deviation. Sample sizes annotated above each bar. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/09_cdr3_expanded_vs_rest.png){ width=100% }
+![Figure 7. CDR3 amino acid length by clone size and disease stage. Expanded clones (≥20 unique sequences, red) compared to non-expanded clones (<20, blue) across six disease categories. Error bars show standard deviation. Sample sizes annotated above each bar. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/09_cdr3_expanded_vs_rest.png){ width=100% }
 
-**Mutation profile by clone size.** The mutation_rs_by_clone_size endpoint stratified NS and S mutation counts in CDR and FW regions by clone expansion status (**Figure 9**). Expanded clones carried substantially higher mutation loads than non-expanded clones across all regions and disease categories. CDR NS mutations in expanded clones averaged 13–20 mutations per clone compared to 1–4 in non-expanded clones, while FW NS mutations showed a similar pattern (16–38 vs. 3–8). This pattern held across all disease categories, confirming that expanded clones have undergone extensive somatic hypermutation. Mild cases showed the highest absolute mutation counts in expanded clones, while Healthy individuals showed the lowest, consistent with the lower levels of antigen-driven selection in unexposed individuals.
+**Mutation profile by clone size.** The mutation_rs_by_clone_size endpoint stratified NS and S mutation counts in CDR and FW regions by clone expansion status (**Figure 8**). Expanded clones carried substantially higher mutation loads than non-expanded clones across all regions and disease categories. CDR NS mutations in expanded clones averaged 13–20 mutations per clone compared to 1–4 in non-expanded clones, while FW NS mutations showed a similar pattern (16–38 vs. 3–8). This pattern held across all disease categories, confirming that expanded clones have undergone extensive somatic hypermutation. Mild cases showed the highest absolute mutation counts in expanded clones, while Healthy individuals showed the lowest, consistent with the lower levels of antigen-driven selection in unexposed individuals.
 
-![Figure 9. Mutation profile by clone size and disease stage. Four panels show CDR NS, CDR S, FW NS, and FW S mutation counts for expanded (≥20 unique sequences, red) versus non-expanded clones (<20, blue) across disease categories. Error bars show standard deviation. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/10_mutations_expanded_vs_rest.png){ width=100% }
+![Figure 8. Mutation profile by clone size and disease stage. Four panels show CDR NS, CDR S, FW NS, and FW S mutation counts for expanded (≥20 unique sequences, red) versus non-expanded clones (<20, blue) across disease categories. Error bars show standard deviation. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/10_mutations_expanded_vs_rest.png){ width=100% }
 
 ## CDR3 Length Distribution
 
-**CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 10**), along with the range of CDR3 lengths (**Figure 11**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
+**CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 9**), along with the range of CDR3 lengths (**Figure 10**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
 
-![Figure 10. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. CDR3 length reflects the antigen-binding loop size of the most expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/03_cdr3_by_disease.png){ width=100% }
+![Figure 9. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. CDR3 length reflects the antigen-binding loop size of the most expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/03_cdr3_by_disease.png){ width=100% }
 
-![Figure 11. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
+![Figure 10. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
 
-**CDR3 length across all clones.** The CDR3 amino acid length distribution was also analyzed per individual across all clones, with both the mean and standard deviation computed (**Figure 12**).
+**CDR3 length across all clones.** The CDR3 amino acid length distribution was also analyzed per individual across all clones, with both the mean and standard deviation computed (**Figure 11**).
 
-![Figure 12. CDR3 amino acid length distribution across all clones per individual. Panel A: mean CDR3 length by disease stage with Kruskal-Wallis p-value. Panel B: standard deviation of CDR3 length, reflecting within-individual variability. Each dot represents one individual; boxplots show median and IQR.](../immunedb_STATS_API/clonal_analysis/plots/22_cdr3_length_distribution.png){ width=100% }
+![Figure 11. CDR3 amino acid length distribution across all clones per individual. Panel A: mean CDR3 length by disease stage with Kruskal-Wallis p-value. Panel B: standard deviation of CDR3 length, reflecting within-individual variability. Each dot represents one individual; boxplots show median and IQR.](../immunedb_STATS_API/clonal_analysis/plots/22_cdr3_length_distribution.png){ width=100% }
 
 Mean CDR3 length showed significant variation across disease categories (Kruskal-Wallis p < 0.001, Panel A). Moderate individuals had the longest mean CDR3 lengths (median approximately 17.8 AA), while Mild and Healthy individuals had shorter CDR3 lengths (median approximately 17.0 AA). This is consistent with previous observations that actively responding repertoires may include clones with longer CDR3 loops, which can form more complex antigen-binding structures.
 
@@ -506,19 +496,19 @@ The standard deviation of CDR3 length (Panel B), reflecting within-individual va
 
 ## Somatic Hypermutation and Selection Pressure
 
-**Mutation levels and patterns.** The mutation endpoints provided multiple views of somatic hypermutation. The total mutation level in the top 10 clones per individual showed overall mutation load by disease category (**Figure 13**), while the mutation gradient across clone size ranks (top 10 vs. remaining top 100 vs. remaining top 1000) revealed how mutation accumulation varies with clonal expansion (**Figure 14**). Region-specific queries separated CDR from framework mutations (**Figure 15**), and the NS/S ratio endpoint provided an overview of selection pressure across disease categories (**Figure 16**).
+**Mutation levels and patterns.** The mutation endpoints provided multiple views of somatic hypermutation. The total mutation level in the top 10 clones per individual showed overall mutation load by disease category (**Figure 12**), while the mutation gradient across clone size ranks (top 10 vs. remaining top 100 vs. remaining top 1000) revealed how mutation accumulation varies with clonal expansion (**Figure 13**). Region-specific queries separated CDR from framework mutations (**Figure 14**), and the NS/S ratio endpoint provided an overview of selection pressure across disease categories (**Figure 15**).
 
-![Figure 13. Total somatic hypermutation level in the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. Higher values indicate greater mutation accumulation.](../immunedb_STATS_API/clonal_analysis/plots/05_mutation_by_disease.png){ width=100% }
+![Figure 12. Total somatic hypermutation level in the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. Higher values indicate greater mutation accumulation.](../immunedb_STATS_API/clonal_analysis/plots/05_mutation_by_disease.png){ width=100% }
 
-![Figure 14. Mutation gradient across clone size ranks by disease stage. Shows average mutation counts for the top 10, remaining top 100, and remaining top 1000 clones, revealing how mutation accumulation varies with clonal expansion rank.](../immunedb_STATS_API/clonal_analysis/plots/06_mutation_gradient_by_disease.png){ width=100% }
+![Figure 13. Mutation gradient across clone size ranks by disease stage. Shows average mutation counts for the top 10, remaining top 100, and remaining top 1000 clones, revealing how mutation accumulation varies with clonal expansion rank.](../immunedb_STATS_API/clonal_analysis/plots/06_mutation_gradient_by_disease.png){ width=100% }
 
-![Figure 15. CDR and FW region-specific mutation counts by disease stage. Mutations are separated into CDR and FW regions, distinguishing antigen-contact mutations from structural mutations.](../immunedb_STATS_API/clonal_analysis/plots/07_cdr_mutations_by_disease.png){ width=100% }
+![Figure 14. CDR and FW region-specific mutation counts by disease stage. Mutations are separated into CDR and FW regions, distinguishing antigen-contact mutations from structural mutations.](../immunedb_STATS_API/clonal_analysis/plots/07_cdr_mutations_by_disease.png){ width=100% }
 
-![Figure 16. NS/S ratio overview by disease stage. Non-synonymous to synonymous mutation ratio for all clones per individual. Values above 1.0 indicate positive (diversifying) selection; values below 1.0 indicate purifying selection. Each dot represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/08_rs_ratio_by_disease.png){ width=100% }
+![Figure 15. NS/S ratio overview by disease stage. Non-synonymous to synonymous mutation ratio for all clones per individual. Values above 1.0 indicate positive (diversifying) selection; values below 1.0 indicate purifying selection. Each dot represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/08_rs_ratio_by_disease.png){ width=100% }
 
-**NS/S ratios by region.** To analyze selection pressure in greater detail, we computed NS/S ratios separately for CDR and framework (FW) regions (**Figure 17**).
+**NS/S ratios by region.** To analyze selection pressure in greater detail, we computed NS/S ratios separately for CDR and framework (FW) regions (**Figure 16**).
 
-![Figure 17. NS/S ratio by region and disease stage. Panel A: CDR region NS/S ratio — values consistently above 1.0 confirm positive selection in antigen-binding regions. Panel B: FW region NS/S ratio — lower than CDR but still above 1.0. Panel C: average non-synonymous and synonymous mutation counts as stacked bars for CDR and FW regions. Kruskal-Wallis p-values annotated.](../immunedb_STATS_API/clonal_analysis/plots/21_mutations_rs_ratio.png){ width=100% }
+![Figure 16. NS/S ratio by region and disease stage. Panel A: CDR region NS/S ratio — values consistently above 1.0 confirm positive selection in antigen-binding regions. Panel B: FW region NS/S ratio — lower than CDR but still above 1.0. Panel C: average non-synonymous and synonymous mutation counts as stacked bars for CDR and FW regions. Kruskal-Wallis p-values annotated.](../immunedb_STATS_API/clonal_analysis/plots/21_mutations_rs_ratio.png){ width=100% }
 
 In CDR regions (Panel A), the NS/S ratio was consistently above 1.0 across all disease categories, indicating positive selection in CDR regions as expected for antigen-driven responses. The Kruskal-Wallis test showed significant differences across groups (p < 0.001). Mild individuals tended to have higher CDR NS/S ratios, suggesting stronger positive selection in this group, while Severe individuals showed more variable ratios.
 
@@ -528,9 +518,9 @@ Panel C displayed the average mutation counts (non-synonymous and synonymous) as
 
 ## V Gene Usage
 
-To examine whether disease stage influences V gene segment usage, we analyzed the frequency of V genes across individuals using a heatmap (**Figure 18**).
+To examine whether disease stage influences V gene segment usage, we analyzed the frequency of V genes across individuals using a heatmap (**Figure 17**).
 
-![Figure 18. V gene usage heatmap by disease stage. Color intensity represents mean frequency of each V gene segment across individuals in each disease category. Only V genes present at ≥1% frequency in ≥85% of individuals are shown (16 genes). Rows: V gene segments; columns: disease categories.](../immunedb_STATS_API/clonal_analysis/plots/23_v_gene_usage_heatmap.png){ width=100% }
+![Figure 17. V gene usage heatmap by disease stage. Color intensity represents mean frequency of each V gene segment across individuals in each disease category. Only V genes present at ≥1% frequency in ≥85% of individuals are shown (16 genes). Rows: V gene segments; columns: disease categories.](../immunedb_STATS_API/clonal_analysis/plots/23_v_gene_usage_heatmap.png){ width=100% }
 
 V genes were included if they were present at 1% or higher frequency in at least 85% of individuals, resulting in 16 V genes that met this criterion.
 
@@ -540,31 +530,31 @@ The heatmap revealed that certain V genes were consistently used at high frequen
 
 To assess whether age or gender could confound the disease-stage comparisons, we examined three key metrics — clone count, mean CDR3 length, and CDR NS/S ratio — in relation to age and gender. For this analysis, three healthy individuals from CD3 (H3, H4, H8) were excluded because they lacked age and sex metadata.
 
-![Figure 19. Clonal metrics versus age by disease stage. Panel A: clone count (log scale) vs. age. Panel B: mean CDR3 length vs. age. Panel C: CDR NS/S ratio vs. age. Each dot represents one individual, colored by disease category. Three CD3 healthy individuals (H3, H4, H8) excluded due to missing age/sex metadata.](../immunedb_STATS_API/clonal_analysis/plots/24_metrics_vs_age.png){ width=100% }
+![Figure 18. Clonal metrics versus age by disease stage. Panel A: clone count (log scale) vs. age. Panel B: mean CDR3 length vs. age. Panel C: CDR NS/S ratio vs. age. Each dot represents one individual, colored by disease category. Three CD3 healthy individuals (H3, H4, H8) excluded due to missing age/sex metadata.](../immunedb_STATS_API/clonal_analysis/plots/24_metrics_vs_age.png){ width=100% }
 
-**Age (**Figure 19**).** Scatter plots of each metric against age showed no strong linear trends within any disease category. Clone count (Panel A, log scale) showed substantial variation within age groups but no systematic increase or decrease with age. Mean CDR3 length (Panel B) was similarly independent of age. The CDR NS/S ratio (Panel C) showed no age-dependent trend. These results suggest that age is not a major confounder in our disease-stage comparisons, though the limited age range within some disease categories (particularly Severe, where older individuals predominate) limits the power of this assessment.
+**Age (**Figure 18**).** Scatter plots of each metric against age showed no strong linear trends within any disease category. Clone count (Panel A, log scale) showed substantial variation within age groups but no systematic increase or decrease with age. Mean CDR3 length (Panel B) was similarly independent of age. The CDR NS/S ratio (Panel C) showed no age-dependent trend. These results suggest that age is not a major confounder in our disease-stage comparisons, though the limited age range within some disease categories (particularly Severe, where older individuals predominate) limits the power of this assessment.
 
-![Figure 20. Clonal metrics by gender and disease stage. Panel A: clone count (log scale). Panel B: mean CDR3 length. Panel C: CDR NS/S ratio. Boxplots compare male and female individuals within each disease category.](../immunedb_STATS_API/clonal_analysis/plots/25_metrics_vs_gender.png){ width=100% }
+![Figure 19. Clonal metrics by gender and disease stage. Panel A: clone count (log scale). Panel B: mean CDR3 length. Panel C: CDR NS/S ratio. Boxplots compare male and female individuals within each disease category.](../immunedb_STATS_API/clonal_analysis/plots/25_metrics_vs_gender.png){ width=100% }
 
-**Gender (**Figure 20**).** Boxplots comparing male and female individuals within each disease category showed no systematic differences in clone count (Panel A, log scale), mean CDR3 length (Panel B), or CDR NS/S ratio (Panel C). The lack of sex-based differences is consistent with the literature for peripheral blood BCR repertoires, though our sample sizes within each sex-disease combination are limited, and subtle differences cannot be ruled out.
+**Gender (**Figure 19**).** Boxplots comparing male and female individuals within each disease category showed no systematic differences in clone count (Panel A, log scale), mean CDR3 length (Panel B), or CDR NS/S ratio (Panel C). The lack of sex-based differences is consistent with the literature for peripheral blood BCR repertoires, though our sample sizes within each sex-disease combination are limited, and subtle differences cannot be ruled out.
 
 ## Sex-Stratified Analysis
 
-By combining disease_stage and sex metadata filters in a single query, IS-API enabled examination of mutation levels (**Figure 21**) and CDR3 lengths (**Figure 22**) in the top 10 clones, stratified by both sex and disease category. This demonstrates the API's ability to perform intersectional queries across multiple metadata dimensions.
+By combining disease_stage and sex metadata filters in a single query, IS-API enabled examination of mutation levels (**Figure 20**) and CDR3 lengths (**Figure 21**) in the top 10 clones, stratified by both sex and disease category. This demonstrates the API's ability to perform intersectional queries across multiple metadata dimensions.
 
-![Figure 21. Mutation level in top 10 clones stratified by sex and disease stage. Male and female individuals compared within each disease category. Demonstrates IS-API's ability to perform intersectional queries across multiple metadata dimensions in a single API call.](../immunedb_STATS_API/clonal_analysis/plots/12_mutation_top10_by_sex_disease.png){ width=100% }
+![Figure 20. Mutation level in top 10 clones stratified by sex and disease stage. Male and female individuals compared within each disease category. Demonstrates IS-API's ability to perform intersectional queries across multiple metadata dimensions in a single API call.](../immunedb_STATS_API/clonal_analysis/plots/12_mutation_top10_by_sex_disease.png){ width=100% }
 
-![Figure 22. CDR3 length in top 10 clones stratified by sex and disease stage. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by sex within each disease category.](../immunedb_STATS_API/clonal_analysis/plots/13_cdr3_top10_by_sex_disease.png){ width=100% }
+![Figure 21. CDR3 length in top 10 clones stratified by sex and disease stage. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by sex within each disease category.](../immunedb_STATS_API/clonal_analysis/plots/13_cdr3_top10_by_sex_disease.png){ width=100% }
 
 ## Within-Individual Cross-Tissue Analysis
 
-IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in CD1), we compared clone counts (**Figure 23**), clone sizes (**Figure 24**), and paired tissue measurements (**Figure 25**) within the same individual.
+IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in CD1), we compared clone counts (**Figure 22**), clone sizes (**Figure 23**), and paired tissue measurements (**Figure 24**) within the same individual.
 
-![Figure 23. Within-individual clone count across tissues. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in CD1), clone counts are compared across tissue types within the same individual.](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
+![Figure 22. Within-individual clone count across tissues. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in CD1), clone counts are compared across tissue types within the same individual.](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
 
-![Figure 24. Within-individual clone size across tissues. Clone size distributions compared between different tissue types within the same individual across studies.](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png){ width=100% }
+![Figure 23. Within-individual clone size across tissues. Clone size distributions compared between different tissue types within the same individual across studies.](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png){ width=100% }
 
-![Figure 25. Within-individual tissue comparison using paired line plots. Lines connect measurements from different tissues within the same individual, illustrating tissue-specific repertoire differences. Each line represents one individual sampled from multiple tissues.](../immunedb_STATS_API/clonal_analysis/plots/16_within_subject_tissue_lines.png){ width=100% }
+![Figure 24. Within-individual tissue comparison using paired line plots. Lines connect measurements from different tissues within the same individual, illustrating tissue-specific repertoire differences. Each line represents one individual sampled from multiple tissues.](../immunedb_STATS_API/clonal_analysis/plots/16_within_subject_tissue_lines.png){ width=100% }
 
 This within-individual comparison revealed that clone counts and sizes can differ substantially between tissues in the same individual, highlighting the importance of specifying tissue type when making cross-study comparisons. The observation that bone marrow and blood repertoires from the same individual can have different clonal profiles is consistent with the known compartmentalization of B cell populations [34, 41].
 
