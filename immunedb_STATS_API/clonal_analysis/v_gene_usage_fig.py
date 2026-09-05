@@ -146,38 +146,43 @@ for d in disease_order:
 # ============================================================
 # FIGURE: V Gene Usage Heatmap
 # ============================================================
-fig_height = max(8, len(selected_genes) * 0.4 + 3)
-fig, ax = plt.subplots(figsize=(20, fig_height))
-fig.suptitle(f"V Gene Usage Heatmap by Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
-fig.text(0.5, 0.95,
+fig_height = max(10, len(selected_genes) * 0.55 + 4)
+fig = plt.figure(figsize=(20, fig_height))
+
+# Use gridspec: heatmap on top, colorbar below with generous spacing
+gs = fig.add_gridspec(2, 1, height_ratios=[1, 0.025], hspace=0.25,
+                      top=0.88, bottom=0.08, left=0.12, right=0.95)
+ax = fig.add_subplot(gs[0])
+cax = fig.add_subplot(gs[1])
+
+fig.suptitle("V Gene Usage Heatmap by Disease Stage (Blood Only)",
+             fontsize=22, fontweight="bold", y=0.96)
+fig.text(0.5, 0.925,
          f"V genes present at ≥1% frequency in ≥{used_threshold} of subjects (n={n_subjects})",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=15, color="gray")
 
 im = ax.imshow(matrix, aspect="auto", cmap="YlOrRd", interpolation="nearest")
-cbar = plt.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
-cbar.set_label("V Gene Frequency (%)", fontsize=12, fontweight="bold")
 
 # Y-axis: gene names
 ax.set_yticks(range(len(selected_genes)))
-ax.set_yticklabels(selected_genes, fontsize=9, fontweight="bold")
+ax.set_yticklabels(selected_genes, fontsize=14, fontweight="bold")
 
-# X-axis: disease group labels
+# X-axis: disease group labels at bottom of heatmap
 ax.set_xticks([c for c in group_centers])
 ax.set_xticklabels([d for d in disease_order
                     if sum(1 for _, info in sorted_subjects if info["disease"] == d) > 0],
-                   fontsize=11, fontweight="bold", rotation=25, ha="right")
+                   fontsize=14, fontweight="bold", rotation=0, ha="center")
 
 # Draw vertical lines at group boundaries
 for b in group_boundaries[:-1]:
-    ax.axvline(x=b - 0.5, color="white", linewidth=2)
+    ax.axvline(x=b - 0.5, color="white", linewidth=2.5)
 
-# Color bar at top showing disease group
-for j, (rid, info) in enumerate(sorted_subjects):
-    color = disease_colors.get(info["disease"], "#999")
-    ax.plot(j, -0.7, marker="s", markersize=4, color=color, clip_on=False)
+# Horizontal colorbar below, narrower width centered
+cax.set_position([0.25, cax.get_position().y0, 0.45, cax.get_position().height])
+cbar = plt.colorbar(im, cax=cax, orientation="horizontal")
+cbar.set_label("V Gene Frequency (%)", fontsize=14, fontweight="bold")
+cbar.ax.tick_params(labelsize=12)
 
-plt.tight_layout(rect=[0, 0, 1, 0.93])
 plt.savefig("plots/23_v_gene_usage_heatmap.png", dpi=400, bbox_inches="tight", facecolor="white")
 plt.close()
 print(f"\nSaved: 23_v_gene_usage_heatmap.png")
