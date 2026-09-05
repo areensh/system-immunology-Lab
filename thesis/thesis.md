@@ -470,17 +470,15 @@ Having established the clone size distribution and the expansion threshold of �
 
 ![Figure 7. Mutation profile by clone size and disease stage. Four panels show CDR NS, CDR S, FW NS, and FW S mutation counts for expanded (≥20 unique sequences, red) versus non-expanded clones (<20, blue) across disease categories. Error bars show standard deviation. Blood samples only; clone size threshold ≥20 unique sequences.](../immunedb_STATS_API/clonal_analysis/plots/10_mutations_expanded_vs_rest.png){ width=100% }
 
-## CDR3 Length Distribution
+## CDR3 and Mutation Properties of Dominant Clones
 
-**CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 8**), along with the range of CDR3 lengths (**Figure 9**). These figures illustrate how IS-API can characterize the antigen-binding loop properties of the most expanded clones across disease categories.
+**CDR3 length in dominant clones.** The CDR3 endpoint returned the average CDR3 length (in amino acids) of the top 10 clones per individual (**Figure 8**), along with the range of CDR3 lengths (**Figure 9**). These figures characterize the antigen-binding loop properties of the most expanded clones across disease categories.
 
 ![Figure 8. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. CDR3 length reflects the antigen-binding loop size of the most expanded clones.](../immunedb_STATS_API/clonal_analysis/plots/03_cdr3_by_disease.png){ width=100% }
 
 ![Figure 9. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
 
-## Somatic Hypermutation and Selection Pressure
-
-**Mutation levels and patterns.** The mutation endpoints provided multiple views of somatic hypermutation. The total mutation level in the top 10 clones per individual showed overall mutation load by disease category (**Figure 10**), while the mutation gradient across clone size ranks (top 10 vs. remaining top 100 vs. remaining top 1000) revealed how mutation accumulation varies with clonal expansion (**Figure 11**). Region-specific queries separated CDR from framework mutations (**Figure 12**), and the NS/S ratio endpoint provided an overview of selection pressure across disease categories (**Figure 13**).
+**Mutation levels in dominant clones.** The total mutation level in the top 10 clones per individual showed overall mutation load by disease category (**Figure 10**), while the mutation gradient across clone size ranks (top 10 vs. remaining top 100 vs. remaining top 1000) revealed how mutation accumulation decreases with clonal rank (**Figure 11**) — the most expanded clones carry the highest mutation burden, consistent with affinity maturation driving expansion. Region-specific queries separated CDR from framework mutations (**Figure 12**), and the NS/S ratio endpoint provided an overview of selection pressure across disease categories (**Figure 13**).
 
 ![Figure 10. Total somatic hypermutation level in the top 10 clones per individual, grouped by disease stage. Each dot represents one individual; boxplots show median and IQR. Higher values indicate greater mutation accumulation.](../immunedb_STATS_API/clonal_analysis/plots/05_mutation_by_disease.png){ width=100% }
 
