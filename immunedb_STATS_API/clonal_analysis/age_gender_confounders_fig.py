@@ -153,7 +153,7 @@ metrics = [
 # ============================================================
 # FIGURE A: Metrics vs Age (scatter, colored by disease)
 # ============================================================
-fig, axes = plt.subplots(1, 3, figsize=(21, 7))
+fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 fig.suptitle("Clonal Metrics vs Age by Disease Stage (Blood Only)",
              fontsize=20, fontweight="bold", y=1.0)
 fig.text(0.5, 0.94, "Each dot = one subject, colored by disease stage",
@@ -184,14 +184,14 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
     ax.legend(fontsize=11, loc="upper right")
 
 plt.tight_layout(rect=[0, 0, 1, 0.88])
-plt.savefig("plots/24_metrics_vs_age.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/24_metrics_vs_age.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 24_metrics_vs_age.png")
 
 # ============================================================
 # FIGURE B: Metrics vs Gender (boxplot per disease, split by sex)
 # ============================================================
-fig, axes = plt.subplots(1, 3, figsize=(21, 7))
+fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 fig.suptitle("Clonal Metrics by Gender and Disease Stage (Blood Only)",
              fontsize=20, fontweight="bold", y=1.0)
 fig.text(0.5, 0.94, "Male vs Female within each disease stage",
@@ -257,6 +257,6 @@ legend_elements = [Patch(facecolor="gray", alpha=0.8, label="Male"),
 axes[2].legend(handles=legend_elements, fontsize=12, loc="upper right")
 
 plt.tight_layout(rect=[0, 0, 1, 0.88])
-plt.savefig("plots/25_metrics_vs_gender.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/25_metrics_vs_gender.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 25_metrics_vs_gender.png")

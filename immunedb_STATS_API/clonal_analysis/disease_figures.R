@@ -124,7 +124,7 @@ p1 <- ggplot(df_cc, aes(x = disease_cat, y = clone_count, fill = disease_cat)) +
   scale_y_log10(labels = scales::comma) +
   labs(x = NULL, y = "Clone Count (unique clones)") +
   theme()
-ggsave("plots/01_clone_count_by_disease.png", p1, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/01_clone_count_by_disease.png", p1, width = 18, height = 10, dpi = 600, bg = "white")
 cat("Figure 1 saved.\n")
 
 # ============================================================
@@ -293,7 +293,7 @@ p3b <- ggplot(df_cdr3_range, aes(x = disease_cat, y = cdr3_range, fill = disease
         legend.text = element_text(size = 11),
         legend.title = element_text(size = 11, face = "bold"),
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
-ggsave("plots/04_cdr3_range_by_disease.png", p3b, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/04_cdr3_range_by_disease.png", p3b, width = 18, height = 10, dpi = 600, bg = "white")
 cat("Figure 4 saved.\n")
 
 # ============================================================
@@ -351,7 +351,7 @@ p4 <- ggplot(df_mut_long, aes(x = disease_cat, y = mutation_count, fill = tier))
   scale_color_manual(values = tier_colors, guide = "none") +
   labs(x = NULL, y = "Avg. Mutation Count") +
   theme()
-ggsave("plots/05_mutation_by_disease.png", p4, width = 14, height = 8, dpi = 400, bg = "white")
+ggsave("plots/05_mutation_by_disease.png", p4, width = 14, height = 8, dpi = 600, bg = "white")
 cat("Figure 5 saved.\n")
 
 # Mutation gradient (Top10 - Top1000) — shows selection intensity
@@ -366,7 +366,7 @@ p4b <- ggplot(df_mut_gradient, aes(x = disease_cat, y = mut_gradient, fill = dis
   scale_fill_manual(values = disease_colors, guide = "none") +
   labs(x = NULL, y = "Mutation Difference (Top10 - Top1000)") +
   theme()
-ggsave("plots/06_mutation_gradient_by_disease.png", p4b, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/06_mutation_gradient_by_disease.png", p4b, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 6 saved.\n")
 
 # ============================================================
@@ -457,7 +457,7 @@ p7_cdr <- ggplot(df_region, aes(x = disease_cat, y = avg_cdr, fill = disease_cat
   scale_fill_manual(values = disease_colors, guide = "none") +
   labs(x = NULL, y = "Avg. CDR Mutations per Clone") +
   theme()
-ggsave("plots/07_cdr_mutations_by_disease.png", p7_cdr, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/07_cdr_mutations_by_disease.png", p7_cdr, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 7a saved.\n")
 
 p7_fw <- ggplot(df_region, aes(x = disease_cat, y = avg_fw, fill = disease_cat)) +
@@ -468,7 +468,7 @@ p7_fw <- ggplot(df_region, aes(x = disease_cat, y = avg_fw, fill = disease_cat))
   scale_fill_manual(values = disease_colors, guide = "none") +
   labs(x = NULL, y = "Avg. FW Mutations per Clone") +
   theme()
-ggsave("plots/07_fw_mutations_by_disease.png", p7_fw, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/07_fw_mutations_by_disease.png", p7_fw, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 7b saved.\n")
 
 cat("\n--- Mutation by Region (median) ---\n")
@@ -542,7 +542,7 @@ p8 <- ggplot(df_rs_long, aes(x = disease_cat, y = rs_ratio, fill = region)) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "grey50") +
   labs(x = NULL, y = "R/S Ratio") +
   theme()
-ggsave("plots/08_rs_ratio_by_disease.png", p8, width = 14, height = 8, dpi = 400, bg = "white")
+ggsave("plots/08_rs_ratio_by_disease.png", p8, width = 14, height = 8, dpi = 600, bg = "white")
 cat("Figure 8 saved.\n")
 
 cat("\n--- R/S Ratio (median) ---\n")
@@ -605,7 +605,7 @@ p8b <- ggplot(df_cs_raw, aes(x = disease_cat, y = clone_size, fill = disease_cat
   scale_y_log10(labels = scales::comma) +
   labs(x = NULL, y = "Clone Size (unique sequences per clone)") +
   theme()
-ggsave("plots/08b_clone_size_distribution.png", p8b, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/08b_clone_size_distribution.png", p8b, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 8b saved.\n")
 
 # Fig 9: Median clone size by disease (per subject)
@@ -618,7 +618,7 @@ p9 <- ggplot(df_cs_subj, aes(x = disease_cat, y = median_clone_size, fill = dise
   scale_y_log10(labels = scales::comma) +
   labs(x = NULL, y = "Median Clone Size per Subject (unique sequences)") +
   theme()
-ggsave("plots/09_clone_size_by_disease.png", p9, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/09_clone_size_by_disease.png", p9, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 9 saved.\n")
 
 # Fig 10: Number of highly expanded clones (size > 100) by disease
@@ -631,7 +631,7 @@ p10 <- ggplot(df_cs_subj, aes(x = disease_cat, y = highly_expanded + 1, fill = d
   scale_y_log10(labels = function(x) round(x - 1)) +
   labs(x = NULL, y = "# Expanded Clones (size > 100)") +
   theme()
-ggsave("plots/10_expanded_clones_by_disease.png", p10, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/10_expanded_clones_by_disease.png", p10, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 10 saved.\n")
 
 # Fig 11: Median clone size of expanded clones only by disease
@@ -646,7 +646,7 @@ p11 <- ggplot(df_cs_expanded, aes(x = disease_cat, y = mean_expanded_size, fill 
   scale_y_log10(labels = scales::comma) +
   labs(x = NULL, y = "Mean Size of Expanded Clones (>100 copies)") +
   theme()
-ggsave("plots/11_expanded_clone_size_by_disease.png", p11, width = 12, height = 8, dpi = 400, bg = "white")
+ggsave("plots/11_expanded_clone_size_by_disease.png", p11, width = 12, height = 8, dpi = 600, bg = "white")
 cat("Figure 11 saved.\n")
 
 cat("\n--- Clone Size Summary ---\n")
@@ -705,7 +705,7 @@ p12 <- ggplot(df_mut_sex, aes(x = disease_cat, y = mut_top10, fill = sex)) +
         legend.text = element_text(size = 11),
         legend.title = element_text(size = 11, face = "bold"),
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
-ggsave("plots/12_mutation_top10_by_sex_disease.png", p12, width = 14, height = 8, dpi = 400, bg = "white")
+ggsave("plots/12_mutation_top10_by_sex_disease.png", p12, width = 20, height = 11, dpi = 600, bg = "white")
 cat("Figure 12 saved.\n")
 
 # Fig 13: CDR3 Top10 by sex x disease
@@ -732,5 +732,5 @@ p13 <- ggplot(df_cdr3_sex, aes(x = disease_cat, y = top10_aa, fill = sex)) +
         legend.text = element_text(size = 11),
         legend.title = element_text(size = 11, face = "bold"),
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
-ggsave("plots/13_cdr3_top10_by_sex_disease.png", p13, width = 14, height = 8, dpi = 400, bg = "white")
+ggsave("plots/13_cdr3_top10_by_sex_disease.png", p13, width = 20, height = 11, dpi = 600, bg = "white")
 cat("Figure 13 saved.\n")

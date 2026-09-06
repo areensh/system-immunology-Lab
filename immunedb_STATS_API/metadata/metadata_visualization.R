@@ -169,12 +169,12 @@ p0 <- ggplot(df_meta_type_count,
   aes(x = study, y = n_subjects, fill = meta_type)) +
   geom_col(position = position_dodge(width = 0.8), width = 0.7) +
   geom_text(aes(label = n_subjects),
-    position = position_dodge(width = 0.8), vjust = -0.3, size = 4.5, fontface = "bold") +
+    position = position_dodge(width = 0.8), vjust = -0.3, size = 6, fontface = "bold") +
   labs(x = "Dataset", y = "# Subjects", fill = "Metadata Type") +
   scale_fill_manual(values = type_colors) +
   theme(legend.position = "bottom")
 
-ggsave(file.path(output_dir, "00_metadata_per_dataset.png"), p0, width = 14, height = 9, dpi = 200)
+ggsave(file.path(output_dir, "00_metadata_per_dataset.png"), p0, width = 18, height = 10, dpi = 600)
 cat("Saved: 00_metadata_per_dataset.png\n")
 
 # ============================================================
@@ -205,7 +205,7 @@ p1 <- df_all_subjects %>%
         plot.margin = margin(15, 15, 10, 15),
         plot.title = element_blank())
 
-ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 14, height = 9, dpi = 200)
+ggsave(file.path(output_dir, "01_subjects_per_dataset.png"), p1, width = 18, height = 10, dpi = 600)
 cat("Saved: 01_subjects_per_dataset.png\n")
 
 # ============================================================
@@ -254,20 +254,18 @@ df_raw_labels <- df_raw_disease %>%
 
 p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed)) +
   geom_col(width = 0.7, color = "white", linewidth = 0.3) +
-  geom_text(data = df_raw_labels, aes(y = y_pos, label = label),
-            size = 4.5, fontface = "bold") +
   geom_text(data = df_raw_totals, aes(x = ds_trimmed, y = total, label = total, fill = NULL),
-            vjust = -0.3, size = 7, fontface = "bold") +
+            vjust = -0.3, size = 8, fontface = "bold") +
   scale_fill_manual(values = raw_disease_colors) +
   labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
   guides(fill = "none") +
-  theme_bw(base_size = 24) +
-  theme(axis.title = element_text(size = 24, face = "bold"),
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
-        axis.text.y = element_text(size = 18),
+  theme_bw(base_size = 26) +
+  theme(axis.title = element_text(size = 26, face = "bold"),
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
+        axis.text.y = element_text(size = 20),
         plot.margin = margin(15, 15, 10, 15),
         plot.title = element_blank())
-ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 16, height = 9, dpi = 200)
+ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 20, height = 11, dpi = 600)
 cat("Saved: 02_disease_stage_raw.png\n")
 
 # ============================================================
@@ -314,7 +312,7 @@ p04_harm <- ggplot(df_harm_bar, aes(x = disease_category, y = n, fill = ds_trimm
         legend.margin = margin(0, 5, 0, 0),
         plot.margin = margin(15, 10, 10, 15),
         plot.title = element_blank())
-ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 16, height = 9, dpi = 200)
+ggsave(file.path(output_dir, "04_disease_harmonized_with_labels.png"), p04_harm, width = 20, height = 11, dpi = 600)
 cat("Saved: 04_disease_harmonized_with_labels.png\n")
 
 # ============================================================
@@ -349,7 +347,7 @@ p05_demo <- ggplot(df_demo, aes(x = disease_category, y = age, color = study, sh
         legend.title = element_text(size = 18, face = "bold"),
         plot.margin = margin(15, 15, 10, 15),
         plot.title = element_blank())
-ggsave(file.path(output_dir, "05_demographics_scatter.png"), p05_demo, width = 16, height = 9, dpi = 200)
+ggsave(file.path(output_dir, "05_demographics_scatter.png"), p05_demo, width = 20, height = 11, dpi = 600)
 cat("Saved: 05_demographics_scatter.png\n")
 
 # ============================================================
@@ -365,7 +363,7 @@ p2a <- df %>%
   labs(x = "Disease Category", y = "# Subjects") +
   scale_fill_brewer(palette = "Set3")
 
-ggsave(file.path(output_dir, "02a_subjects_per_disease_category.png"), p2a, width = 11, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "02a_subjects_per_disease_category.png"), p2a, width = 11, height = 7, dpi = 600)
 cat("Saved: 02a_subjects_per_disease_category.png\n")
 
 # 2b. Sex distribution
@@ -377,7 +375,7 @@ p2b <- df %>%
   labs(x = "Sex", y = "# Subjects") +
   scale_fill_manual(values = c("Male" = "#4A90D9", "Female" = "#E85D75", "NA/Unknown" = "#AAAAAA"))
 
-ggsave(file.path(output_dir, "02b_subjects_per_sex.png"), p2b, width = 8, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "02b_subjects_per_sex.png"), p2b, width = 8, height = 7, dpi = 600)
 cat("Saved: 02b_subjects_per_sex.png\n")
 
 # 2c. Age distribution histogram
@@ -390,7 +388,7 @@ p2c <- ggplot(df_age, aes(x = age)) +
     color = "red", linetype = "dashed", linewidth = 1
   )
 
-ggsave(file.path(output_dir, "02c_age_distribution.png"), p2c, width = 10, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "02c_age_distribution.png"), p2c, width = 10, height = 7, dpi = 600)
 cat("Saved: 02c_age_distribution.png\n")
 
 # 2d. Age group bar chart
@@ -403,7 +401,7 @@ p2d <- df %>%
   labs(x = "Age Group", y = "# Subjects") +
   scale_fill_brewer(palette = "Blues")
 
-ggsave(file.path(output_dir, "02d_subjects_per_age_group.png"), p2d, width = 8, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "02d_subjects_per_age_group.png"), p2d, width = 8, height = 7, dpi = 600)
 cat("Saved: 02d_subjects_per_age_group.png\n")
 
 # ============================================================
@@ -419,7 +417,7 @@ p3a <- df %>%
   labs(x = "Disease Category", y = "# Subjects", fill = "Sex") +
   scale_fill_manual(values = c("Male" = "#4A90D9", "Female" = "#E85D75", "NA/Unknown" = "#AAAAAA"))
 
-ggsave(file.path(output_dir, "03a_disease_by_sex.png"), p3a, width = 12, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "03a_disease_by_sex.png"), p3a, width = 12, height = 7, dpi = 600)
 cat("Saved: 03a_disease_by_sex.png\n")
 
 # 3b. Disease category x Age group
@@ -432,7 +430,7 @@ p3b <- df %>%
   labs(x = "Disease Category", y = "# Subjects", fill = "Age Group") +
   scale_fill_brewer(palette = "YlOrRd")
 
-ggsave(file.path(output_dir, "03b_disease_by_age_group.png"), p3b, width = 13, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "03b_disease_by_age_group.png"), p3b, width = 13, height = 7, dpi = 600)
 cat("Saved: 03b_disease_by_age_group.png\n")
 
 # 3c. Study x Disease category (stacked)
@@ -443,7 +441,7 @@ p3c <- df %>%
   labs(x = "Dataset", y = "# Subjects", fill = "Disease\nCategory") +
   scale_fill_brewer(palette = "Set3")
 
-ggsave(file.path(output_dir, "03c_study_by_disease.png"), p3c, width = 12, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "03c_study_by_disease.png"), p3c, width = 12, height = 7, dpi = 600)
 cat("Saved: 03c_study_by_disease.png\n")
 
 # 3d. Age x Disease category (boxplot)
@@ -454,7 +452,7 @@ p3d <- df_age %>%
   labs(x = "Disease Category", y = "Age") +
   scale_fill_brewer(palette = "Set3")
 
-ggsave(file.path(output_dir, "03d_age_by_disease_boxplot.png"), p3d, width = 12, height = 7, dpi = 200)
+ggsave(file.path(output_dir, "03d_age_by_disease_boxplot.png"), p3d, width = 12, height = 7, dpi = 600)
 cat("Saved: 03d_age_by_disease_boxplot.png\n")
 
 # 3e. Heatmap: Disease category x Sex x Age group (count)
@@ -471,7 +469,7 @@ p3e <- df %>%
   scale_fill_gradient(low = "#FFF7BC", high = "#D95F0E") +
   theme(strip.text = element_text(size = 14, face = "bold"))
 
-ggsave(file.path(output_dir, "03e_heatmap_disease_age_sex.png"), p3e, width = 13, height = 8, dpi = 200)
+ggsave(file.path(output_dir, "03e_heatmap_disease_age_sex.png"), p3e, width = 18, height = 10, dpi = 600)
 cat("Saved: 03e_heatmap_disease_age_sex.png\n")
 
 # ============================================================
