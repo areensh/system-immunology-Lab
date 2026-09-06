@@ -192,12 +192,18 @@ p2 <- ggplot(df_tx_long, aes(x = reorder(repertoire_id, subj_order), y = pct, fi
   labs(x = NULL, y = "Fraction of Total Copies",
        title = "Clonal Dominance: Top-X Clone Proportions by Disease Stage") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        strip.text.x = element_text(face = "bold", size = 16, margin = margin(b = 4, t = 4)),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        axis.text.y = element_text(size = 14),
+        strip.text.x = element_text(face = "bold", size = 20, margin = margin(b = 4, t = 4)),
         strip.background = element_rect(fill = "grey90", color = NA),
-        plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+        plot.title = element_text(size = 24, face = "bold", hjust = 0.5),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 17, face = "bold"),
+        legend.key.size = unit(1.2, "lines"),
+        legend.position = "right",
         plot.margin = margin(15, 25, 10, 25),
         panel.spacing = unit(0.8, "lines"))
-ggsave("plots/02_topX_stacked_by_disease.png", p2, width = 26, height = 8, dpi = 400, bg = "white")
+ggsave("plots/02_topX_stacked_by_disease.png", p2, width = 26, height = 10, dpi = 600, bg = "white")
 cat("Figure 2 saved.\n")
 
 # ============================================================
@@ -255,14 +261,16 @@ p3 <- ggplot(df_cdr3_long, aes(x = disease_cat, y = cdr3_length, fill = tier)) +
   scale_color_manual(values = tier_colors, guide = "none") +
   labs(x = NULL, y = "Avg. CDR3 Length (AA)",
        title = "CDR3 AA Length by Disease Category") +
-  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-        axis.title = element_text(size = 14, face = "bold"),
-        axis.text = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
-        legend.text = element_text(size = 11),
-        legend.title = element_text(size = 11, face = "bold"),
+  theme(plot.title = element_text(size = 24, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 18, face = "bold"),
+        axis.text = element_text(size = 14),
+        axis.text.x = element_text(size = 15, angle = 20, hjust = 1),
+        legend.text = element_text(size = 15),
+        legend.title = element_text(size = 16, face = "bold"),
+        legend.key.size = unit(1.2, "lines"),
+        legend.position = "right",
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
-ggsave("plots/03_cdr3_by_disease.png", p3, width = 14, height = 8, dpi = 400, bg = "white")
+ggsave("plots/03_cdr3_by_disease.png", p3, width = 16, height = 10, dpi = 600, bg = "white")
 cat("Figure 3 saved.\n")
 
 # CDR3 range plot - shows variability between tiers per subject
