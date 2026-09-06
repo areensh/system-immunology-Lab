@@ -68,12 +68,21 @@ for entry in data["Result"]:
     subj_mutations[rid]["cdr_s"] = vals_dict.get("CDR_synonymous")
     subj_mutations[rid]["fw_r"] = vals_dict.get("FW_replacement")
     subj_mutations[rid]["fw_s"] = vals_dict.get("FW_synonymous")
+    subj_mutations[rid]["cdr_nss_ratio"] = vals_dict.get("CDR_nss_ratio")
+    subj_mutations[rid]["fw_nss_ratio"] = vals_dict.get("FW_nss_ratio")
 
 disease_order = ["Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy"]
 disease_colors = {
     "Severe": "#b71c1c", "Moderate": "#e65100", "Mild": "#ff7043",
     "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
 }
+
+# Use pre-computed per-clone NS/S ratio if available; fall back to ratio of averages
+_has_ratio = any(info.get("cdr_nss_ratio") is not None for info in subj_mutations.values())
+if _has_ratio:
+    print("Using pre-computed per-clone NS/S ratios (average of ratios)")
+else:
+    print("WARNING: CDR_nss_ratio not in data — falling back to ratio of averages. Re-query the API to fix.")
 
 # Group by disease
 disease_data = defaultdict(lambda: {"cdr_r": [], "cdr_s": [], "fw_r": [], "fw_s": [], "cdr_ratio": [], "fw_ratio": []})
@@ -86,10 +95,16 @@ for rid, info in subj_mutations.items():
         disease_data[d]["cdr_s"].append(info["cdr_s"])
         disease_data[d]["fw_r"].append(info["fw_r"])
         disease_data[d]["fw_s"].append(info["fw_s"])
-        if info["cdr_s"] > 0:
-            disease_data[d]["cdr_ratio"].append(info["cdr_r"] / info["cdr_s"])
-        if info["fw_s"] > 0:
-            disease_data[d]["fw_ratio"].append(info["fw_r"] / info["fw_s"])
+        if _has_ratio:
+            if info["cdr_nss_ratio"] is not None and info["cdr_nss_ratio"] > 0:
+                disease_data[d]["cdr_ratio"].append(info["cdr_nss_ratio"])
+            if info["fw_nss_ratio"] is not None and info["fw_nss_ratio"] > 0:
+                disease_data[d]["fw_ratio"].append(info["fw_nss_ratio"])
+        else:
+            if info["cdr_s"] > 0:
+                disease_data[d]["cdr_ratio"].append(info["cdr_r"] / info["cdr_s"])
+            if info["fw_s"] > 0:
+                disease_data[d]["fw_ratio"].append(info["fw_r"] / info["fw_s"])
 
 print("Subjects per disease (blood only):")
 for d in disease_order:
