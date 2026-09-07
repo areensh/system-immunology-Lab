@@ -196,76 +196,6 @@ Using IS-API, compare repertoire characteristics across six disease categories (
 
 # Materials and Methods
 
-## Data Collection and Database Construction
-
-Data were collected from published studies with raw DNA AIRR BCR sequences from healthy and SARS-CoV-2-infected individuals at different stages of disease and recovery, as well as vaccinated individuals. After collecting the raw DNA sequences along with their metadata, we built standardized metadata sheets compliant with AIRR-seq data commons standards [26] while allowing flexibility for experiment-specific fields. Each study was processed through the ImmuneDB pipeline — annotated with IgBLAST [23] for germline assignment, clustered into clones, and stored with associated metadata in individual ImmuneDB database instances.
-
-Seven studies were available through IS-API (**Table 1**):
-
-**Table 1.** Datasets available through IS-API v0.3.0.
-
-| Study ID | Database | Description | N | PMID | Ref |
-|---|---|---|---|---|---|
-| CD1 | Covid19_db3 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
-| CD2 | covid_db2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
-| CD3 | covid19 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
-| CVX1 | vaccine2 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
-| CVX2 | covid_vaccine_new | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
-| HC1 | lp16 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
-| GT1 | sykesIgblast2020 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
-
-## Individual Selection and Exclusions
-
-An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
-
-From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from HC1 (individuals with incomplete sequencing data) and two from CVX2 (fibroblast and water sequencing controls). Three additional healthy individuals from CD3 lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
-
-Blood-derived tissues were defined as: blood, Peripheral blood, PBL (peripheral blood lymphocytes), and PBMC (peripheral blood mononuclear cells). Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
-
-## Disease Stage Harmonization
-
-Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 2**).
-
-**Table 2.** Disease stage harmonization. Original labels from each study mapped to unified categories.
-
-| Harmonized Category | Original Labels | Source Studies |
-|---|---|---|
-| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
-| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
-| Mild | "mild", "non-severe" | CD1, CD2 |
-| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
-| COVID Naive | "COVID Naive" | CVX1 |
-| Healthy | "healthy" | CD3, HC1 |
-
-The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
-
-The final cohort composition is shown in **Table 3**.
-
-**Table 3.** Individual counts per harmonized disease category.
-
-| Disease Category | N | Contributing Studies | Notes |
-|---|---|---|---|
-| Severe | 26 | CD1, CD2, CD3 | |
-| Moderate | 9 | CD1 | |
-| Mild | 30 | CD1, CD2 | |
-| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
-| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
-| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
-| **Total** | **94** | | |
-
-## IS-API Metadata Endpoints
-
-IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 4**).
-
-**Table 4.** IS-API metadata endpoints.
-
-| Endpoint | Description | Example Query Filters |
-|---|---|---|
-| metadata | Returns available metadata fields and values per individual across all databases | database, tissue, disease_stage |
-| subjects | Lists individuals matching specified metadata criteria | disease_stage, sex, age, tissue |
-| samples | Lists samples (repertoires) per individual with associated metadata | tissue, cell_type, sample_processing |
-| studies | Returns study-level information (title, lab, species, sequencing platform) | database name |
-
 ## IS-API Architecture and Implementation
 
 The overall workflow for building and querying immune repertoire databases is illustrated in **Methods Figure 1**: raw DNA sequences (FASTA/Q or IgBLAST-annotated) are processed with uniform and consistent metadata into ImmuneDB databases, which are then queried through IS-API.
@@ -359,6 +289,19 @@ The full set of available statistical queries is detailed below in **Table 5**, 
 
 CDR and FW region boundaries follow the ImmuneDB database schema, where CDR is defined as the sum of CDR1, CDR2, and CDR3 regions, and FW is defined as FW1 + FW2 + FW3 + FW4. These boundaries are determined by the upstream IgBLAST annotation and stored in the ImmuneDB `clone_stats.mutations` JSON field, so they are not adjustable at the API level.
 
+## IS-API Metadata Endpoints
+
+IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 4**).
+
+**Table 4.** IS-API metadata endpoints.
+
+| Endpoint | Description | Example Query Filters |
+|---|---|---|
+| metadata | Returns available metadata fields and values per individual across all databases | database, tissue, disease_stage |
+| subjects | Lists individuals matching specified metadata criteria | disease_stage, sex, age, tissue |
+| samples | Lists samples (repertoires) per individual with associated metadata | tissue, cell_type, sample_processing |
+| studies | Returns study-level information (title, lab, species, sequencing platform) | database name |
+
 ## Biological Statistical Measures
 
 IS-API returns per-individual, per-metadata-group measurements in a structured JSON format. Most of the biological measures used in this analysis are returned directly by the API endpoints, while some require additional client-side computation from the API output.
@@ -388,6 +331,63 @@ All statistical comparisons were performed in Python using SciPy. For comparison
 ## Visualization
 
 Figures were generated using both R (ggplot2, dplyr, tidyr, jsonlite) and Python (matplotlib, numpy). The JSON-format API outputs were parsed and visualized with consistent color coding across all figures: Severe (dark red, #b71c1c), Moderate (dark orange, #e65100), Mild (salmon, #ff7043), Recovered (green, #43a047), COVID Naive (light blue, #42a5f5), and Healthy (dark blue, #1565c0). Boxplots show median, interquartile range, and whiskers extending to 1.5 times the interquartile range. Individual data points are overlaid with small random jitter for visibility. Statistical significance brackets are shown above the boxplots where pairwise comparisons reached significance after Bonferroni correction.
+
+## Data Collection and Database Construction
+
+Data were collected from published studies with raw DNA AIRR BCR sequences from healthy and SARS-CoV-2-infected individuals at different stages of disease and recovery, as well as vaccinated individuals. After collecting the raw DNA sequences along with their metadata, we built standardized metadata sheets compliant with AIRR-seq data commons standards [26] while allowing flexibility for experiment-specific fields. Each study was processed through the ImmuneDB pipeline — annotated with IgBLAST [23] for germline assignment, clustered into clones, and stored with associated metadata in individual ImmuneDB database instances.
+
+Seven studies were available through IS-API (**Table 1**):
+
+**Table 1.** Datasets available through IS-API v0.3.0.
+
+| Study ID | Database | Description | N | PMID | Ref |
+|---|---|---|---|---|---|
+| CD1 | Covid19_db3 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
+| CD2 | covid_db2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
+| CD3 | covid19 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
+| CVX1 | vaccine2 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
+| CVX2 | covid_vaccine_new | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
+| HC1 | lp16 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
+| GT1 | sykesIgblast2020 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
+
+## Individual Selection and Exclusions
+
+An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
+
+From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from HC1 (individuals with incomplete sequencing data) and two from CVX2 (fibroblast and water sequencing controls). Three additional healthy individuals from CD3 lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
+
+Blood-derived tissues were defined as: blood, Peripheral blood, PBL (peripheral blood lymphocytes), and PBMC (peripheral blood mononuclear cells). Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
+
+## Disease Stage Harmonization
+
+Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 2**).
+
+**Table 2.** Disease stage harmonization. Original labels from each study mapped to unified categories.
+
+| Harmonized Category | Original Labels | Source Studies |
+|---|---|---|
+| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
+| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
+| Mild | "mild", "non-severe" | CD1, CD2 |
+| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
+| COVID Naive | "COVID Naive" | CVX1 |
+| Healthy | "healthy" | CD3, HC1 |
+
+The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
+
+The final cohort composition is shown in **Table 3**.
+
+**Table 3.** Individual counts per harmonized disease category.
+
+| Disease Category | N | Contributing Studies | Notes |
+|---|---|---|---|
+| Severe | 26 | CD1, CD2, CD3 | |
+| Moderate | 9 | CD1 | |
+| Mild | 30 | CD1, CD2 | |
+| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
+| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
+| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
+| **Total** | **94** | | |
 
 \newpage
 
