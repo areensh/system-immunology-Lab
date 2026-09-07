@@ -347,8 +347,8 @@ The full set of available statistical queries is detailed below in **Table 5**, 
 | **Mutations** | topX_mutation_level | meta_key, meta_value | Average mutation count for the top 10, 100, and 1000 clones | Top X rank |
 | | mutation_by_region | meta_key, meta_value | Average mutation count split by CDR and FW regions | — |
 | | mutation_by_type | meta_key, meta_value | Average non-synonymous and synonymous mutation counts | — |
-| | mutation_cdr_rs_ratio | meta_key, meta_value | NS and S mutation counts in CDR and FW regions separately | — |
-| | mutation_rs_by_clone_size | meta_key, meta_value, min_clone_size, min_expanded_clones | NS and S counts in CDR and FW for expanded vs. rest clones | Clone size threshold (default: 20); minimum expanded clone count |
+| | mutation_cdr_rs_ratio | meta_key, meta_value | Average NS and S mutation counts in CDR and FW regions, plus per-clone NS/S ratios for both regions | — |
+| | mutation_rs_by_clone_size | meta_key, meta_value, min_clone_size, min_expanded_clones | NS and S counts plus NS/S ratios in CDR and FW for expanded vs. rest clones | Clone size threshold (default: 20); minimum expanded clone count |
 | **CDR3** | topX_nt_AVG_CDR3_length | meta_key, meta_value | Average CDR3 nucleotide length for the top 10, 100, and 1000 clones | Top X rank |
 | | topX_AA_AVG_CDR3_length | meta_key, meta_value | Average CDR3 amino acid length for the top 10, 100, and 1000 clones | Top X rank |
 | | cdr3_length_distribution | meta_key, meta_value | Mean, SD, and clone count for CDR3 length (AA and nt) | — |
@@ -371,7 +371,7 @@ IS-API returns per-individual, per-metadata-group measurements in a structured J
 
 3. **CDR3 length**: The *cdr3_length_distribution* endpoint returns mean and standard deviation of CDR3 length (both amino acid and nucleotide) per individual. The *topX* CDR3 endpoints return average CDR3 lengths for the top 10, 100, and 1000 clones. The *cdr3_by_clone_size* endpoint returns mean and standard deviation of CDR3 length separately for expanded and non-expanded clones.
 
-4. **Mutation counts and NS/S ratios**: The mutation endpoints return per-individual averages of mutation counts split by region (CDR, FW) and type (NS, S). The *mutation_cdr_rs_ratio* endpoint provides NS and S counts in CDR and FW regions separately, from which NS/S ratios are computed. The *mutation_rs_by_clone_size* endpoint provides the same breakdown stratified by clone expansion status.
+4. **Mutation counts and NS/S ratios**: The mutation endpoints return per-individual averages of mutation counts split by region (CDR, FW) and type (NS, S). The *mutation_cdr_rs_ratio* endpoint — despite its name suggesting CDR only — returns both CDR and FW data: average NS and S counts per region, plus pre-computed NS/S ratios for both CDR and FW regions. These ratios are calculated as the average of per-clone ratios (i.e., each clone's NS/S ratio is computed first, then averaged across clones within an individual), which avoids the bias introduced by computing the ratio of average counts. The *mutation_rs_by_clone_size* endpoint provides the same six fields (NS counts, S counts, and NS/S ratios for both CDR and FW) stratified by clone expansion status (expanded vs. rest).
 
 5. **V gene usage**: The *v_gene_usage* endpoint returns clone count and total copies per V gene segment per individual.
 
@@ -474,7 +474,7 @@ Having established the clone size distribution and the expansion threshold of �
 
 ![Figure 9. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
 
-**Selection pressure and mutation profile (NS/S ratios).** To analyze selection pressure and mutation burden, we computed NS/S ratios separately for CDR and framework (FW) regions across all clones (**Figure 10a**) and stratified by clone expansion status (**Figure 10b**).
+**Selection pressure and mutation profile (NS/S ratios).** To analyze selection pressure and mutation burden, we examined NS/S ratios separately for CDR and framework (FW) regions across all clones (**Figure 10a**) and stratified by clone expansion status (**Figure 10b**). The NS/S ratios are computed by the API as the average of per-clone ratios within each individual — that is, each clone's NS/S ratio is calculated first (using `AVG(NS / NULLIF(S, 0))` across clones), then averaged — rather than dividing the average NS count by the average S count, which would bias the ratio toward clones with high absolute mutation counts.
 
 ![Figure 10a. Somatic hypermutation — all clones by disease stage. Panel A: CDR NS/S ratio per individual. Panel B: FW NS/S ratio (same y-axis scale as A). Panel C: average NS and S mutation counts as stacked bars for CDR and FW regions. Boxplots show median and IQR; dashed line marks NS/S = 1.0. Kruskal-Wallis p-values annotated. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/21a_mutations_all_clones.png){ width=100% }
 
