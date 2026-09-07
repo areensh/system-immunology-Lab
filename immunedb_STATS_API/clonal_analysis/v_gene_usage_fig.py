@@ -204,7 +204,8 @@ ax_dendro.invert_yaxis()
 # Draw heatmap with clustered rows
 im = ax.imshow(clustered_matrix, aspect="auto", cmap="YlOrRd", interpolation="nearest")
 
-# Y-axis: clustered gene names
+# Y-axis: clustered gene names — on the RIGHT to avoid overlapping with dendrogram
+ax.yaxis.tick_right()
 ax.set_yticks(range(len(clustered_genes)))
 ax.set_yticklabels(clustered_genes, fontsize=15, fontweight="bold")
 ax.tick_params(axis='y', length=0, pad=8)
