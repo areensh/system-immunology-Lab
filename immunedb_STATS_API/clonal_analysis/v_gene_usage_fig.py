@@ -170,23 +170,23 @@ clustered_matrix = matrix[row_order, :]
 # ============================================================
 # FIGURE: V Gene Usage Heatmap with Dendrogram
 # ============================================================
-fig_height = max(12, len(selected_genes) * 0.55 + 4)
-fig = plt.figure(figsize=(22, fig_height))
+fig_height = max(14, len(selected_genes) * 0.85 + 5)
+fig = plt.figure(figsize=(24, fig_height))
 
 # Gridspec: dendrogram left, heatmap center, colorbar bottom
-gs = fig.add_gridspec(2, 2, width_ratios=[0.08, 1], height_ratios=[1, 0.025],
-                      hspace=0.25, wspace=0.02,
-                      top=0.88, bottom=0.08, left=0.04, right=0.95)
+gs = fig.add_gridspec(2, 2, width_ratios=[0.10, 1], height_ratios=[1, 0.02],
+                      hspace=0.20, wspace=0.01,
+                      top=0.90, bottom=0.06, left=0.03, right=0.95)
 ax_dendro = fig.add_subplot(gs[0, 0])
 ax = fig.add_subplot(gs[0, 1])
 cax = fig.add_subplot(gs[1, 1])
 
 fig.suptitle("V Gene Usage Heatmap by Disease Stage (Blood Only)",
-             fontsize=22, fontweight="bold", y=0.96)
-fig.text(0.5, 0.925,
+             fontsize=24, fontweight="bold", y=0.97)
+fig.text(0.5, 0.935,
          f"V genes present at ≥1% frequency in ≥{used_threshold} of subjects (n={n_subjects}), "
          f"hierarchically clustered by usage profile",
-         ha="center", fontsize=15, color="gray")
+         ha="center", fontsize=16, color="gray")
 
 # Draw dendrogram
 if row_linkage is not None:
@@ -206,13 +206,14 @@ im = ax.imshow(clustered_matrix, aspect="auto", cmap="YlOrRd", interpolation="ne
 
 # Y-axis: clustered gene names
 ax.set_yticks(range(len(clustered_genes)))
-ax.set_yticklabels(clustered_genes, fontsize=14, fontweight="bold")
+ax.set_yticklabels(clustered_genes, fontsize=15, fontweight="bold")
+ax.tick_params(axis='y', length=0, pad=8)
 
 # X-axis: disease group labels
 ax.set_xticks([c for c in group_centers])
 ax.set_xticklabels([d for d in disease_order
                     if sum(1 for _, info in sorted_subjects if info["disease"] == d) > 0],
-                   fontsize=14, fontweight="bold", rotation=0, ha="center")
+                   fontsize=16, fontweight="bold", rotation=0, ha="center")
 
 # Draw vertical lines at group boundaries
 for b in group_boundaries[:-1]:
