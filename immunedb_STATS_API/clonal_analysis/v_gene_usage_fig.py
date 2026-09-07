@@ -4,6 +4,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+from scipy.cluster.hierarchy import linkage, dendrogram, leaves_list
+from scipy.spatial.distance import pdist
 
 with open("v_gene/data/v_gene_usage_disease_tissue.json") as f:
     data = json.load(f)
@@ -144,30 +146,69 @@ for d in disease_order:
     idx += n
 
 # ============================================================
-# FIGURE: V Gene Usage Heatmap
+# Hierarchical clustering of V genes
 # ============================================================
-fig_height = max(10, len(selected_genes) * 0.55 + 4)
-fig = plt.figure(figsize=(20, fig_height))
+# Compute mean frequency per disease group for clustering
+disease_mean_matrix = np.zeros((len(selected_genes), len(disease_order)))
+for di, d in enumerate(disease_order):
+    cols = [j for j, (_, info) in enumerate(sorted_subjects) if info["disease"] == d]
+    if cols:
+        disease_mean_matrix[:, di] = matrix[:, cols].mean(axis=1)
 
-# Use gridspec: heatmap on top, colorbar below with generous spacing
-gs = fig.add_gridspec(2, 1, height_ratios=[1, 0.025], hspace=0.25,
-                      top=0.88, bottom=0.08, left=0.12, right=0.95)
-ax = fig.add_subplot(gs[0])
-cax = fig.add_subplot(gs[1])
+# Cluster V genes by their usage profile across disease groups
+if len(selected_genes) > 1:
+    row_dist = pdist(disease_mean_matrix, metric="euclidean")
+    row_linkage = linkage(row_dist, method="ward")
+    row_order = leaves_list(row_linkage)
+else:
+    row_order = np.arange(len(selected_genes))
+    row_linkage = None
+
+clustered_genes = [selected_genes[i] for i in row_order]
+clustered_matrix = matrix[row_order, :]
+
+# ============================================================
+# FIGURE: V Gene Usage Heatmap with Dendrogram
+# ============================================================
+fig_height = max(12, len(selected_genes) * 0.55 + 4)
+fig = plt.figure(figsize=(22, fig_height))
+
+# Gridspec: dendrogram left, heatmap center, colorbar bottom
+gs = fig.add_gridspec(2, 2, width_ratios=[0.08, 1], height_ratios=[1, 0.025],
+                      hspace=0.25, wspace=0.02,
+                      top=0.88, bottom=0.08, left=0.04, right=0.95)
+ax_dendro = fig.add_subplot(gs[0, 0])
+ax = fig.add_subplot(gs[0, 1])
+cax = fig.add_subplot(gs[1, 1])
 
 fig.suptitle("V Gene Usage Heatmap by Disease Stage (Blood Only)",
              fontsize=22, fontweight="bold", y=0.96)
 fig.text(0.5, 0.925,
-         f"V genes present at ≥1% frequency in ≥{used_threshold} of subjects (n={n_subjects})",
+         f"V genes present at ≥1% frequency in ≥{used_threshold} of subjects (n={n_subjects}), "
+         f"hierarchically clustered by usage profile",
          ha="center", fontsize=15, color="gray")
 
-im = ax.imshow(matrix, aspect="auto", cmap="YlOrRd", interpolation="nearest")
+# Draw dendrogram
+if row_linkage is not None:
+    dendro = dendrogram(row_linkage, orientation="left", ax=ax_dendro,
+                        no_labels=True, color_threshold=0,
+                        above_threshold_color="#555555", leaf_rotation=0)
+ax_dendro.set_xticks([])
+ax_dendro.set_yticks([])
+ax_dendro.spines["top"].set_visible(False)
+ax_dendro.spines["right"].set_visible(False)
+ax_dendro.spines["bottom"].set_visible(False)
+ax_dendro.spines["left"].set_visible(False)
+ax_dendro.invert_yaxis()
 
-# Y-axis: gene names
-ax.set_yticks(range(len(selected_genes)))
-ax.set_yticklabels(selected_genes, fontsize=14, fontweight="bold")
+# Draw heatmap with clustered rows
+im = ax.imshow(clustered_matrix, aspect="auto", cmap="YlOrRd", interpolation="nearest")
 
-# X-axis: disease group labels at bottom of heatmap
+# Y-axis: clustered gene names
+ax.set_yticks(range(len(clustered_genes)))
+ax.set_yticklabels(clustered_genes, fontsize=14, fontweight="bold")
+
+# X-axis: disease group labels
 ax.set_xticks([c for c in group_centers])
 ax.set_xticklabels([d for d in disease_order
                     if sum(1 for _, info in sorted_subjects if info["disease"] == d) > 0],
@@ -177,7 +218,7 @@ ax.set_xticklabels([d for d in disease_order
 for b in group_boundaries[:-1]:
     ax.axvline(x=b - 0.5, color="white", linewidth=2.5)
 
-# Horizontal colorbar below, narrower width centered
+# Horizontal colorbar below
 cax.set_position([0.25, cax.get_position().y0, 0.45, cax.get_position().height])
 cbar = plt.colorbar(im, cax=cax, orientation="horizontal")
 cbar.set_label("V Gene Frequency (%)", fontsize=14, fontweight="bold")
