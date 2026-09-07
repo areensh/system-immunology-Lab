@@ -196,76 +196,6 @@ Using IS-API, compare repertoire characteristics across six disease categories (
 
 # Materials and Methods
 
-## Data Collection and Database Construction
-
-Data were collected from published studies with raw DNA AIRR BCR sequences from healthy and SARS-CoV-2-infected individuals at different stages of disease and recovery, as well as vaccinated individuals. After collecting the raw DNA sequences along with their metadata, we built standardized metadata sheets compliant with AIRR-seq data commons standards [26] while allowing flexibility for experiment-specific fields. Each study was processed through the ImmuneDB pipeline — annotated with IgBLAST [23] for germline assignment, clustered into clones, and stored with associated metadata in individual ImmuneDB database instances.
-
-Seven studies were available through IS-API (**Table 1**):
-
-**Table 1.** Datasets available through IS-API v0.3.0.
-
-| Study ID | Database | Description | N | PMID | Ref |
-|---|---|---|---|---|---|
-| CD1 | Covid19_db3 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
-| CD2 | covid_db2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
-| CD3 | covid19 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
-| CVX1 | vaccine2 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
-| CVX2 | covid_vaccine_new | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
-| HC1 | lp16 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
-| GT1 | sykesIgblast2020 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
-
-## Individual Selection and Exclusions
-
-An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
-
-From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from HC1 (individuals with incomplete sequencing data) and two from CVX2 (fibroblast and water sequencing controls). Three additional healthy individuals from CD3 lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
-
-Blood-derived tissues were defined as: blood, Peripheral blood, PBL (peripheral blood lymphocytes), and PBMC (peripheral blood mononuclear cells). Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
-
-## Disease Stage Harmonization
-
-Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 2**).
-
-**Table 2.** Disease stage harmonization. Original labels from each study mapped to unified categories.
-
-| Harmonized Category | Original Labels | Source Studies |
-|---|---|---|
-| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
-| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
-| Mild | "mild", "non-severe" | CD1, CD2 |
-| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
-| COVID Naive | "COVID Naive" | CVX1 |
-| Healthy | "healthy" | CD3, HC1 |
-
-The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
-
-The final cohort composition is shown in **Table 3**.
-
-**Table 3.** Individual counts per harmonized disease category.
-
-| Disease Category | N | Contributing Studies | Notes |
-|---|---|---|---|
-| Severe | 26 | CD1, CD2, CD3 | |
-| Moderate | 9 | CD1 | |
-| Mild | 30 | CD1, CD2 | |
-| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
-| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
-| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
-| **Total** | **94** | | |
-
-## IS-API Metadata Endpoints
-
-IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 4**).
-
-**Table 4.** IS-API metadata endpoints.
-
-| Endpoint | Description | Example Query Filters |
-|---|---|---|
-| metadata | Returns available metadata fields and values per individual across all databases | database, tissue, disease_stage |
-| subjects | Lists individuals matching specified metadata criteria | disease_stage, sex, age, tissue |
-| samples | Lists samples (repertoires) per individual with associated metadata | tissue, cell_type, sample_processing |
-| studies | Returns study-level information (title, lab, species, sequencing platform) | database name |
-
 ## IS-API Architecture and Implementation
 
 The overall workflow for building and querying immune repertoire databases is illustrated in **Methods Figure 1**: raw DNA sequences (FASTA/Q or IgBLAST-annotated) are processed with uniform and consistent metadata into ImmuneDB databases, which are then queried through IS-API.
@@ -347,8 +277,8 @@ The full set of available statistical queries is detailed below in **Table 5**, 
 | **Mutations** | topX_mutation_level | meta_key, meta_value | Average mutation count for the top 10, 100, and 1000 clones | Top X rank |
 | | mutation_by_region | meta_key, meta_value | Average mutation count split by CDR and FW regions | — |
 | | mutation_by_type | meta_key, meta_value | Average non-synonymous and synonymous mutation counts | — |
-| | mutation_cdr_rs_ratio | meta_key, meta_value | NS and S mutation counts in CDR and FW regions separately | — |
-| | mutation_rs_by_clone_size | meta_key, meta_value, min_clone_size, min_expanded_clones | NS and S counts in CDR and FW for expanded vs. rest clones | Clone size threshold (default: 20); minimum expanded clone count |
+| | mutation_cdr_rs_ratio | meta_key, meta_value | Average NS and S mutation counts in CDR and FW regions, plus per-clone NS/S ratios for both regions | — |
+| | mutation_rs_by_clone_size | meta_key, meta_value, min_clone_size, min_expanded_clones | NS and S counts plus NS/S ratios in CDR and FW for expanded vs. rest clones | Clone size threshold (default: 20); minimum expanded clone count |
 | **CDR3** | topX_nt_AVG_CDR3_length | meta_key, meta_value | Average CDR3 nucleotide length for the top 10, 100, and 1000 clones | Top X rank |
 | | topX_AA_AVG_CDR3_length | meta_key, meta_value | Average CDR3 amino acid length for the top 10, 100, and 1000 clones | Top X rank |
 | | cdr3_length_distribution | meta_key, meta_value | Mean, SD, and clone count for CDR3 length (AA and nt) | — |
@@ -358,6 +288,19 @@ The full set of available statistical queries is detailed below in **Table 5**, 
 **Configurable parameters.** IS-API is designed to give researchers control over key analysis parameters through the request body, rather than imposing fixed values. The configurable parameters include: (1) *clone_size* supports three measurement modes — unique sequences (distinct sequences across an entire individual, reflecting overall diversity), instances (distinct sequences within a single sample, capturing sample-level diversity), or copy number (raw read counts, reflecting sequence abundance); (2) the expansion threshold in *clone_count* and the clone-size-stratified endpoints (*cdr3_by_clone_size*, *mutation_rs_by_clone_size*) is set via the `min_clone_size` parameter (default: 20), allowing researchers to define what constitutes an "expanded" clone at any threshold; (3) a `min_expanded_clones` parameter filters out individuals with too few expanded clones at the chosen threshold; (4) the Top X ranks in the *topX* endpoints (default: 10, 100, 1000) can be adjusted to examine clones at different ranks of the size distribution; (5) all endpoints accept arbitrary `meta_key`/`meta_value` combinations for cross-stratified filtering.
 
 CDR and FW region boundaries follow the ImmuneDB database schema, where CDR is defined as the sum of CDR1, CDR2, and CDR3 regions, and FW is defined as FW1 + FW2 + FW3 + FW4. These boundaries are determined by the upstream IgBLAST annotation and stored in the ImmuneDB `clone_stats.mutations` JSON field, so they are not adjustable at the API level.
+
+## IS-API Metadata Endpoints
+
+IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 4**).
+
+**Table 4.** IS-API metadata endpoints.
+
+| Endpoint | Description | Example Query Filters |
+|---|---|---|
+| metadata | Returns available metadata fields and values per individual across all databases | database, tissue, disease_stage |
+| subjects | Lists individuals matching specified metadata criteria | disease_stage, sex, age, tissue |
+| samples | Lists samples (repertoires) per individual with associated metadata | tissue, cell_type, sample_processing |
+| studies | Returns study-level information (title, lab, species, sequencing platform) | database name |
 
 ## Biological Statistical Measures
 
@@ -371,7 +314,7 @@ IS-API returns per-individual, per-metadata-group measurements in a structured J
 
 3. **CDR3 length**: The *cdr3_length_distribution* endpoint returns mean and standard deviation of CDR3 length (both amino acid and nucleotide) per individual. The *topX* CDR3 endpoints return average CDR3 lengths for the top 10, 100, and 1000 clones. The *cdr3_by_clone_size* endpoint returns mean and standard deviation of CDR3 length separately for expanded and non-expanded clones.
 
-4. **Mutation counts and NS/S ratios**: The mutation endpoints return per-individual averages of mutation counts split by region (CDR, FW) and type (NS, S). The *mutation_cdr_rs_ratio* endpoint provides NS and S counts in CDR and FW regions separately, from which NS/S ratios are computed. The *mutation_rs_by_clone_size* endpoint provides the same breakdown stratified by clone expansion status.
+4. **Mutation counts and NS/S ratios**: The mutation endpoints return per-individual averages of mutation counts split by region (CDR, FW) and type (NS, S). The *mutation_cdr_rs_ratio* endpoint — despite its name suggesting CDR only — returns both CDR and FW data: average NS and S counts per region, plus pre-computed NS/S ratios for both CDR and FW regions. These ratios are calculated as the average of per-clone ratios (i.e., each clone's NS/S ratio is computed first, then averaged across clones within an individual), which avoids the bias introduced by computing the ratio of average counts. The *mutation_rs_by_clone_size* endpoint provides the same six fields (NS counts, S counts, and NS/S ratios for both CDR and FW) stratified by clone expansion status (expanded vs. rest).
 
 5. **V gene usage**: The *v_gene_usage* endpoint returns clone count and total copies per V gene segment per individual.
 
@@ -388,6 +331,63 @@ All statistical comparisons were performed in Python using SciPy. For comparison
 ## Visualization
 
 Figures were generated using both R (ggplot2, dplyr, tidyr, jsonlite) and Python (matplotlib, numpy). The JSON-format API outputs were parsed and visualized with consistent color coding across all figures: Severe (dark red, #b71c1c), Moderate (dark orange, #e65100), Mild (salmon, #ff7043), Recovered (green, #43a047), COVID Naive (light blue, #42a5f5), and Healthy (dark blue, #1565c0). Boxplots show median, interquartile range, and whiskers extending to 1.5 times the interquartile range. Individual data points are overlaid with small random jitter for visibility. Statistical significance brackets are shown above the boxplots where pairwise comparisons reached significance after Bonferroni correction.
+
+## Data Collection and Database Construction
+
+Data were collected from published studies with raw DNA AIRR BCR sequences from healthy and SARS-CoV-2-infected individuals at different stages of disease and recovery, as well as vaccinated individuals. After collecting the raw DNA sequences along with their metadata, we built standardized metadata sheets compliant with AIRR-seq data commons standards [26] while allowing flexibility for experiment-specific fields. Each study was processed through the ImmuneDB pipeline — annotated with IgBLAST [23] for germline assignment, clustered into clones, and stored with associated metadata in individual ImmuneDB database instances.
+
+Seven studies were available through IS-API (**Table 1**):
+
+**Table 1.** Datasets available through IS-API v0.3.0.
+
+| Study ID | Database | Description | N | PMID | Ref |
+|---|---|---|---|---|---|
+| CD1 | Covid19_db3 | Severe, mild, and moderate COVID-19 from multiple hospital cohorts | 51 | 37153628 | [29, 30] |
+| CD2 | covid_db2 | Severe, non-severe, recovered, and healthy individuals | 19 | 33384691 | [31] |
+| CD3 | covid19 | Severe COVID-19 and healthy controls | 13 | 32669287 | [32] |
+| CVX1 | vaccine2 | COVID-19 mRNA vaccine study (recovered and naive vaccinees) | 12 | 34648302 | [49] |
+| CVX2 | covid_vaccine_new | Second vaccine cohort with recovered individuals | 5 | 33858945 | [33] |
+| HC1 | lp16 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
+| GT1 | sykesIgblast2020 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
+
+## Individual Selection and Exclusions
+
+An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
+
+From the six studies, we identified 94 unique individuals with blood-derived samples. Five individuals were excluded due to data quality issues or ambiguous metadata: three from HC1 (individuals with incomplete sequencing data) and two from CVX2 (fibroblast and water sequencing controls). Three additional healthy individuals from CD3 lacked sex and age metadata; these were included in all analyses except the age and gender confounder analysis. After exclusions, 94 individuals contributed 106 blood-derived repertoires to the analysis (some individuals had multiple blood time points).
+
+Blood-derived tissues were defined as: blood, Peripheral blood, PBL (peripheral blood lymphocytes), and PBMC (peripheral blood mononuclear cells). Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
+
+## Disease Stage Harmonization
+
+Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 2**).
+
+**Table 2.** Disease stage harmonization. Original labels from each study mapped to unified categories.
+
+| Harmonized Category | Original Labels | Source Studies |
+|---|---|---|
+| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
+| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
+| Mild | "mild", "non-severe" | CD1, CD2 |
+| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
+| COVID Naive | "COVID Naive" | CVX1 |
+| Healthy | "healthy" | CD3, HC1 |
+
+The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
+
+The final cohort composition is shown in **Table 3**.
+
+**Table 3.** Individual counts per harmonized disease category.
+
+| Disease Category | N | Contributing Studies | Notes |
+|---|---|---|---|
+| Severe | 26 | CD1, CD2, CD3 | |
+| Moderate | 9 | CD1 | |
+| Mild | 30 | CD1, CD2 | |
+| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
+| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
+| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
+| **Total** | **94** | | |
 
 \newpage
 
@@ -474,7 +474,7 @@ Having established the clone size distribution and the expansion threshold of �
 
 ![Figure 9. CDR3 length range (max minus min amino acid length) of the top 10 clones per individual, grouped by disease stage. Larger ranges indicate greater CDR3 structural heterogeneity among the dominant clones.](../immunedb_STATS_API/clonal_analysis/plots/04_cdr3_range_by_disease.png){ width=100% }
 
-**Selection pressure and mutation profile (NS/S ratios).** To analyze selection pressure and mutation burden, we computed NS/S ratios separately for CDR and framework (FW) regions across all clones (**Figure 10a**) and stratified by clone expansion status (**Figure 10b**).
+**Selection pressure and mutation profile (NS/S ratios).** To analyze selection pressure and mutation burden, we examined NS/S ratios separately for CDR and framework (FW) regions across all clones (**Figure 10a**) and stratified by clone expansion status (**Figure 10b**). The NS/S ratios are computed by the API as the average of per-clone ratios within each individual — that is, each clone's NS/S ratio is calculated first (using `AVG(NS / NULLIF(S, 0))` across clones), then averaged — rather than dividing the average NS count by the average S count, which would bias the ratio toward clones with high absolute mutation counts.
 
 ![Figure 10a. Somatic hypermutation — all clones by disease stage. Panel A: CDR NS/S ratio per individual. Panel B: FW NS/S ratio (same y-axis scale as A). Panel C: average NS and S mutation counts as stacked bars for CDR and FW regions. Boxplots show median and IQR; dashed line marks NS/S = 1.0. Kruskal-Wallis p-values annotated. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/21a_mutations_all_clones.png){ width=100% }
 
