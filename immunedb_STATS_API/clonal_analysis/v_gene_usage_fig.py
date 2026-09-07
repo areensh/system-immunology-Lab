@@ -183,6 +183,6 @@ cbar = plt.colorbar(im, cax=cax, orientation="horizontal")
 cbar.set_label("V Gene Frequency (%)", fontsize=14, fontweight="bold")
 cbar.ax.tick_params(labelsize=12)
 
-plt.savefig("plots/23_v_gene_usage_heatmap.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/23_v_gene_usage_heatmap.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print(f"\nSaved: 23_v_gene_usage_heatmap.png")

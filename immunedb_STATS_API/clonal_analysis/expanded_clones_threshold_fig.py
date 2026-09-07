@@ -150,7 +150,7 @@ for ti, t in enumerate(thresholds):
     add_significance(ax, real_data, disease_order, log_scale=True)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
-plt.savefig("plots/19_expanded_clones_threshold.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/19_expanded_clones_threshold.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("\nSaved: 19_expanded_clones_threshold.png")
 

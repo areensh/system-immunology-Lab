@@ -109,7 +109,7 @@ for subj in hc1_subjects:
         if t in td:
             global_max = max(global_max, len(td[t]))
 
-fig, axes = plt.subplots(nrows, ncols, figsize=(16, 5 * nrows))
+fig, axes = plt.subplots(nrows, ncols, figsize=(20, 6 * nrows))
 if nrows == 1:
     axes = [axes]
 fig.suptitle("Within-Subject Comparison: Clone Count by Tissue (HC1)",
@@ -141,7 +141,7 @@ for idx in range(len(hc1_subjects), nrows * ncols):
     axes[idx // ncols][idx % ncols].set_visible(False)
 
 plt.tight_layout(rect=[0, 0, 1, 0.93])
-plt.savefig("plots/14_within_subject_clone_count.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/14_within_subject_clone_count.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 14_within_subject_clone_count.png")
 
@@ -168,7 +168,7 @@ td_gt1 = gt1_subjects[gt1_best]
 compare_tissues = [t for t in shared_tissues if t in td_hc1 and t in td_gt1]
 print(f"Tissues for comparison: {compare_tissues}")
 
-fig, axes = plt.subplots(1, len(compare_tissues), figsize=(5 * len(compare_tissues), 7))
+fig, axes = plt.subplots(1, len(compare_tissues), figsize=(7 * len(compare_tissues), 9))
 if len(compare_tissues) == 1:
     axes = [axes]
 fig.suptitle(f"Cross-Study Tissue Comparison: HC1 (D207) vs GT1 ({gt1_best})",
@@ -211,7 +211,7 @@ for i, tissue in enumerate(compare_tissues):
     ax.spines["right"].set_visible(False)
 
 plt.tight_layout(rect=[0, 0, 1, 0.91])
-plt.savefig("plots/15_within_subject_clone_size_cross_study.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/15_within_subject_clone_size_cross_study.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 15_within_subject_clone_size_cross_study.png")
 
@@ -223,7 +223,7 @@ compare_all_tissues = [t for t in shared_tissues
                        if any(t in s for s in subj_tissue_clones["HC1"].values())
                        and any(t in s for s in subj_tissue_clones["GT1"].values())]
 
-fig, ax = plt.subplots(figsize=(10, 7))
+fig, ax = plt.subplots(figsize=(14, 10))
 rng = np.random.default_rng(42)
 
 for ti, tissue in enumerate(compare_all_tissues):
@@ -279,7 +279,7 @@ ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 plt.tight_layout()
-plt.savefig("plots/16_within_subject_tissue_lines.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/16_within_subject_tissue_lines.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 16_within_subject_tissue_lines.png")
 

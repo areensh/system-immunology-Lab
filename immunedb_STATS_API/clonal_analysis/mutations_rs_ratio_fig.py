@@ -68,12 +68,21 @@ for entry in data["Result"]:
     subj_mutations[rid]["cdr_s"] = vals_dict.get("CDR_synonymous")
     subj_mutations[rid]["fw_r"] = vals_dict.get("FW_replacement")
     subj_mutations[rid]["fw_s"] = vals_dict.get("FW_synonymous")
+    subj_mutations[rid]["cdr_nss_ratio"] = vals_dict.get("CDR_nss_ratio")
+    subj_mutations[rid]["fw_nss_ratio"] = vals_dict.get("FW_nss_ratio")
 
 disease_order = ["Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy"]
 disease_colors = {
     "Severe": "#b71c1c", "Moderate": "#e65100", "Mild": "#ff7043",
     "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
 }
+
+# Use pre-computed per-clone NS/S ratio if available; fall back to ratio of averages
+_has_ratio = any(info.get("cdr_nss_ratio") is not None for info in subj_mutations.values())
+if _has_ratio:
+    print("Using pre-computed per-clone NS/S ratios (average of ratios)")
+else:
+    print("WARNING: CDR_nss_ratio not in data — falling back to ratio of averages. Re-query the API to fix.")
 
 # Group by disease
 disease_data = defaultdict(lambda: {"cdr_r": [], "cdr_s": [], "fw_r": [], "fw_s": [], "cdr_ratio": [], "fw_ratio": []})
@@ -86,10 +95,16 @@ for rid, info in subj_mutations.items():
         disease_data[d]["cdr_s"].append(info["cdr_s"])
         disease_data[d]["fw_r"].append(info["fw_r"])
         disease_data[d]["fw_s"].append(info["fw_s"])
-        if info["cdr_s"] > 0:
-            disease_data[d]["cdr_ratio"].append(info["cdr_r"] / info["cdr_s"])
-        if info["fw_s"] > 0:
-            disease_data[d]["fw_ratio"].append(info["fw_r"] / info["fw_s"])
+        if _has_ratio:
+            if info["cdr_nss_ratio"] is not None and info["cdr_nss_ratio"] > 0:
+                disease_data[d]["cdr_ratio"].append(info["cdr_nss_ratio"])
+            if info["fw_nss_ratio"] is not None and info["fw_nss_ratio"] > 0:
+                disease_data[d]["fw_ratio"].append(info["fw_nss_ratio"])
+        else:
+            if info["cdr_s"] > 0:
+                disease_data[d]["cdr_ratio"].append(info["cdr_r"] / info["cdr_s"])
+            if info["fw_s"] > 0:
+                disease_data[d]["fw_ratio"].append(info["fw_r"] / info["fw_s"])
 
 print("Subjects per disease (blood only):")
 for d in disease_order:
@@ -101,11 +116,11 @@ for d in disease_order:
 # ============================================================
 # FIGURE: NS/S (R/S) ratio per region per disease category
 # ============================================================
-fig, axes = plt.subplots(1, 3, figsize=(20, 7))
+fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 fig.suptitle("Mutation Analysis: NS/S Ratio by Region and Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
+             fontsize=24, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Non-synonymous vs synonymous mutations in CDR and FW regions",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=16, color="gray")
 
 rng = np.random.default_rng(42)
 
@@ -128,9 +143,9 @@ for i, d in enumerate(disease_order):
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=13, fontweight="bold")
-ax.set_title("A. CDR NS/S Ratio", fontsize=14, fontweight="bold", loc="left")
+ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("NS/S Ratio", fontsize=16, fontweight="bold")
+ax.set_title("A. CDR NS/S Ratio", fontsize=18, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 add_significance(ax, [disease_data[d]["cdr_ratio"] for d in disease_order], disease_order)
@@ -153,9 +168,9 @@ for i, d in enumerate(disease_order):
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=13, fontweight="bold")
-ax.set_title("B. FW NS/S Ratio", fontsize=14, fontweight="bold", loc="left")
+ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("NS/S Ratio", fontsize=16, fontweight="bold")
+ax.set_title("B. FW NS/S Ratio", fontsize=18, fontweight="bold", loc="left")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 add_significance(ax, [disease_data[d]["fw_ratio"] for d in disease_order], disease_order)
@@ -177,14 +192,14 @@ bars3 = ax.bar(x + w/2, fw_r_means, w, label="FW Replacement", color="#1565c0", 
 ax.bar(x + w/2, fw_s_means, w, bottom=fw_r_means, label="FW Synonymous", color="#90caf9", alpha=0.85)
 
 ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Avg Mutation Count", fontsize=13, fontweight="bold")
-ax.set_title("C. Mutation Counts by Region & Type", fontsize=14, fontweight="bold", loc="left")
-ax.legend(fontsize=8, loc="upper right")
+ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Avg Mutation Count", fontsize=16, fontweight="bold")
+ax.set_title("C. Mutation Counts by Region & Type", fontsize=18, fontweight="bold", loc="left")
+ax.legend(fontsize=12, loc="upper right")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
-plt.savefig("plots/21_mutations_rs_ratio.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/21_mutations_rs_ratio.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 21_mutations_rs_ratio.png")

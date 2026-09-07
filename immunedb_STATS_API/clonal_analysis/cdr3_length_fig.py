@@ -127,13 +127,6 @@ for d in disease_order:
     s = np.median(exp_sd[d]) if exp_sd[d] else 0
     print(f"  {d}: n={n}, median mean AA={m:.1f}, median SD AA={s:.1f}")
 
-# ============================================================
-# FIGURE: 2x2 — All clones (row 1) + Expanded clones (row 2)
-# ============================================================
-fig, axes = plt.subplots(2, 2, figsize=(20, 16))
-fig.suptitle("CDR3 Length Distribution by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.97)
-
 rng = np.random.default_rng(42)
 
 def boxplot_panel(ax, data_dict, title, ylabel):
@@ -148,41 +141,47 @@ def boxplot_panel(ax, data_dict, title, ylabel):
         vals = data_dict.get(d, [])
         if vals:
             jitter = rng.uniform(-0.12, 0.12, len(vals))
-            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=35, alpha=0.7,
+            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-    ax.set_ylabel(ylabel, fontsize=16, fontweight="bold")
-    ax.set_title(title, fontsize=18, fontweight="bold", loc="left")
-    ax.tick_params(axis='y', labelsize=13)
+    ax.set_xticklabels(disease_order, fontsize=16, fontweight="bold", rotation=25, ha="right")
+    ax.set_ylabel(ylabel, fontsize=18, fontweight="bold")
+    ax.set_title(title, fontsize=20, fontweight="bold", loc="left")
+    ax.tick_params(axis='y', labelsize=15)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     add_significance(ax, [data_dict.get(d, []) for d in disease_order], disease_order)
 
-# Row 1: All clones
-fig.text(0.5, 0.935, "All clones — mean and variability of CDR3 amino acid length per subject",
-         ha="center", fontsize=15, color="gray")
-boxplot_panel(axes[0, 0], all_mean, "A. Mean CDR3 Length per Subject", "Mean CDR3 Length (AA)")
-boxplot_panel(axes[0, 1], all_sd, "B. CDR3 Length Variability per Subject", "SD of CDR3 Length (AA)")
+# ============================================================
+# FIGURE 7a: All clones — CDR3 length mean + SD
+# ============================================================
+fig, axes = plt.subplots(1, 2, figsize=(22, 10))
+fig.suptitle("CDR3 Length Distribution — All Clones by Disease Stage (Blood Only)",
+             fontsize=24, fontweight="bold", y=0.98)
+fig.text(0.5, 0.93, "Mean and variability of CDR3 amino acid length per subject",
+         ha="center", fontsize=16, color="gray")
 
-# Row 2: Expanded clones
-fig.text(0.5, 0.48, "Expanded clones (≥20 unique sequences) — CDR3 length per subject",
-         ha="center", fontsize=15, color="gray")
-boxplot_panel(axes[1, 0], exp_mean, "C. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)")
-boxplot_panel(axes[1, 1], exp_sd, "D. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)")
+boxplot_panel(axes[0], all_mean, "A. Mean CDR3 Length per Subject", "Mean CDR3 Length (AA)")
+boxplot_panel(axes[1], all_sd, "B. CDR3 Length Variability per Subject", "SD of CDR3 Length (AA)")
 
-# Sync y-axis: mean panels (A, C) share one range; SD panels (B, D) share another
-mean_ymin = min(axes[0, 0].get_ylim()[0], axes[1, 0].get_ylim()[0])
-mean_ymax = max(axes[0, 0].get_ylim()[1], axes[1, 0].get_ylim()[1])
-axes[0, 0].set_ylim(mean_ymin, mean_ymax)
-axes[1, 0].set_ylim(mean_ymin, mean_ymax)
-
-sd_ymin = min(axes[0, 1].get_ylim()[0], axes[1, 1].get_ylim()[0])
-sd_ymax = max(axes[0, 1].get_ylim()[1], axes[1, 1].get_ylim()[1])
-axes[0, 1].set_ylim(sd_ymin, sd_ymax)
-axes[1, 1].set_ylim(sd_ymin, sd_ymax)
-
-plt.tight_layout(rect=[0, 0, 1, 0.93])
-plt.savefig("plots/22_cdr3_length_distribution.png", dpi=600, bbox_inches="tight", facecolor="white")
+plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.savefig("plots/22a_cdr3_length_all_clones.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
-print("Saved: 22_cdr3_length_distribution.png")
+print("Saved: 22a_cdr3_length_all_clones.png")
+
+# ============================================================
+# FIGURE 7b: Expanded clones — CDR3 length mean + SD
+# ============================================================
+fig, axes = plt.subplots(1, 2, figsize=(22, 10))
+fig.suptitle("CDR3 Length Distribution — Expanded Clones by Disease Stage (Blood Only)",
+             fontsize=24, fontweight="bold", y=0.98)
+fig.text(0.5, 0.93, "Expanded clones (≥20 unique sequences) — CDR3 length per subject",
+         ha="center", fontsize=16, color="gray")
+
+boxplot_panel(axes[0], exp_mean, "A. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)")
+boxplot_panel(axes[1], exp_sd, "B. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)")
+
+plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.savefig("plots/22b_cdr3_length_expanded.png", dpi=600, bbox_inches="tight", facecolor="white")
+plt.close()
+print("Saved: 22b_cdr3_length_expanded.png")

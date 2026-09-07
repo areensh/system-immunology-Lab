@@ -124,7 +124,7 @@ study_colors = {
 # ============================================================
 # FIGURE: Multi-panel sampling depth overview
 # ============================================================
-fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+fig, axes = plt.subplots(1, 2, figsize=(20, 10))
 fig.suptitle("Sampling Depth Across Studies", fontsize=20, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Number of individuals and sequencing depth (total sequences per subject)",
          ha="center", fontsize=13, color="gray")
@@ -171,6 +171,6 @@ ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
-plt.savefig("metadata/plots/06_sampling_depth.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("metadata/plots/06_sampling_depth.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: metadata/plots/06_sampling_depth.png")

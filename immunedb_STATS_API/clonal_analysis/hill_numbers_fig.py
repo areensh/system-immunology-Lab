@@ -101,11 +101,11 @@ for d in disease_order:
 # ============================================================
 # FIGURE 17: Hill numbers boxplots — Order 0, 1, 2
 # ============================================================
-fig, axes = plt.subplots(1, 3, figsize=(20, 7))
+fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 fig.suptitle("Clonal Diversity: Hill Numbers by Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
+             fontsize=24, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Order 0 (richness), Order 1 (Shannon), Order 2 (Simpson)",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=16, color="gray")
 
 titles = ["A. Order 0 (Richness)", "B. Order 1 (Shannon)", "C. Order 2 (Simpson)"]
 keys = ["q0", "q1", "q2"]
@@ -130,33 +130,33 @@ for panel_idx, (key, title) in enumerate(zip(keys, titles)):
                        zorder=3, edgecolors="white", linewidth=0.5)
 
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=35, ha="right")
-    ax.set_title(title, fontsize=15, fontweight="bold", loc="left")
+    ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=35, ha="right")
+    ax.set_title(title, fontsize=18, fontweight="bold", loc="left")
     ax.set_yscale("log")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
     if panel_idx == 0:
-        ax.set_ylabel("Number of Clones (log)", fontsize=13, fontweight="bold")
+        ax.set_ylabel("Number of Clones (log)", fontsize=16, fontweight="bold")
     else:
-        ax.set_ylabel("Effective Number of Clones (log)", fontsize=13, fontweight="bold")
+        ax.set_ylabel("Effective Number of Clones (log)", fontsize=16, fontweight="bold")
 
     real_data = [disease_hills[d][key] for d in disease_order]
     add_significance(ax, real_data, disease_order, log_scale=True)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
-plt.savefig("plots/17_diversity_hill_numbers.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/17_diversity_hill_numbers.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 17_diversity_hill_numbers.png")
 
 # ============================================================
 # FIGURE 18: Diversity profiles — q0 → q1 → q2
 # ============================================================
-fig, ax = plt.subplots(figsize=(10, 7))
+fig, ax = plt.subplots(figsize=(14, 10))
 ax.set_title("Diversity Profiles by Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold")
+             fontsize=24, fontweight="bold")
 ax.text(0.5, 1.03, "Each thin line = one subject; thick line = group median",
-        transform=ax.transAxes, ha="center", fontsize=12, color="gray")
+        transform=ax.transAxes, ha="center", fontsize=15, color="gray")
 
 x_pos = [0, 1, 2]
 for d in disease_order:
@@ -166,22 +166,24 @@ for d in disease_order:
     color = disease_colors.get(d, "#999")
 
     for i in range(len(q0s)):
-        ax.plot(x_pos, [q0s[i], q1s[i], q2s[i]], color=color, alpha=0.12, linewidth=0.8)
+        ax.plot(x_pos, [q0s[i], q1s[i], q2s[i]], color=color, alpha=0.12, linewidth=1.0)
 
     if q0s:
         medians = [np.median(q0s), np.median(q1s), np.median(q2s)]
-        ax.plot(x_pos, medians, color=color, linewidth=3, marker="o", markersize=8,
+        ax.plot(x_pos, medians, color=color, linewidth=4, marker="o", markersize=10,
                 label=f"{d} (n={len(q0s)})", zorder=5)
 
 ax.set_xticks(x_pos)
-ax.set_xticklabels(["q=0\n(Richness)", "q=1\n(Shannon)", "q=2\n(Simpson)"], fontsize=13)
-ax.set_ylabel("Effective Number of Clones", fontsize=14, fontweight="bold")
+ax.set_xticklabels(["q=0\n(Richness)", "q=1\n(Shannon)", "q=2\n(Simpson)"], fontsize=16)
+ax.set_ylabel("Effective Number of Clones", fontsize=18, fontweight="bold")
 ax.set_yscale("log")
-ax.legend(fontsize=9, title="Disease Stage", title_fontsize=10, loc="upper right")
+ax.tick_params(axis='y', labelsize=14)
+ax.legend(fontsize=14, title="Disease Stage", title_fontsize=15, loc="upper right",
+          framealpha=0.9, edgecolor="gray")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 plt.tight_layout()
-plt.savefig("plots/18_diversity_profiles.png", dpi=400, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/18_diversity_profiles.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 18_diversity_profiles.png")
