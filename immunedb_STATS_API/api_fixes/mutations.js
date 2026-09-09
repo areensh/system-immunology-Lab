@@ -161,23 +161,20 @@ if (statistics[0] == "mutation_by_type"){
 
 if (statistics[0] == "mutation_cdr_rs_ratio"){
     query = `
-    WITH ${sampleMetaCTE}
-    SELECT
-      cs.subject_id,
-      AVG(
+    WITH ${sampleMetaCTE},
+    clone_mutations AS (
+      SELECT cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys,
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0)
-      ) AS avg_cdr_replacement,
-      AVG(
+        AS cdr_ns,
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0)
-      ) AS avg_cdr_synonymous,
-      AVG(
+        AS cdr_s,
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
@@ -186,54 +183,36 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0)
-      ) AS avg_fw_replacement,
-      AVG(
+        AS fw_ns,
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0)
-      ) AS avg_fw_synonymous,
-      AVG(
-        (COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0))
-        / NULLIF(
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0), 0)
-      ) AS avg_cdr_nss_ratio,
-      AVG(
-        (COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0))
-        / NULLIF(
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
-         COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0), 0)
-      ) AS avg_fw_nss_ratio,
-      s.identifier,
-      sma.meta_keys AS keey,
-      sma.meta_values AS valuee
-    FROM clone_stats cs
-    JOIN sample_meta sma ON sma.sample_id = cs.sample_id
-    JOIN subjects s ON cs.subject_id = s.id
-    WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
-      AND JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) > 0
+        AS fw_s
+      FROM clone_stats cs
+      JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+      WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
+        AND JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) > 0
 `
     if (connection.config.database == "sykesIgblast"){
         query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `
     }
     query += `
-    GROUP BY cs.subject_id, sma.meta_values, sma.meta_keys, s.identifier
+    )
+    SELECT
+      cm.subject_id,
+      AVG(cm.cdr_ns) AS avg_cdr_replacement,
+      AVG(cm.cdr_s) AS avg_cdr_synonymous,
+      AVG(cm.fw_ns) AS avg_fw_replacement,
+      AVG(cm.fw_s) AS avg_fw_synonymous,
+      AVG(cm.cdr_ns / NULLIF(cm.cdr_s, 0)) AS avg_cdr_nss_ratio,
+      AVG(cm.fw_ns / NULLIF(cm.fw_s, 0)) AS avg_fw_nss_ratio,
+      s.identifier,
+      cm.meta_keys AS keey,
+      cm.meta_values AS valuee
+    FROM clone_mutations cm
+    JOIN subjects s ON cm.subject_id = s.id
+    GROUP BY cm.subject_id, cm.meta_values, cm.meta_keys, s.identifier
 `;
 }
 
@@ -242,66 +221,35 @@ if (statistics[0] == "mutation_rs_by_clone_size"){
     const min_expanded_clones = req.body.min_expanded_clones || 0;
     query = `
     WITH ${sampleMetaCTE},
-    clone_data AS (
-      SELECT cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys,
-        SUM(cs.unique_cnt) AS unique_size,
-        AVG(
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0)
-        ) AS cdr_replacement,
-        AVG(
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0)
-        ) AS cdr_synonymous,
-        AVG(
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0)
-        ) AS fw_replacement,
-        AVG(
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
-          COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0)
-        ) AS fw_synonymous,
-        AVG(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions'))) AS mutation_cnt,
-        AVG(
-          (COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0))
-          / NULLIF(
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0), 0)
-        ) AS cdr_nss_ratio,
-        AVG(
-          (COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0))
-          / NULLIF(
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
-           COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0), 0)
-        ) AS fw_nss_ratio
+    raw_mutations AS (
+      SELECT cs.subject_id, cs.clone_id, cs.sample_id, sma.meta_values, sma.meta_keys,
+        cs.unique_cnt,
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.nonconservative')), 0)
+        AS cdr_ns,
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR1.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR2.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.CDR3.synonymous')), 0)
+        AS cdr_s,
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.nonconservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.conservative')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.nonconservative')), 0)
+        AS fw_ns,
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW1.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW2.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW3.synonymous')), 0) +
+        COALESCE(JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.regions.FW4.synonymous')), 0)
+        AS fw_s,
+        JSON_LENGTH(JSON_EXTRACT(cs.mutations, '$.positions')) AS mutation_cnt
       FROM clone_stats cs
       JOIN sample_meta sma ON sma.sample_id = cs.sample_id
       WHERE cs.sample_id IS NOT NULL AND cs.functional = 1
@@ -311,7 +259,19 @@ if (statistics[0] == "mutation_rs_by_clone_size"){
         query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `;
     }
     query += `
-      GROUP BY cs.subject_id, cs.clone_id, sma.meta_values, sma.meta_keys
+    ),
+    clone_data AS (
+      SELECT subject_id, clone_id, meta_values, meta_keys,
+        SUM(unique_cnt) AS unique_size,
+        AVG(cdr_ns) AS cdr_replacement,
+        AVG(cdr_s) AS cdr_synonymous,
+        AVG(fw_ns) AS fw_replacement,
+        AVG(fw_s) AS fw_synonymous,
+        AVG(mutation_cnt) AS mutation_cnt,
+        AVG(cdr_ns / NULLIF(cdr_s, 0)) AS cdr_nss_ratio,
+        AVG(fw_ns / NULLIF(fw_s, 0)) AS fw_nss_ratio
+      FROM raw_mutations
+      GROUP BY subject_id, clone_id, meta_values, meta_keys
     )
     SELECT
       cd.subject_id,
