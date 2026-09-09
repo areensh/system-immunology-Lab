@@ -197,6 +197,7 @@ if (statistics[0] == "mutation_cdr_rs_ratio"){
     if (connection.config.database == "sykesIgblast"){
         query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `
     }
+    query += ` /* SUBJECT_FILTER */ `;
     query += `
     )
     SELECT
@@ -258,6 +259,7 @@ if (statistics[0] == "mutation_rs_by_clone_size"){
     if (connection.config.database == "sykesIgblast"){
         query += `AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18) `;
     }
+    query += ` /* SUBJECT_FILTER */ `;
     query += `
     ),
     clone_data AS (
@@ -305,8 +307,28 @@ if (statistics[0] == "mutation_rs_by_clone_size"){
 }
 
      const results = [];
-      const [rows] =  await connection.query(query, { replacements: params });
-      for (const row of rows) results.push(row);
+      if (statistics[0] === "mutation_cdr_rs_ratio" || statistics[0] === "mutation_rs_by_clone_size") {
+        let subjectQuery = `WITH ${sampleMetaCTE}
+          SELECT DISTINCT cs.subject_id
+          FROM clone_stats cs
+          JOIN sample_meta sma ON sma.sample_id = cs.sample_id
+          WHERE cs.sample_id IS NOT NULL AND cs.functional = 1`;
+        if (connection.config.database == "sykesIgblast"){
+          subjectQuery += ` AND cs.subject_id NOT IN (12,13,11,14,15,22,19,18)`;
+        }
+        const [subjectRows] = await connection.query(subjectQuery, { replacements: params });
+        console.log(`Processing ${subjectRows.length} subjects one at a time for ${connection.config.database}...`);
+        for (const subjectRow of subjectRows) {
+          const sid = Number(subjectRow.subject_id);
+          const filteredQuery = query.replace('/* SUBJECT_FILTER */', `AND cs.subject_id = ${sid}`);
+          const [rows] = await connection.query(filteredQuery, { replacements: params });
+          for (const row of rows) results.push(row);
+        }
+        console.log(`Done: ${results.length} results from ${connection.config.database}`);
+      } else {
+        const [rows] = await connection.query(query, { replacements: params });
+        for (const row of rows) results.push(row);
+      }
 
 
     const processedResults = results.map(row => ({
