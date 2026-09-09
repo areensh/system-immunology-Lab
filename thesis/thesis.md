@@ -104,7 +104,7 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 **Figure 10b.** NS/S ratios and mutation counts — expanded vs. rest by disease stage.
 
-**Figure 11.** V gene usage heatmap by disease stage.
+**Figure 11.** V gene usage heatmap by disease stage with hierarchical clustering.
 
 **Figure 12.** Clonal metrics versus age by disease stage.
 
@@ -486,13 +486,13 @@ When stratified by clone expansion status (**Figure 10b**), expanded clones show
 
 ## V Gene Usage
 
-To examine whether disease stage influences V gene segment usage, we analyzed the frequency of V genes across individuals using a heatmap (**Figure 11**).
+To examine whether disease stage influences V gene segment usage, we analyzed the frequency of V genes across individuals using a heatmap with hierarchical clustering (**Figure 11**).
 
-![Figure 11. V gene usage heatmap by disease stage. Color intensity represents mean frequency of each V gene segment across individuals in each disease category. Only V genes present at ≥1% frequency in ≥85% of individuals are shown (16 genes). Rows: V gene segments; columns: disease categories.](../immunedb_STATS_API/clonal_analysis/plots/23_v_gene_usage_heatmap.png){ width=100% }
+![Figure 11. V gene usage heatmap by disease stage with hierarchical clustering. Each column represents one individual; each row represents one V gene segment. Color intensity indicates the frequency (%) of each V gene within that individual's repertoire. Rows are ordered by hierarchical clustering (Ward linkage on Euclidean distances of mean frequency profiles across disease groups); the dendrogram on the left shows the clustering structure. Only V genes present at ≥1% frequency in ≥85% of individuals are shown (16 genes). Vertical white lines separate disease categories. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/23_v_gene_usage_heatmap.png){ width=100% }
 
-V genes were included if they were present at 1% or higher frequency in at least 85% of individuals, resulting in 16 V genes that met this criterion.
+V genes were included if they were present at 1% or higher frequency in at least 85% of individuals, resulting in 16 V genes that met this criterion. Hierarchical clustering (Ward method, Euclidean distance) was applied to the V gene rows based on their mean frequency profiles across the six disease categories, grouping genes with similar usage patterns together.
 
-The heatmap revealed that certain V genes were consistently used at high frequency across all disease categories (e.g., IGHV4-34, IGHV3-23, IGHV4-59), reflecting the known preferential usage of these gene segments in human BCR repertoires. Visual inspection did not reveal strong disease-specific V gene usage patterns, suggesting that V gene usage is relatively stable across disease states and is more reflective of underlying germline genetics than disease-driven selection. This observation is consistent with the known stability of V gene usage across individuals and conditions [37].
+The clustering revealed two main groups: a high-frequency cluster at the top (IGHV3-23, IGHV4-59, IGHV4-34, IGHV4-39) with frequencies consistently above 5–10% across all disease categories, and a lower-frequency cluster comprising the remaining 12 genes. Within the lower-frequency group, the IGHV1 family genes (IGHV1-18, IGHV1-2, IGHV1-69) clustered together, as did several IGHV3 family members (IGHV3-15, IGHV3-48, IGHV3-33, IGHV3-7). Visual inspection did not reveal strong disease-specific V gene usage patterns, suggesting that V gene usage is relatively stable across disease states and is more reflective of underlying germline genetics than disease-driven selection. This observation is consistent with the known stability of V gene usage across individuals and conditions [37].
 
 ## Age and Gender as Potential Confounders
 
@@ -554,7 +554,7 @@ Interestingly, Severe individuals showed intermediate diversity with high variab
 
 **CDR3 length varies with disease severity.** The observation that Moderate individuals had the longest CDR3 lengths, while Mild and Healthy individuals had shorter CDR3 lengths, is consistent with the known association between longer CDR3 loops and broadly neutralizing antibody responses [11]. Longer CDR3 regions can form more complex antigen-binding structures, potentially enabling recognition of diverse viral epitopes. The higher CDR3 length variability in Severe individuals may reflect a less focused, more heterogeneous response.
 
-**V gene usage is relatively stable across disease states.** The lack of strong disease-specific V gene usage patterns is consistent with findings from large-scale repertoire studies showing that V gene usage is primarily determined by germline genetics rather than by antigen exposure or disease state [37, 6]. While specific antibody lineages targeting SARS-CoV-2 epitopes may preferentially use certain V genes [38], these represent a small fraction of the total repertoire and may not be detectable at the level of overall V gene frequency.
+**V gene usage is relatively stable across disease states.** Hierarchical clustering of the 16 most prevalent V genes by their mean frequency profiles across disease categories revealed two distinct groups: a high-frequency cluster (IGHV3-23, IGHV4-59, IGHV4-34, IGHV4-39) that dominates the repertoire across all conditions, and a lower-frequency cluster comprising the remaining 12 genes. Within the lower-frequency group, V genes clustered by family — IGHV1 family members (IGHV1-18, IGHV1-2, IGHV1-69) grouped together, as did several IGHV3 family genes (IGHV3-15, IGHV3-48, IGHV3-33, IGHV3-7) — suggesting that co-regulation or shared genomic features drive correlated usage patterns. Importantly, the clustering was driven by overall expression level rather than by disease-specific differences, as no V gene cluster showed a disease-associated usage shift. This stability is consistent with findings from large-scale repertoire studies showing that V gene usage is primarily determined by germline genetics rather than by antigen exposure or disease state [37, 6]. While specific antibody lineages targeting SARS-CoV-2 epitopes may preferentially use certain V genes [38], these represent a small fraction of the total repertoire and may not be detectable at the level of overall V gene frequency.
 
 **Age and gender are not major confounders.** The lack of strong age or gender effects on clonal metrics within disease categories suggests that the observed differences between disease stages are not primarily driven by demographic confounders. However, this conclusion must be tempered by the limited sample sizes within each age-sex-disease combination and the uneven age distribution across disease categories (severe COVID-19 disproportionately affects older individuals).
 
