@@ -568,6 +568,8 @@ IS-API version 0.3.0 provides a practical and efficient tool for cross-study B c
 
 The tool and its cross-study analytical framework can be applied to any disease context where multiple AIRR-seq datasets are available, providing a template for systematic repertoire comparison. Future development will focus on expanding the range of statistical endpoints, improving scalability, and integrating with the broader AIRR Data Commons ecosystem to maximize the utility of the growing body of immune repertoire sequencing data.
 
+Notably, the emergence of large language models (LLMs) and AI-assisted coding tools does not diminish the need for structured, domain-specific APIs like IS-API — if anything, it amplifies it. While LLMs can generate analysis scripts, they cannot replace the need for a well-defined data access layer that enforces correct per-individual aggregation, handles cross-database metadata harmonization, and encapsulates immunological domain knowledge (such as region boundaries, clone definitions, and appropriate statistical measures). IS-API serves as exactly this kind of structured interface: it ensures that queries are biologically meaningful and statistically sound regardless of who — or what — generates them. In practice, the combination of IS-API with AI tools proved highly productive during this thesis work, with LLMs accelerating visualization, documentation, and exploratory analysis while IS-API guaranteed that the underlying data queries remained correct and reproducible. As AI tools become more prevalent in scientific research, well-designed domain APIs will become more important, not less — they provide the reliable, validated data layer that AI systems need to produce trustworthy results.
+
 \newpage
 
 # References
