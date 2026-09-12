@@ -66,7 +66,7 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 ## Metadata Figures
 
-**Metadata Figure 1.** Sampling depth across studies: number of subjects per dataset and sequencing depth per subject.
+**Metadata Figure 1.** Sampling depth across studies: number of individuals per dataset and sequencing depth per individual.
 
 **Metadata Figure 2.** Metadata availability per dataset — which metadata fields are present in each study.
 
@@ -208,7 +208,7 @@ IS-API is a RESTful API written in Node.js [27] using the Express framework. It 
 
 The analysis approach follows a three-tier pyramid (**Methods Figure 3**): (1) Metadata investigation at the base — examining available studies, individuals, samples, and processes to understand the data landscape; (2) Biological-statistical measurements in the middle — computing clones, clone size, gene usage, and mutations across all kinds of metadata; and (3) Specific biological questions at the top — testing whether, for example, clone size differences correlate with disease stage.
 
-![Methods Figure 3. Three-tier analysis approach. Tier 1 (base): metadata investigation — examining available studies, subjects, samples, and processing pipelines to assess data availability. Tier 2 (middle): biological-statistical measurements — computing clones, clone size, gene usage, and mutations across all kinds of metadata. Tier 3 (top): specific biological questions — testing targeted hypotheses such as whether clone size differences correlate with disease stage.](../methods_fig3.png){ width=100% }
+![Methods Figure 3. Three-tier analysis approach. Tier 1 (base): metadata investigation — examining available studies, individuals, samples, and processing pipelines to assess data availability. Tier 2 (middle): biological-statistical measurements — computing clones, clone size, gene usage, and mutations across all kinds of metadata. Tier 3 (top): specific biological questions — testing targeted hypotheses such as whether clone size differences correlate with disease stage.](../methods_fig3.png){ width=100% }
 
 All endpoints are designed as POST requests. The request body contains two JSON objects:
 
@@ -350,6 +350,8 @@ Seven studies were available through IS-API (**Table 1**):
 | HC1 | lp16 | Healthy control organ donors, no COVID-19 or vaccination | 6 | 28829438 | [34] |
 | GT1 | sykesIgblast2020 | Pediatric gut transplant recipients | 7 | 38014202 | [47] |
 
+The studies differ in their library preparation and sequencing methodologies. CD1 used 5'RACE (rapid amplification of cDNA ends) with unique molecular identifiers (UMIs) on the Illumina MiSeq platform, providing error-corrected sequences. CD2 and CD3 used multiplex PCR-based amplification of heavy chain variable regions, also sequenced on Illumina platforms, but without UMI-based error correction. The vaccine studies (CVX1, CVX2) used 5'RACE with UMIs, similar to CD1. HC1 used multiplex PCR amplification sequenced on Illumina HiSeq. All studies were annotated with IgBLAST for germline assignment, and clonal clustering was performed within ImmuneDB using shared V gene, J gene, and CDR3 similarity criteria. While IS-API standardizes the downstream analysis, these upstream differences in library preparation and error correction could introduce systematic biases — particularly in mutation rate estimates, where PCR errors without UMI correction may inflate apparent mutation counts. This limitation is acknowledged in the Discussion.
+
 ## Individual Selection and Exclusions
 
 An important feature of IS-API is its ability to selectively include or exclude specific individuals, studies, or metadata categories from the analysis. This enables researchers to exclude unpublished datasets, control samples (such as fibroblast or water controls used in sequencing quality assessment), and individuals with incomplete metadata — all through the query interface without modifying the underlying databases.
@@ -399,7 +401,7 @@ One of the main strengths of IS-API is that it enables researchers to conduct a 
 
 In the first step, we used IS-API to query the metadata endpoint across all available databases. This immediately revealed the scope of data accessible through the tool: seven datasets totaling 121 individuals (**Metadata Figure 1**). The per-dataset breakdown shows that the largest study (CD1) contributes 51 individuals, while the smallest (CVX2) contributes 5.
 
-![Metadata Figure 1. Sampling depth across studies. Left panel: number of subjects per dataset (bars). Right panel: sequencing depth (number of sequences) per subject within each dataset (dots). Study IDs: CD1–CD3 (COVID-19 cohorts), CVX1–CVX2 (vaccine cohorts), HC1 (healthy controls), GT1 (gut transplant).](../immunedb_STATS_API/metadata/plots/06_sampling_depth.png){ width=100% }
+![Metadata Figure 1. Sampling depth across studies. Left panel: number of individuals per dataset (bars). Right panel: sequencing depth (number of sequences) per individual within each dataset (dots). Study IDs: CD1–CD3 (COVID-19 cohorts), CVX1–CVX2 (vaccine cohorts), HC1 (healthy controls), GT1 (gut transplant).](../immunedb_STATS_API/metadata/plots/06_sampling_depth.png){ width=100% }
 
 Examining the metadata completeness across datasets (**Metadata Figure 3**) revealed important differences. While all datasets provide tissue and disease stage information, not all provide age or sex metadata — for example, CD3 has 13 individuals with tissue and disease stage data but only 10 with age information and no sex data. This kind of metadata investigation, available within seconds through IS-API, immediately alerts the researcher to the limitations of cross-study comparisons involving multiple metadata dimensions.
 
@@ -448,11 +450,11 @@ These were harmonized into six categories as described in Methods. The harmonize
 
 **Clone size: unique sequences versus copies.** To understand the relationship between the two measures of clone size, we compared the number of unique sequences per clone with the total number of copies (raw reads) per clone (**Figure 4**). Panel A shows a strong positive correlation between unique sequences and copies across all disease categories, confirming that both measures capture the same underlying biological signal. Panel B shows the copy-to-unique ratio by disease stage — Mild individuals exhibited the highest and most variable ratios, while Recovered and COVID Naive individuals showed consistently low ratios. Panel C displays per-subject median values, revealing that disease groups (Severe, Moderate, Mild) tend to cluster with higher copy counts relative to unique sequences compared to non-disease groups.
 
-![Figure 4. Clone size: copies versus unique sequences by disease stage. Panel A: scatter plot of copies (raw reads) vs. unique sequences per clone across all individuals and disease categories (log-log scale). Panel B: copy-to-unique ratio by disease stage. Panel C: per-subject median copies vs. median unique sequences, colored by disease category. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/26_copies_vs_unique.png){ width=100% }
+![Figure 4. Clone size: copies versus unique sequences by disease stage. Panel A: scatter plot of copies (raw reads) vs. unique sequences per clone across all individuals and disease categories (log-log scale). Panel B: copy-to-unique ratio by disease stage. Panel C: per-individual median copies vs. median unique sequences, colored by disease category. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/26_copies_vs_unique.png){ width=100% }
 
 **Clonal concentration (Top X).** Querying the topX_clone_size_copies endpoint showed the fraction of total sequence copies accounted for by the top 10, 100, and 1000 clones (**Figure 5**), revealing the degree of oligoclonal dominance in each disease category.
 
-![Figure 5. Clonal concentration: fraction of total sequence copies accounted for by the top 10, top 100, and top 1000 clones per individual, shown as stacked bars by disease stage. Higher values indicate greater oligoclonal dominance. Each bar represents one individual.](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png){ width=100% }
+![Figure 5. Clonal concentration: fraction of total sequence copies accounted for by the top 10, top 100, and top 1000 clones per individual, shown as stacked bars by disease stage. Y-axis: cumulative fraction of total copies (0–1). Higher values indicate greater oligoclonal dominance. Each bar represents one individual. Colors distinguish disease categories (see Figure 3 legend). Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/02_topX_stacked_by_disease.png){ width=100% }
 
 ## CDR3 Length and Mutation Analysis
 
@@ -500,7 +502,7 @@ To assess whether age or gender could confound the disease-stage comparisons, we
 
 ![Figure 12. Clonal metrics versus age by disease stage. Panel A: clone count (log scale) vs. age. Panel B: mean CDR3 length vs. age. Panel C: CDR NS/S ratio vs. age. Each dot represents one individual, colored by disease category. Three CD3 healthy individuals (H3, H4, H8) excluded due to missing age/sex metadata.](../immunedb_STATS_API/clonal_analysis/plots/24_metrics_vs_age.png){ width=100% }
 
-**Age (**Figure 12**).** Scatter plots of each metric against age showed no strong linear trends within any disease category. Clone count (Panel A, log scale) showed substantial variation within age groups but no systematic increase or decrease with age. Mean CDR3 length (Panel B) was similarly independent of age. The CDR NS/S ratio (Panel C) showed no age-dependent trend. These results suggest that age is not a major confounder in our disease-stage comparisons, though the limited age range within some disease categories (particularly Severe, where older individuals predominate) limits the power of this assessment.
+**Age (**Figure 12**).** Scatter plots of each metric against age showed no strong linear trends within any disease category. Clone count (Panel A, log scale) showed substantial variation within age groups but no systematic increase or decrease with age. Mean CDR3 length (Panel B) was similarly independent of age. The CDR NS/S ratio (Panel C) showed no age-dependent trend. Previous studies have reported that somatic hypermutation levels tend to increase with age in B cell repertoires, reflecting cumulative antigen exposure and repeated germinal center reactions over a lifetime [50, 51]. The absence of a clear age-dependent trend in our data may reflect the relatively narrow age ranges within disease categories and the limited sample sizes, which reduce power to detect subtle age effects. These results suggest that age is not a major confounder in our disease-stage comparisons, though the limited age range within some disease categories (particularly Severe, where older individuals predominate) limits the power of this assessment.
 
 ![Figure 13. Clonal metrics by gender and disease stage. Panel A: clone count (log scale). Panel B: mean CDR3 length. Panel C: CDR NS/S ratio. Boxplots compare male and female individuals within each disease category.](../immunedb_STATS_API/clonal_analysis/plots/25_metrics_vs_gender.png){ width=100% }
 
@@ -510,17 +512,17 @@ To assess whether age or gender could confound the disease-stage comparisons, we
 
 By combining disease_stage and sex metadata filters in a single query, IS-API enabled examination of mutation levels (**Figure 14**) and CDR3 lengths (**Figure 15**) in the top 10 clones, stratified by both sex and disease category. This demonstrates the API's ability to perform intersectional queries across multiple metadata dimensions.
 
-![Figure 14. Mutation level in top 10 clones stratified by sex and disease stage. Male and female individuals compared within each disease category. Demonstrates IS-API's ability to perform intersectional queries across multiple metadata dimensions in a single API call.](../immunedb_STATS_API/clonal_analysis/plots/12_mutation_top10_by_sex_disease.png){ width=100% }
+![Figure 14. Mutation level in top 10 clones stratified by sex and disease stage. Y-axis: average mutation count per clone. Male (blue) and female (red) individuals compared within each disease category. Each dot represents one individual; boxplots show median and IQR. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/12_mutation_top10_by_sex_disease.png){ width=100% }
 
-![Figure 15. CDR3 length in top 10 clones stratified by sex and disease stage. Mean CDR3 amino acid length of the top 10 clones per individual, grouped by sex within each disease category.](../immunedb_STATS_API/clonal_analysis/plots/13_cdr3_top10_by_sex_disease.png){ width=100% }
+![Figure 15. CDR3 length in top 10 clones stratified by sex and disease stage. Y-axis: mean CDR3 amino acid length (AA). Male (blue) and female (red) individuals compared within each disease category. Each dot represents one individual; boxplots show median and IQR. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/13_cdr3_top10_by_sex_disease.png){ width=100% }
 
 ## Within-Individual Cross-Tissue Analysis
 
 IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in CD1), we compared clone counts (**Figure 16**), clone sizes (**Figure 17**), and paired tissue measurements (**Figure 18**) within the same individual.
 
-![Figure 16. Within-individual clone count across tissues. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in CD1), clone counts are compared across tissue types within the same individual.](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
+![Figure 16. Within-individual clone count across tissues. Y-axis: number of distinct clones. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in CD1), clone counts are compared across tissue types within the same individual. Colors indicate disease category (see Figure 3 legend for color key).](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
 
-![Figure 17. Within-individual clone size across tissues. Clone size distributions compared between different tissue types within the same individual across studies.](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png){ width=100% }
+![Figure 17. Within-individual clone size across tissues. Y-axis: clone size (number of unique sequences per clone). Clone size distributions compared between different tissue types within the same individual across studies. Colors indicate disease category.](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png){ width=100% }
 
 ![Figure 18. Within-individual tissue comparison using paired line plots. Lines connect measurements from different tissues within the same individual, illustrating tissue-specific repertoire differences. Each line represents one individual sampled from multiple tissues.](../immunedb_STATS_API/clonal_analysis/plots/16_within_subject_tissue_lines.png){ width=100% }
 
@@ -560,7 +562,7 @@ Interestingly, Severe individuals showed intermediate diversity with high variab
 
 ## Limitations
 
-Several limitations should be acknowledged. First, the cohort is heterogeneous in terms of sequencing platforms, library preparation methods, and sample processing across studies. While IS-API standardizes the analysis, upstream differences could introduce systematic biases. Second, the clone definition (based on shared V gene, J gene, and CDR3 similarity) may not perfectly capture biological clones across different analysis pipelines. Third, the threshold of 20 or more unique sequences for clone inclusion means that rare clones are excluded, which may bias diversity estimates. Fourth, the sample sizes within some disease categories (particularly Moderate with n=9 and COVID Naive with n=8) are small, limiting statistical power. Fifth, the Recovered group includes both naturally recovered and vaccine-recovered individuals, which may have different repertoire characteristics. Future work should aim to analyze these subgroups separately with larger cohorts.
+Several limitations should be acknowledged. First, the cohort is heterogeneous in terms of sequencing platforms, library preparation methods, and sample processing across studies. While IS-API standardizes the analysis, upstream differences could introduce systematic biases. Second, the clone definition (based on shared V gene, J gene, and CDR3 similarity) may not perfectly capture biological clones across different analysis pipelines. Third, the threshold of 20 or more unique sequences for clone inclusion means that rare clones are excluded, which may bias diversity estimates. Fourth, the sample sizes within some disease categories (particularly Moderate with n=9 and COVID Naive with n=8) are small, limiting statistical power. Fifth, the Recovered group includes both naturally recovered and vaccine-recovered individuals, which may have different repertoire characteristics. Future work should aim to analyze these subgroups separately with larger cohorts. Sixth, the Healthy control group (from CD3 and HC1) was classified based on clinical metadata provided in the original studies, and serological verification of prior asymptomatic SARS-CoV-2 infection was not uniformly available across all healthy participants. While the HC1 organ donors were sampled before the COVID-19 pandemic (published 2017), making prior SARS-CoV-2 exposure impossible, the CD3 healthy controls were contemporaneous with the pandemic and could potentially have had undetected prior infections. This should be considered when interpreting repertoire differences between Healthy and disease groups.
 
 ## Conclusions
 
@@ -671,3 +673,7 @@ Notably, the emergence of large language models (LLMs) and AI-assisted coding to
 48. Pejoski, D., Cuesta-Zuluaga, J., Gkoukou, E., et al. (2023). nf-core/airrflow: An adaptive immune receptor repertoire analysis workflow. *Bioinformatics*. https://github.com/nf-core/airrflow
 
 49. Goel, R. R., Painter, M. M., Apostolidis, S. A., et al. (2021). mRNA vaccines induce durable immune memory to SARS-CoV-2 and variants of concern. *Science*, 374(6572), abm0829.
+
+50. Dunn-Walters, D. K., & Ademokun, A. A. (2010). B cell repertoire and ageing. *Current Opinion in Immunology*, 22(4), 514-520.
+
+51. Gibson, K. L., Wu, Y. C., Barnett, Y., et al. (2009). B-cell diversity decreases in old age and is correlated with poor health status. *Aging Cell*, 8(1), 18-25.
