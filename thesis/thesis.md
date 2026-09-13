@@ -42,15 +42,15 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 # List of Tables
 
-**Table 1.** Studies included in the analysis with individual metadata.
+**Table 1.** IS-API statistical endpoints — parameters, returns, and configurable options.
 
-**Table 2.** Disease stage harmonization across studies.
+**Table 2.** IS-API metadata endpoints.
 
-**Table 3.** Individual counts per harmonized disease category.
+**Table 3.** Studies included in the analysis with individual metadata.
 
-**Table 4.** IS-API metadata endpoints.
+**Table 4.** Disease stage harmonization across studies.
 
-**Table 5.** IS-API statistical endpoints — parameters, returns, and configurable options.
+**Table 5.** Individual counts per harmonized disease category.
 
 \newpage
 
@@ -264,9 +264,9 @@ The response follows a standardized JSON structure:
 
 Each entry in the `Result` array corresponds to one individual matching the metadata filters. The `repertoire` object echoes the matched metadata (database, individual identifier, and the key-value pairs), while the `statistics` array contains the computed values as name-value pairs in `stats_value`. This structure is consistent across all endpoints, enabling uniform parsing regardless of the statistic queried.
 
-The full set of available statistical queries is detailed below in **Table 5**, organized by endpoint controller. All endpoints accept `meta_key` and `meta_value` arrays as their primary parameters for metadata filtering, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously). Version 0.3.0 introduced CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples, ensuring correct per-individual results regardless of the number of samples or time points available.
+The full set of available statistical queries is detailed below in **Table 1**, organized by endpoint controller. All endpoints accept `meta_key` and `meta_value` arrays as their primary parameters for metadata filtering, enabling cross-stratified queries (e.g., mutation levels by disease stage and sex simultaneously). IS-API uses CTE-based queries (sampleMetaCTE) that first identify all samples matching the requested metadata for each individual, then aggregate statistics across those samples, ensuring correct per-individual results regardless of the number of samples or time points available.
 
-**Table 5.** IS-API v0.3.0 statistical endpoints — parameters, returns, and configurable options.
+**Table 1.** IS-API statistical endpoints — parameters, returns, and configurable options.
 
 | Controller | Statistic | Parameters | Returns (per individual) | Configurable |
 |---|---|---|---|---|
@@ -291,9 +291,9 @@ CDR and FW region boundaries follow the ImmuneDB database schema, where CDR is d
 
 ## IS-API Metadata Endpoints
 
-IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 4**).
+IS-API provides metadata endpoints that allow researchers to explore the available data before conducting biological analyses (**Table 2**).
 
-**Table 4.** IS-API metadata endpoints.
+**Table 2.** IS-API metadata endpoints.
 
 | Endpoint | Description | Example Query Filters |
 |---|---|---|
@@ -336,9 +336,9 @@ Figures were generated using both R (ggplot2, dplyr, tidyr, jsonlite) and Python
 
 Data were collected from published studies with raw DNA AIRR BCR sequences from healthy and SARS-CoV-2-infected individuals at different stages of disease and recovery, as well as vaccinated individuals. After collecting the raw DNA sequences along with their metadata, we built standardized metadata sheets compliant with AIRR-seq data commons standards [26] while allowing flexibility for experiment-specific fields. Each study was processed through the ImmuneDB pipeline — annotated with IgBLAST [23] for germline assignment, clustered into clones, and stored with associated metadata in individual ImmuneDB database instances.
 
-Seven studies were available through IS-API (**Table 1**):
+Seven studies were available through IS-API (**Table 3**):
 
-**Table 1.** Datasets available through IS-API v0.3.0.
+**Table 3.** Datasets available through IS-API.
 
 | Study ID | Database | Description | N | PMID | Ref |
 |---|---|---|---|---|---|
@@ -362,9 +362,9 @@ Blood-derived tissues were defined as: blood, Peripheral blood, PBL (peripheral 
 
 ## Disease Stage Harmonization
 
-Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 2**).
+Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 4**).
 
-**Table 2.** Disease stage harmonization. Original labels from each study mapped to unified categories.
+**Table 4.** Disease stage harmonization. Original labels from each study mapped to unified categories.
 
 | Harmonized Category | Original Labels | Source Studies |
 |---|---|---|
@@ -377,9 +377,9 @@ Different studies used different terminology for disease stages. We harmonized t
 
 The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
 
-The final cohort composition is shown in **Table 3**.
+The final cohort composition is shown in **Table 5**.
 
-**Table 3.** Individual counts per harmonized disease category.
+**Table 5.** Individual counts per harmonized disease category.
 
 | Disease Category | N | Contributing Studies | Notes |
 |---|---|---|---|
