@@ -155,10 +155,11 @@ metrics = [
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 fig.suptitle("Clonal Metrics vs Age by Disease Stage (Blood Only)",
-             fontsize=20, fontweight="bold", y=1.0)
-fig.text(0.5, 0.94, "Each dot = one subject, colored by disease stage",
-         ha="center", fontsize=14, color="gray")
+             fontsize=24, fontweight="bold", y=1.02)
+fig.text(0.5, 0.96, "Each dot = one subject, colored by disease stage",
+         ha="center", fontsize=16, color="gray")
 
+disease_counts = defaultdict(int)
 for idx, (metric_name, metric_dict) in enumerate(metrics):
     ax = axes[idx]
     for d in disease_order:
@@ -169,21 +170,29 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
                 ages.append(age_map[rid])
                 vals.append(info["value"])
         if ages:
-            ax.scatter(ages, vals, color=disease_colors[d], s=40, alpha=0.75,
-                       edgecolors="white", linewidth=0.5, label=f"{d} (n={len(ages)})",
-                       zorder=3)
-    ax.set_xlabel("Age", fontsize=13, fontweight="bold")
-    ax.set_ylabel(metric_name, fontsize=13, fontweight="bold")
-    ax.tick_params(axis='both', labelsize=11)
+            ax.scatter(ages, vals, color=disease_colors[d], s=50, alpha=0.75,
+                       edgecolors="white", linewidth=0.5, zorder=3)
+            if idx == 0:
+                disease_counts[d] = len(ages)
+    ax.set_xlabel("Age", fontsize=16, fontweight="bold")
+    ax.set_ylabel(metric_name, fontsize=16, fontweight="bold")
+    ax.tick_params(axis='both', labelsize=14)
     panel = chr(65 + idx)
-    ax.set_title(f"{panel}. {metric_name} vs Age", fontsize=14, fontweight="bold", loc="left")
+    ax.set_title(f"{panel}. {metric_name} vs Age", fontsize=18, fontweight="bold", loc="left")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if idx == 0:
         ax.set_yscale("log")
-    ax.legend(fontsize=11, loc="upper right")
 
-plt.tight_layout(rect=[0, 0, 1, 0.88])
+from matplotlib.lines import Line2D
+legend_elements = [Line2D([0], [0], marker='o', color='w', markerfacecolor=disease_colors[d],
+                          markersize=10, label=f"{d} (n={disease_counts.get(d, 0)})")
+                   for d in disease_order if disease_counts.get(d, 0) > 0]
+fig.legend(handles=legend_elements, loc="upper center", bbox_to_anchor=(0.5, 0.93),
+           ncol=len(legend_elements), fontsize=14, frameon=True, framealpha=0.9,
+           edgecolor="black", handletextpad=0.3, columnspacing=1.0)
+
+plt.tight_layout(rect=[0, 0, 1, 0.85])
 plt.savefig("plots/24_metrics_vs_age.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 24_metrics_vs_age.png")
