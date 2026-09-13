@@ -123,8 +123,7 @@ for d in disease_order:
 # FIGURE: Copies vs Unique — 2 panels (A: per-clone scatter, B: per-subject median)
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(22, 11))
-fig.suptitle("Clone Size: Copies vs Unique Sequences by Disease Stage (Blood Only)",
-             fontsize=26, fontweight="bold", y=0.97)
+# Title removed for publication
 
 rng = np.random.default_rng(42)
 
@@ -136,7 +135,7 @@ for d in disease_order:
         continue
     uniq = [c["unique"] for c in clones]
     cop = [c["copies"] for c in clones]
-    ax.scatter(uniq, cop, color=disease_colors[d], alpha=0.25, s=12,
+    ax.scatter(uniq, cop, color=disease_colors[d], alpha=0.25, s=18,
                label=d, edgecolors="none", rasterized=True)
 
 # Reference line y=x
@@ -144,12 +143,12 @@ lims = [1, max(max(r["copies"] for r in clone_records), max(r["unique"] for r in
 ax.plot(lims, lims, "--", color="gray", alpha=0.5, linewidth=1.5)
 ax.set_xscale("log")
 ax.set_yscale("log")
-ax.set_xlabel("Clone Size (unique sequences)", fontsize=18, fontweight="bold")
-ax.set_ylabel("Clone Size (copies / raw reads)", fontsize=18, fontweight="bold")
-ax.set_title("A. Copies vs Unique Sequences per Clone", fontsize=20, fontweight="bold", loc="left")
-ax.legend(fontsize=14, title="Disease Stage", title_fontsize=15,
+ax.set_xlabel("Clone Size (unique sequences)", fontsize=24, fontweight="bold")
+ax.set_ylabel("Clone Size (copies / raw reads)", fontsize=24, fontweight="bold")
+ax.set_title("A. Copies vs Unique Sequences per Clone", fontsize=24, fontweight="bold", loc="left")
+ax.legend(fontsize=20, title="Disease Stage", title_fontsize=22,
           loc="upper left", framealpha=0.9, edgecolor="gray", markerscale=3)
-ax.tick_params(axis="both", labelsize=14)
+ax.tick_params(axis="both", labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
@@ -161,23 +160,23 @@ for d in disease_order:
         continue
     med_uniq = [np.median(info["unique_list"]) for _, info in subjects]
     med_cop = [np.median(info["copies_list"]) for _, info in subjects]
-    ax.scatter(med_uniq, med_cop, color=disease_colors[d], alpha=0.8, s=80,
+    ax.scatter(med_uniq, med_cop, color=disease_colors[d], alpha=0.8, s=120,
                label=f"{d} (n={len(subjects)})", edgecolors="white", linewidth=0.8, zorder=3)
 
 lims2 = ax.get_xlim()
 ax.plot([1, 1e5], [1, 1e5], "--", color="gray", alpha=0.5, linewidth=1.5)
 ax.set_xscale("log")
 ax.set_yscale("log")
-ax.set_xlabel("Median Unique Sequences per Subject", fontsize=18, fontweight="bold")
-ax.set_ylabel("Median Copies per Subject", fontsize=18, fontweight="bold")
-ax.set_title("B. Per-Subject Median: Copies vs Unique", fontsize=20, fontweight="bold", loc="left")
-ax.legend(fontsize=14, title="Disease Stage", title_fontsize=15,
+ax.set_xlabel("Median Unique Sequences per Subject", fontsize=24, fontweight="bold")
+ax.set_ylabel("Median Copies per Subject", fontsize=24, fontweight="bold")
+ax.set_title("B. Per-Subject Median: Copies vs Unique", fontsize=24, fontweight="bold", loc="left")
+ax.legend(fontsize=20, title="Disease Stage", title_fontsize=22,
           loc="upper left", framealpha=0.9, edgecolor="gray")
-ax.tick_params(axis="both", labelsize=14)
+ax.tick_params(axis="both", labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-plt.tight_layout(rect=[0, 0, 1, 0.93])
+plt.tight_layout()
 plt.savefig("plots/26_copies_vs_unique.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("\nSaved: plots/26_copies_vs_unique.png")

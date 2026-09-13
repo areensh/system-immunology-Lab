@@ -170,12 +170,7 @@ ax_dendro_col_placeholder = fig.add_subplot(gs[1, 1])
 ax = fig.add_subplot(gs[1, 2])
 cax = fig.add_subplot(gs[2, 2])
 
-fig.suptitle("V Gene Usage Heatmap — Individuals Clustered by V Gene Profile (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.97)
-fig.text(0.5, 0.935,
-         f"Hierarchical clustering (Ward linkage, Euclidean distance) of {n_subjects} individuals "
-         f"using {len(selected_genes)} V genes (≥1% in ≥{used_threshold} of subjects)",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 # Disease color bar at top
 disease_colors_arr = [disease_colors[info["disease"]] for _, info in clustered_subjects]
@@ -184,7 +179,7 @@ ax_colorbar_top.imshow([range(len(clustered_subjects))], aspect="auto",
                        interpolation="nearest")
 ax_colorbar_top.set_xticks([])
 ax_colorbar_top.set_yticks([])
-ax_colorbar_top.set_ylabel("Disease", fontsize=12, fontweight="bold", rotation=0,
+ax_colorbar_top.set_ylabel("Disease", fontsize=20, fontweight="bold", rotation=0,
                            ha="right", va="center")
 for spine in ax_colorbar_top.spines.values():
     spine.set_visible(False)
@@ -209,25 +204,25 @@ im = ax.imshow(clustered_matrix, aspect="auto", cmap="YlOrRd", interpolation="ne
 # Y-axis: V gene names on the right
 ax.yaxis.tick_right()
 ax.set_yticks(range(len(clustered_genes)))
-ax.set_yticklabels(clustered_genes, fontsize=15, fontweight="bold")
+ax.set_yticklabels(clustered_genes, fontsize=20, fontweight="bold")
 ax.tick_params(axis='y', length=0, pad=8)
 
 # X-axis: no individual labels (too many), clustering order is the point
 ax.set_xticks([])
 ax.set_xlabel(f"Individuals (n={n_subjects}), ordered by hierarchical clustering",
-              fontsize=16, fontweight="bold", labelpad=8)
+              fontsize=24, fontweight="bold", labelpad=8)
 
 # Frequency colorbar — position manually below heatmap
 cax.set_position([0.45, 0.04, 0.30, 0.012])
 cbar = plt.colorbar(im, cax=cax, orientation="horizontal")
-cbar.set_label("V Gene Frequency (%)", fontsize=14, fontweight="bold")
-cbar.ax.tick_params(labelsize=12)
+cbar.set_label("V Gene Frequency (%)", fontsize=20, fontweight="bold")
+cbar.ax.tick_params(labelsize=18)
 
 # Disease legend (bottom left)
 from matplotlib.patches import Patch
 legend_elements = [Patch(facecolor=disease_colors[d], label=d) for d in disease_order]
 fig.legend(handles=legend_elements, loc="lower left", bbox_to_anchor=(0.03, 0.015),
-           ncol=len(disease_order), fontsize=13, frameon=True, framealpha=0.9,
+           ncol=len(disease_order), fontsize=20, frameon=True, framealpha=0.9,
            edgecolor="black", handlelength=1.5, handleheight=1.2)
 
 plt.savefig("plots/23_v_gene_usage_heatmap.png", dpi=600, bbox_inches="tight", facecolor="white")

@@ -154,10 +154,7 @@ metrics = [
 # FIGURE A: Metrics vs Age (scatter, colored by disease)
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
-fig.suptitle("Clonal Metrics vs Age by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=1.02)
-fig.text(0.5, 0.96, "Each dot = one subject, colored by disease stage",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 disease_counts = defaultdict(int)
 for idx, (metric_name, metric_dict) in enumerate(metrics):
@@ -170,15 +167,15 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
                 ages.append(age_map[rid])
                 vals.append(info["value"])
         if ages:
-            ax.scatter(ages, vals, color=disease_colors[d], s=50, alpha=0.75,
+            ax.scatter(ages, vals, color=disease_colors[d], s=75, alpha=0.75,
                        edgecolors="white", linewidth=0.5, zorder=3)
             if idx == 0:
                 disease_counts[d] = len(ages)
-    ax.set_xlabel("Age", fontsize=16, fontweight="bold")
-    ax.set_ylabel(metric_name, fontsize=16, fontweight="bold")
-    ax.tick_params(axis='both', labelsize=14)
+    ax.set_xlabel("Age", fontsize=24, fontweight="bold")
+    ax.set_ylabel(metric_name, fontsize=24, fontweight="bold")
+    ax.tick_params(axis='both', labelsize=20)
     panel = chr(65 + idx)
-    ax.set_title(f"{panel}. {metric_name} vs Age", fontsize=18, fontweight="bold", loc="left")
+    ax.set_title(f"{panel}. {metric_name} vs Age", fontsize=24, fontweight="bold", loc="left")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if idx == 0:
@@ -188,11 +185,11 @@ from matplotlib.lines import Line2D
 legend_elements = [Line2D([0], [0], marker='o', color='w', markerfacecolor=disease_colors[d],
                           markersize=10, label=f"{d} (n={disease_counts.get(d, 0)})")
                    for d in disease_order if disease_counts.get(d, 0) > 0]
-fig.legend(handles=legend_elements, loc="upper center", bbox_to_anchor=(0.5, 0.93),
-           ncol=len(legend_elements), fontsize=14, frameon=True, framealpha=0.9,
+fig.legend(handles=legend_elements, loc="upper center", bbox_to_anchor=(0.5, 0.97),
+           ncol=len(legend_elements), fontsize=20, frameon=True, framealpha=0.9,
            edgecolor="black", handletextpad=0.3, columnspacing=1.0)
 
-plt.tight_layout(rect=[0, 0, 1, 0.85])
+plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/24_metrics_vs_age.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 24_metrics_vs_age.png")
@@ -201,10 +198,7 @@ print("Saved: 24_metrics_vs_age.png")
 # FIGURE B: Metrics vs Gender (boxplot per disease, split by sex)
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
-fig.suptitle("Clonal Metrics by Gender and Disease Stage (Blood Only)",
-             fontsize=20, fontweight="bold", y=1.0)
-fig.text(0.5, 0.94, "Male vs Female within each disease stage",
-         ha="center", fontsize=14, color="gray")
+# Title and subtitle removed for publication
 
 rng = np.random.default_rng(42)
 
@@ -245,15 +239,15 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
         if vals and vals != [0]:
             jitter = rng.uniform(-0.1, 0.1, len(vals))
             ax.scatter([positions[i] + j for j in jitter], vals,
-                       color=box_colors[i], s=20, alpha=0.7, zorder=3,
+                       color=box_colors[i], s=30, alpha=0.7, zorder=3,
                        edgecolors="white", linewidth=0.3)
 
     ax.set_xticks(tick_positions)
-    ax.set_xticklabels(tick_labels, fontsize=11, fontweight="bold", rotation=25, ha="right")
-    ax.tick_params(axis='y', labelsize=11)
+    ax.set_xticklabels(tick_labels, fontsize=20, fontweight="bold", rotation=25, ha="right")
+    ax.tick_params(axis='y', labelsize=20)
     panel = chr(65 + idx)
-    ax.set_title(f"{panel}. {metric_name}", fontsize=14, fontweight="bold", loc="left")
-    ax.set_ylabel(metric_name, fontsize=13, fontweight="bold")
+    ax.set_title(f"{panel}. {metric_name}", fontsize=24, fontweight="bold", loc="left")
+    ax.set_ylabel(metric_name, fontsize=24, fontweight="bold")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if idx == 0:
@@ -263,9 +257,9 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
 from matplotlib.patches import Patch
 legend_elements = [Patch(facecolor="gray", alpha=0.8, label="Male"),
                    Patch(facecolor="gray", alpha=0.6, hatch="///", label="Female")]
-axes[2].legend(handles=legend_elements, fontsize=12, loc="upper right")
+axes[2].legend(handles=legend_elements, fontsize=20, loc="upper right")
 
-plt.tight_layout(rect=[0, 0, 1, 0.88])
+plt.tight_layout()
 plt.savefig("plots/25_metrics_vs_gender.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 25_metrics_vs_gender.png")

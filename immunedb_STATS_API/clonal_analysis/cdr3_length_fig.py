@@ -155,12 +155,12 @@ def boxplot_panel(ax, data_dict, title, ylabel, ylim=None):
         vals = data_dict.get(d, [])
         if vals:
             jitter = rng.uniform(-0.12, 0.12, len(vals))
-            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
+            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=68, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=22, fontweight="bold", rotation=25, ha="right")
+    ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
     ax.set_ylabel(ylabel, fontsize=24, fontweight="bold")
-    ax.set_title(title, fontsize=26, fontweight="bold", loc="left")
+    ax.set_title(title, fontsize=24, fontweight="bold", loc="left")
     ax.tick_params(axis='y', labelsize=20)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -172,15 +172,12 @@ def boxplot_panel(ax, data_dict, title, ylabel, ylim=None):
 # FIGURE 7a: All clones — CDR3 length mean + SD
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(22, 10))
-fig.suptitle("CDR3 Length Distribution — All Clones by Disease Stage (Blood Only)",
-             fontsize=28, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Mean and variability of CDR3 amino acid length per subject",
-         ha="center", fontsize=20, color="gray")
+# Title and subtitle removed for publication
 
 boxplot_panel(axes[0], all_mean, "A. Mean CDR3 Length per Subject", "Mean CDR3 Length (AA)", ylim=shared_mean_ylim)
 boxplot_panel(axes[1], all_sd, "B. CDR3 Length Variability per Subject", "SD of CDR3 Length (AA)", ylim=shared_sd_ylim)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/22a_cdr3_length_all_clones.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 22a_cdr3_length_all_clones.png")
@@ -189,15 +186,12 @@ print("Saved: 22a_cdr3_length_all_clones.png")
 # FIGURE 7b: Expanded clones — CDR3 length mean + SD
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(22, 10))
-fig.suptitle("CDR3 Length Distribution — Expanded Clones by Disease Stage (Blood Only)",
-             fontsize=28, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Expanded clones (≥20 unique sequences) — CDR3 length per subject",
-         ha="center", fontsize=20, color="gray")
+# Title and subtitle removed for publication
 
 boxplot_panel(axes[0], exp_mean, "A. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)", ylim=shared_mean_ylim)
 boxplot_panel(axes[1], exp_sd, "B. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)", ylim=shared_sd_ylim)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/22b_cdr3_length_expanded.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 22b_cdr3_length_expanded.png")

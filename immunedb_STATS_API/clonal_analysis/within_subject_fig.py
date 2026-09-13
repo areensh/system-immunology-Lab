@@ -112,11 +112,7 @@ for subj in hc1_subjects:
 fig, axes = plt.subplots(nrows, ncols, figsize=(20, 6 * nrows))
 if nrows == 1:
     axes = [axes]
-fig.suptitle("Within-Subject Comparison: Clone Count by Tissue (HC1)",
-             fontsize=24, fontweight="bold", y=1.02)
-fig.text(0.5, 0.97,
-         "HC1 healthy subjects — number of distinct clones per tissue",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 for idx, subj in enumerate(hc1_subjects):
     ax = axes[idx // ncols][idx % ncols]
@@ -126,22 +122,22 @@ for idx, subj in enumerate(hc1_subjects):
     colors = [tissue_colors.get(t, "#999") for t in tissues]
     bars = ax.bar(range(len(tissues)), counts, color=colors, edgecolor="white", linewidth=0.5)
     ax.set_xticks(range(len(tissues)))
-    ax.set_xticklabels(tissues, rotation=30, ha="right", fontsize=16)
-    ax.set_title(subj, fontsize=20, fontweight="bold")
-    ax.set_ylabel("# Clones", fontsize=18)
-    ax.tick_params(axis='y', labelsize=14)
+    ax.set_xticklabels(tissues, rotation=30, ha="right", fontsize=20)
+    ax.set_title(subj, fontsize=24, fontweight="bold")
+    ax.set_ylabel("# Clones", fontsize=24, fontweight="bold")
+    ax.tick_params(axis='y', labelsize=20)
     ax.set_ylim(0, global_max * 1.12)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     for bar, c in zip(bars, counts):
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + global_max*0.02,
-                str(c), ha="center", va="bottom", fontsize=14, fontweight="bold")
+                str(c), ha="center", va="bottom", fontsize=16, fontweight="bold")
 
 # Hide empty subplots
 for idx in range(len(hc1_subjects), nrows * ncols):
     axes[idx // ncols][idx % ncols].set_visible(False)
 
-plt.tight_layout(rect=[0, 0, 1, 0.93])
+plt.tight_layout()
 plt.savefig("plots/14_within_subject_clone_count.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 14_within_subject_clone_count.png")
@@ -172,10 +168,7 @@ print(f"Tissues for comparison: {compare_tissues}")
 fig, axes = plt.subplots(1, len(compare_tissues), figsize=(7 * len(compare_tissues), 9))
 if len(compare_tissues) == 1:
     axes = [axes]
-fig.suptitle(f"Cross-Study Tissue Comparison: HC1 (D207) vs GT1 ({gt1_best})",
-             fontsize=24, fontweight="bold", y=1.02)
-fig.text(0.5, 0.96, "Clone size distribution in matched tissues across two studies",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 for i, tissue in enumerate(compare_tissues):
     ax = axes[i]
@@ -199,20 +192,20 @@ for i, tissue in enumerate(compare_tissues):
         patch.set_alpha(0.8)
 
     for j, d in enumerate(data_pair):
-        ax.scatter(j, np.mean(d), color="red", marker="D", s=50, zorder=4)
+        ax.scatter(j, np.mean(d), color="red", marker="D", s=75, zorder=4)
 
     ax.set_yscale("log")
     ax.set_xticks([0, 1])
-    ax.set_xticklabels(labels, fontsize=14)
-    ax.set_title(tissue, fontsize=20, fontweight="bold")
-    ax.tick_params(axis='y', labelsize=14)
+    ax.set_xticklabels(labels, fontsize=20)
+    ax.set_title(tissue, fontsize=24, fontweight="bold")
+    ax.tick_params(axis='y', labelsize=20)
     if i == 0:
-        ax.set_ylabel("Clone Size (unique sequences, log scale)", fontsize=16, fontweight="bold")
+        ax.set_ylabel("Clone Size (unique sequences, log scale)", fontsize=24, fontweight="bold")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-plt.tight_layout(rect=[0, 0, 1, 0.91])
+plt.tight_layout()
 plt.savefig("plots/15_within_subject_clone_size_cross_study.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 15_within_subject_clone_size_cross_study.png")
@@ -246,10 +239,10 @@ for ti, tissue in enumerate(compare_all_tissues):
     jitter_gt1 = rng.uniform(-0.06, 0.06, len(gt1_medians))
 
     ax.scatter([x_hc1 + j for j in jitter_hc1], hc1_medians,
-               color=study_colors["HC1"], s=60, alpha=0.7, zorder=3,
+               color=study_colors["HC1"], s=90, alpha=0.7, zorder=3,
                edgecolors="white", linewidth=0.5)
     ax.scatter([x_gt1 + j for j in jitter_gt1], gt1_medians,
-               color=study_colors["GT1"], s=60, alpha=0.7, zorder=3,
+               color=study_colors["GT1"], s=90, alpha=0.7, zorder=3,
                edgecolors="white", linewidth=0.5)
 
     # Group medians
@@ -265,18 +258,15 @@ legend_handles = [
     Line2D([0], [0], color=study_colors["HC1"], marker="o", markersize=8, linestyle="None", label="HC1 (healthy)"),
     Line2D([0], [0], color=study_colors["GT1"], marker="o", markersize=8, linestyle="None", label="GT1 (gut transplant)"),
 ]
-ax.legend(handles=legend_handles, fontsize=16, title="Study", title_fontsize=17, loc="upper right")
+ax.legend(handles=legend_handles, fontsize=20, title="Study", title_fontsize=22, loc="upper right")
 
 ax.set_yscale("log")
 ax.set_xticks(range(len(compare_all_tissues)))
-ax.set_xticklabels(compare_all_tissues, fontsize=18, fontweight="bold")
-ax.set_ylabel("Median Clone Size per Subject (log scale)", fontsize=20, fontweight="bold")
-ax.set_xlabel("Tissue", fontsize=20, fontweight="bold")
-ax.set_title("Cross-Study Tissue Comparison: Median Clone Size",
-             fontsize=24, fontweight="bold", pad=35)
-ax.text(0.5, 1.06, "Each dot = one subject's median clone size in that tissue. Bar = group median.",
-        transform=ax.transAxes, ha="center", fontsize=16, color="gray")
-ax.tick_params(axis='y', labelsize=16)
+ax.set_xticklabels(compare_all_tissues, fontsize=20, fontweight="bold")
+ax.set_ylabel("Median Clone Size per Subject (log scale)", fontsize=24, fontweight="bold")
+ax.set_xlabel("Tissue", fontsize=24, fontweight="bold")
+# Title and subtitle removed for publication
+ax.tick_params(axis='y', labelsize=20)
 ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
