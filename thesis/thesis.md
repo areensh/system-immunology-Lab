@@ -200,7 +200,7 @@ Using IS-API, compare repertoire characteristics across six disease categories (
 
 The overall workflow for building and querying immune repertoire databases is illustrated in **Methods Figure 1**: raw DNA sequences (FASTA/Q or IgBLAST-annotated) are processed with uniform and consistent metadata into ImmuneDB databases, which are then queried through IS-API.
 
-![Methods Figure 1. IS-API data preparation pipeline. Raw DNA sequences in FASTA/Q or IgBLAST-annotated format are combined with uniform and consistent metadata, then loaded into individual ImmuneDB database instances (one per study, dashed box). IS-API connects to all instances, enabling cross-study queries through a single interface.](../methods_fig1.png){ width=100% }
+![Methods Figure 1. IS-API data preparation pipeline. Raw DNA sequences in FASTA/Q or IgBLAST-annotated format are combined with uniform and consistent metadata, then loaded into individual ImmuneDB database instances (one per study, dashed box).](../methods_fig1.png){ width=100% }
 
 IS-API is a RESTful API written in Node.js [27] using the Express framework. It connects to multiple independent ImmuneDB MySQL database instances and executes queries across all of them in a single API call (**Methods Figure 2**). The five endpoint controllers — Metadata, Clones, Mutations, CDR3, and Gene Usage — each fan out to 1...N ImmuneDB instances and return results in a unified JSON format. The API is publicly available at https://github.com/DrexelSystemsImmunologyLab/IS-API.
 
