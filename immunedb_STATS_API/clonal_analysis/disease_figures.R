@@ -34,21 +34,22 @@ stacked_tier_colors <- c(
   "Top 101-1000" = "#2ca02c", "Remaining" = "#aec7e8"
 )
 
-base_theme <- theme_bw(base_size = 26) +
+base_theme <- theme_bw(base_size = 28) +
   theme(
     plot.background = element_rect(fill = "white", color = NA),
     panel.background = element_rect(fill = "white", color = NA),
     legend.background = element_rect(fill = "white", color = NA),
-    axis.title = element_text(size = 22, face = "bold"),
-    axis.text = element_text(size = 20),
-    axis.text.x = element_text(size = 20, angle = 20, hjust = 1),
-    strip.text = element_text(face = "bold", size = 22),
+    axis.title = element_text(size = 26, face = "bold"),
+    axis.text = element_text(size = 22),
+    axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+    strip.text = element_text(face = "bold", size = 24),
     plot.title = element_blank(),
+    plot.subtitle = element_blank(),
     plot.margin = margin(10, 15, 10, 15),
     legend.position = "bottom",
-    legend.title = element_text(size = 20, face = "bold"),
-    legend.text = element_text(size = 18),
-    legend.key.size = unit(1, "cm"),
+    legend.title = element_text(size = 22, face = "bold"),
+    legend.text = element_text(size = 20),
+    legend.key.size = unit(1.2, "cm"),
     legend.spacing.x = unit(0.3, "cm"),
     legend.margin = margin(10, 0, 5, 0)
   )
@@ -189,17 +190,16 @@ p2 <- ggplot(df_tx_long, aes(x = reorder(repertoire_id, subj_order), y = pct, fi
   scale_fill_manual(values = stacked_tier_colors, name = "Clone Tier") +
   scale_y_continuous(labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
   coord_cartesian(ylim = c(0, 100)) +
-  labs(x = NULL, y = "Fraction of Total Copies",
-       title = "Clonal Dominance: Top-X Clone Proportions by Disease Stage") +
+  labs(x = NULL, y = "Fraction of Total Copies") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        axis.title.y = element_text(size = 18, face = "bold"),
-        axis.text.y = element_text(size = 14),
-        strip.text.x = element_text(face = "bold", size = 20, margin = margin(b = 4, t = 4)),
+        axis.title.y = element_text(size = 26, face = "bold"),
+        axis.text.y = element_text(size = 22),
+        strip.text.x = element_text(face = "bold", size = 24, margin = margin(b = 4, t = 4)),
         strip.background = element_rect(fill = "grey90", color = NA),
-        plot.title = element_text(size = 24, face = "bold", hjust = 0.5),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 17, face = "bold"),
-        legend.key.size = unit(1.2, "lines"),
+        plot.title = element_blank(),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 22, face = "bold"),
+        legend.key.size = unit(1.5, "lines"),
         legend.position = "right",
         plot.margin = margin(15, 25, 10, 25),
         panel.spacing = unit(0.8, "lines"))
@@ -259,15 +259,14 @@ p3 <- ggplot(df_cdr3_long, aes(x = disease_cat, y = cdr3_length, fill = tier)) +
                position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = tier_colors, name = "Clone Tier") +
   scale_color_manual(values = tier_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. CDR3 Length (AA)",
-       title = "CDR3 AA Length by Disease Category") +
-  theme(plot.title = element_text(size = 24, face = "bold", hjust = 0.5),
-        axis.title = element_text(size = 18, face = "bold"),
-        axis.text = element_text(size = 14),
-        axis.text.x = element_text(size = 15, angle = 20, hjust = 1),
-        legend.text = element_text(size = 15),
-        legend.title = element_text(size = 16, face = "bold"),
-        legend.key.size = unit(1.2, "lines"),
+  labs(x = NULL, y = "Avg. CDR3 Length (AA)") +
+  theme(plot.title = element_blank(),
+        axis.title = element_text(size = 26, face = "bold"),
+        axis.text = element_text(size = 22),
+        axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 22, face = "bold"),
+        legend.key.size = unit(1.5, "lines"),
         legend.position = "right",
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/03_cdr3_by_disease.png", p3, width = 16, height = 10, dpi = 600, bg = "white")
@@ -284,14 +283,13 @@ p3b <- ggplot(df_cdr3_range, aes(x = disease_cat, y = cdr3_range, fill = disease
   stat_summary(fun.data = mean_sd_stats, geom = "errorbar", width = 0.3, color = "red", linewidth = 0.7) +
   scale_fill_manual(values = disease_colors, guide = "none") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
-  labs(x = NULL, y = "CDR3 Length Difference\n(Top10 - Top1000, AA)",
-       title = "CDR3 Length Variability by Disease Category") +
-  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-        axis.title = element_text(size = 13, face = "bold"),
-        axis.text = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
-        legend.text = element_text(size = 11),
-        legend.title = element_text(size = 11, face = "bold"),
+  labs(x = NULL, y = "CDR3 Length Difference\n(Top10 - Top1000, AA)") +
+  theme(plot.title = element_blank(),
+        axis.title = element_text(size = 26, face = "bold"),
+        axis.text = element_text(size = 22),
+        axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 22, face = "bold"),
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/04_cdr3_range_by_disease.png", p3b, width = 18, height = 10, dpi = 600, bg = "white")
 cat("Figure 4 saved.\n")
@@ -696,14 +694,13 @@ p12 <- ggplot(df_mut_sex, aes(x = disease_cat, y = mut_top10, fill = sex)) +
                position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = sex_colors, name = "Sex") +
   scale_color_manual(values = sex_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. Mutation Count\n(Top 10 Clones)",
-       title = "Mutation Level in Top 10 Clones by Sex and Disease") +
-  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-        axis.title = element_text(size = 13, face = "bold"),
-        axis.text = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
-        legend.text = element_text(size = 11),
-        legend.title = element_text(size = 11, face = "bold"),
+  labs(x = NULL, y = "Avg. Mutation Count\n(Top 10 Clones)") +
+  theme(plot.title = element_blank(),
+        axis.title = element_text(size = 26, face = "bold"),
+        axis.text = element_text(size = 22),
+        axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 22, face = "bold"),
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/12_mutation_top10_by_sex_disease.png", p12, width = 20, height = 11, dpi = 600, bg = "white")
 cat("Figure 12 saved.\n")
@@ -723,14 +720,13 @@ p13 <- ggplot(df_cdr3_sex, aes(x = disease_cat, y = top10_aa, fill = sex)) +
                position = position_dodge(width = 0.8)) +
   scale_fill_manual(values = sex_colors, name = "Sex") +
   scale_color_manual(values = sex_colors, guide = "none") +
-  labs(x = NULL, y = "Avg. CDR3 Length\n(AA, Top 10 Clones)",
-       title = "CDR3 Length in Top 10 Clones by Sex and Disease") +
-  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-        axis.title = element_text(size = 13, face = "bold"),
-        axis.text = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 20, hjust = 1),
-        legend.text = element_text(size = 11),
-        legend.title = element_text(size = 11, face = "bold"),
+  labs(x = NULL, y = "Avg. CDR3 Length\n(AA, Top 10 Clones)") +
+  theme(plot.title = element_blank(),
+        axis.title = element_text(size = 26, face = "bold"),
+        axis.text = element_text(size = 22),
+        axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 22, face = "bold"),
         plot.margin = margin(t = 15, r = 15, b = 10, l = 15))
 ggsave("plots/13_cdr3_top10_by_sex_disease.png", p13, width = 20, height = 11, dpi = 600, bg = "white")
 cat("Figure 13 saved.\n")

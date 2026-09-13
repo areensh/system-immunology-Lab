@@ -102,10 +102,7 @@ for d in disease_order:
 # FIGURE 17: Hill numbers boxplots — Order 0, 1, 2
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
-fig.suptitle("Clonal Diversity: Hill Numbers by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Order 0 (richness), Order 1 (Shannon), Order 2 (Simpson)",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 titles = ["A. Order 0 (Richness)", "B. Order 1 (Shannon)", "C. Order 2 (Simpson)"]
 keys = ["q0", "q1", "q2"]
@@ -126,26 +123,26 @@ for panel_idx, (key, title) in enumerate(zip(keys, titles)):
         vals = disease_hills[d][key]
         if vals:
             jitter = rng.uniform(-0.12, 0.12, len(vals))
-            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=40, alpha=0.7,
+            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=60, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=35, ha="right")
-    ax.tick_params(axis='y', labelsize=16)
-    ax.set_title(title, fontsize=22, fontweight="bold", loc="left")
+    ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=35, ha="right")
+    ax.tick_params(axis='y', labelsize=20)
+    ax.set_title(title, fontsize=24, fontweight="bold", loc="left")
     ax.set_yscale("log")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
     if panel_idx == 0:
-        ax.set_ylabel("Number of Clones (log)", fontsize=20, fontweight="bold")
+        ax.set_ylabel("Number of Clones (log)", fontsize=24, fontweight="bold")
     else:
-        ax.set_ylabel("Effective Number of Clones (log)", fontsize=20, fontweight="bold")
+        ax.set_ylabel("Effective Number of Clones (log)", fontsize=24, fontweight="bold")
 
     real_data = [disease_hills[d][key] for d in disease_order]
     add_significance(ax, real_data, disease_order, log_scale=True)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/17_diversity_hill_numbers.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 17_diversity_hill_numbers.png")
@@ -154,10 +151,7 @@ print("Saved: 17_diversity_hill_numbers.png")
 # FIGURE 18: Diversity profiles — q0 → q1 → q2
 # ============================================================
 fig, ax = plt.subplots(figsize=(14, 10))
-ax.set_title("Diversity Profiles by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold")
-ax.text(0.5, 1.03, "Each thin line = one subject; thick line = group median",
-        transform=ax.transAxes, ha="center", fontsize=15, color="gray")
+# Title and subtitle removed for publication
 
 x_pos = [0, 1, 2]
 for d in disease_order:
@@ -176,10 +170,10 @@ for d in disease_order:
 
 ax.set_xticks(x_pos)
 ax.set_xticklabels(["q=0\n(Richness)", "q=1\n(Shannon)", "q=2\n(Simpson)"], fontsize=20)
-ax.set_ylabel("Effective Number of Clones", fontsize=22, fontweight="bold")
+ax.set_ylabel("Effective Number of Clones", fontsize=24, fontweight="bold")
 ax.set_yscale("log")
-ax.tick_params(axis='y', labelsize=18)
-ax.legend(fontsize=16, title="Disease Stage", title_fontsize=17, loc="upper right",
+ax.tick_params(axis='y', labelsize=20)
+ax.legend(fontsize=20, title="Disease Stage", title_fontsize=22, loc="upper right",
           framealpha=0.9, edgecolor="gray")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)

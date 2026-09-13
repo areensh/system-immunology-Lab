@@ -125,23 +125,23 @@ def plot_expanded_vs_rest_panel(ax, exp_data, rest_data, title):
         vals_e = exp_data[i]
         if vals_e and vals_e != [0]:
             jitter = rng.uniform(-0.12, 0.12, len(vals_e))
-            ax.scatter(positions_exp[i] + jitter, vals_e, color=colors[i], s=35, alpha=0.8,
+            ax.scatter(positions_exp[i] + jitter, vals_e, color=colors[i], s=53, alpha=0.8,
                        zorder=3, edgecolors="white", linewidth=0.5)
         vals_r = rest_data[i]
         if vals_r and vals_r != [0]:
             jitter = rng.uniform(-0.12, 0.12, len(vals_r))
-            ax.scatter(positions_rest[i] + jitter, vals_r, color=colors[i], s=35, alpha=0.4,
+            ax.scatter(positions_rest[i] + jitter, vals_r, color=colors[i], s=53, alpha=0.4,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
     ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
     ax.set_xticks(positions_exp + 0.4)
-    ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, ha="right")
-    ax.set_ylabel("NS/S Ratio", fontsize=20, fontweight="bold")
-    ax.set_title(title, fontsize=22, fontweight="bold", loc="left")
-    ax.tick_params(axis='y', labelsize=16)
+    ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+    ax.set_ylabel("NS/S Ratio", fontsize=24, fontweight="bold")
+    ax.set_title(title, fontsize=24, fontweight="bold", loc="left")
+    ax.tick_params(axis='y', labelsize=20)
     ax.legend([bp1["boxes"][0], bp2["boxes"][0]],
               ["Expanded (≥20 seq)", "Unexpanded (<20 seq)"],
-              fontsize=16, loc="upper right",
+              fontsize=20, loc="upper right",
               framealpha=0.9, edgecolor="black")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -165,22 +165,22 @@ bars2 = ax.bar(x + w/2, rest_cdr_medians, w, label="Unexpanded CDR NS/S", color=
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median NS/S Ratio", fontsize=20, fontweight="bold")
-ax.set_title("C. CDR NS/S: Expanded vs Unexpanded (Medians)", fontsize=22, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=16)
-ax.legend(fontsize=16, loc="lower right", framealpha=0.9, edgecolor="black")
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Median NS/S Ratio", fontsize=24, fontweight="bold")
+ax.set_title("C. CDR NS/S: Expanded vs Unexpanded (Medians)", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=20)
+ax.legend(fontsize=20, loc="lower right", framealpha=0.9, edgecolor="black")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 for bar in bars1:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
 for bar in bars2:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
 
 # Panel D: Paired comparison — FW expanded vs rest per disease
 ax = axes[1, 1]
@@ -192,22 +192,22 @@ bars2 = ax.bar(x + w/2, rest_fw_medians, w, label="Unexpanded FW NS/S", color="#
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median NS/S Ratio", fontsize=20, fontweight="bold")
-ax.set_title("D. FW NS/S: Expanded vs Unexpanded (Medians)", fontsize=22, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=16)
-ax.legend(fontsize=16, loc="lower right", framealpha=0.9, edgecolor="black")
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Median NS/S Ratio", fontsize=24, fontweight="bold")
+ax.set_title("D. FW NS/S: Expanded vs Unexpanded (Medians)", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=20)
+ax.legend(fontsize=20, loc="lower right", framealpha=0.9, edgecolor="black")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 for bar in bars1:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
 for bar in bars2:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
 
 plt.tight_layout()
 plt.savefig("plots/21b_mutations_expanded_vs_rest.png", dpi=600, bbox_inches="tight", facecolor="white")

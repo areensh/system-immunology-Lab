@@ -84,10 +84,7 @@ for d in disease_order:
 # FIGURE A: Clone size distribution — boxplot per disease category
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(20, 9))
-fig.suptitle("Clone Size Distribution by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Expanded clones (unique sequences > 20)",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 # Panel A: All clone sizes pooled per disease (violin + boxplot)
 ax = axes[0]
@@ -109,17 +106,17 @@ for i, patch in enumerate(bp["boxes"]):
     patch.set_alpha(0.8)
 
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Clone Size (log₁₀ unique sequences)", fontsize=16, fontweight="bold")
-ax.set_title("A. Clone Size Distribution (all clones)", fontsize=18, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=16)
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Clone Size (log₁₀ unique sequences)", fontsize=24, fontweight="bold")
+ax.set_title("A. Clone Size Distribution (all clones)", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 # Add n= labels
 for i, d in enumerate(disease_order):
     ax.text(i, ax.get_ylim()[0] + 0.02, f"n={len(disease_sizes[d])}",
-            ha="center", va="bottom", fontsize=14, color="gray")
+            ha="center", va="bottom", fontsize=16, color="gray")
 
 # Panel B: Median clone size per subject
 ax = axes[1]
@@ -135,25 +132,25 @@ for i, d in enumerate(disease_order):
     vals = disease_medians[d]
     if vals:
         jitter = rng.uniform(-0.12, 0.12, len(vals))
-        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.7,
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
                    zorder=3, edgecolors="white", linewidth=0.5)
 
 ax.set_yscale("log")
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median Clone Size per Subject (log)", fontsize=16, fontweight="bold")
-ax.set_title("B. Median Clone Size per Subject", fontsize=18, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=16)
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Median Clone Size per Subject (log)", fontsize=24, fontweight="bold")
+ax.set_title("B. Median Clone Size per Subject", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 for i, d in enumerate(disease_order):
     ax.text(i, ax.get_ylim()[0] * 1.1, f"n={len(disease_medians[d])}",
-            ha="center", va="bottom", fontsize=14, color="gray")
+            ha="center", va="bottom", fontsize=16, color="gray")
 
 add_significance(ax, bp_data2, disease_order, log_scale=True)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/20_clone_size_distribution.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 20_clone_size_distribution.png")

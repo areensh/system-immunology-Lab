@@ -117,10 +117,7 @@ for d in disease_order:
 # FIGURE: NS/S (R/S) ratio per region per disease category
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
-fig.suptitle("Mutation Analysis: NS/S Ratio by Region and Disease Stage (Blood Only)",
-             fontsize=28, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Non-synonymous vs synonymous mutations in CDR and FW regions",
-         ha="center", fontsize=20, color="gray")
+# Title and subtitle removed for publication
 
 rng = np.random.default_rng(42)
 
@@ -149,15 +146,15 @@ for i, d in enumerate(disease_order):
     vals = disease_data[d]["cdr_ratio"]
     if vals:
         jitter = rng.uniform(-0.12, 0.12, len(vals))
-        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.7,
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
                    zorder=3, edgecolors="white", linewidth=0.5)
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=22, fontweight="bold")
+ax.set_ylabel("NS/S Ratio", fontsize=24, fontweight="bold")
 ax.set_title("A. CDR NS/S Ratio", fontsize=24, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=18)
+ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 if shared_ratio_ylim:
@@ -177,15 +174,15 @@ for i, d in enumerate(disease_order):
     vals = disease_data[d]["fw_ratio"]
     if vals:
         jitter = rng.uniform(-0.12, 0.12, len(vals))
-        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.7,
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
                    zorder=3, edgecolors="white", linewidth=0.5)
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=22, fontweight="bold")
+ax.set_ylabel("NS/S Ratio", fontsize=24, fontweight="bold")
 ax.set_title("B. FW NS/S Ratio", fontsize=24, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=18)
+ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 if shared_ratio_ylim:
@@ -210,14 +207,14 @@ ax.bar(x + w/2, fw_s_means, w, bottom=fw_r_means, label="FW Synonymous", color="
 
 ax.set_xticks(x)
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Avg Mutation Count", fontsize=22, fontweight="bold")
+ax.set_ylabel("Avg Mutation Count", fontsize=24, fontweight="bold")
 ax.set_title("C. Mutation Counts by Region & Type", fontsize=24, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=18)
-ax.legend(fontsize=16, loc="upper right")
+ax.tick_params(axis='y', labelsize=20)
+ax.legend(fontsize=20, loc="upper right")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/21a_mutations_all_clones.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 21a_mutations_all_clones.png")

@@ -70,14 +70,15 @@ df$age_group <- cut(df$age,
   include.lowest = TRUE
 )
 
-theme_set(theme_minimal(base_size = 18) +
+theme_set(theme_minimal(base_size = 24) +
   theme(
     plot.title = element_blank(),
-    axis.title = element_text(size = 17, face = "bold"),
-    axis.text = element_text(size = 15),
-    axis.text.x = element_text(angle = 30, hjust = 1, size = 15),
-    legend.text = element_text(size = 14),
-    legend.title = element_text(size = 15, face = "bold")
+    plot.subtitle = element_blank(),
+    axis.title = element_text(size = 26, face = "bold"),
+    axis.text = element_text(size = 22),
+    axis.text.x = element_text(angle = 30, hjust = 1, size = 22),
+    legend.text = element_text(size = 20),
+    legend.title = element_text(size = 22, face = "bold")
   ))
 
 output_dir <- "plots"
@@ -169,7 +170,7 @@ p0 <- ggplot(df_meta_type_count,
   aes(x = study, y = n_subjects, fill = meta_type)) +
   geom_col(position = position_dodge(width = 0.8), width = 0.7) +
   geom_text(aes(label = n_subjects),
-    position = position_dodge(width = 0.8), vjust = -0.3, size = 6, fontface = "bold") +
+    position = position_dodge(width = 0.8), vjust = -0.3, size = 7, fontface = "bold") +
   labs(x = "Dataset", y = "# Subjects", fill = "Metadata Type") +
   scale_fill_manual(values = type_colors) +
   theme(legend.position = "bottom")
@@ -195,13 +196,13 @@ p1 <- df_all_subjects %>%
   mutate(study = factor(study, levels = study_order_0)) %>%
   ggplot(aes(x = study, y = n, fill = study)) +
   geom_col(show.legend = FALSE, width = 0.7) +
-  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
+  geom_text(aes(label = n), vjust = -0.3, size = 8, fontface = "bold") +
   labs(x = "Dataset", y = "# Subjects") +
   scale_fill_manual(values = dataset_colors) +
-  theme_bw(base_size = 24) +
-  theme(axis.title = element_text(size = 24, face = "bold"),
-        axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 18),
+  theme_bw(base_size = 28) +
+  theme(axis.title = element_text(size = 26, face = "bold"),
+        axis.text.x = element_text(size = 22),
+        axis.text.y = element_text(size = 22),
         plot.margin = margin(15, 15, 10, 15),
         plot.title = element_blank())
 
@@ -259,10 +260,10 @@ p02_raw <- ggplot(df_raw_disease, aes(x = ds_trimmed, y = n, fill = ds_trimmed))
   scale_fill_manual(values = raw_disease_colors) +
   labs(x = "Disease Stage (Original Label)", y = "# Subjects") +
   guides(fill = "none") +
-  theme_bw(base_size = 26) +
+  theme_bw(base_size = 28) +
   theme(axis.title = element_text(size = 26, face = "bold"),
-        axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
-        axis.text.y = element_text(size = 20),
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 22),
+        axis.text.y = element_text(size = 22),
         plot.margin = margin(15, 15, 10, 15),
         plot.title = element_blank())
 ggsave(file.path(output_dir, "02_disease_stage_raw.png"), p02_raw, width = 20, height = 11, dpi = 600)
@@ -296,18 +297,18 @@ p04_harm <- ggplot(df_harm_bar, aes(x = disease_category, y = n, fill = ds_trimm
   geom_text(data = df_harm_labels,
             aes(x = disease_category, y = n_total, label = db_label),
             position = position_stack(vjust = 0.5),
-            size = 4.5, fontface = "bold", lineheight = 0.85) +
+            size = 5.5, fontface = "bold", lineheight = 0.85) +
   scale_fill_manual(values = raw_disease_colors, name = "Original Label") +
   labs(x = "Harmonized Disease Category", y = "# Subjects") +
   guides(fill = guide_legend(ncol = 1, keywidth = 0.7, keyheight = 0.7)) +
-  theme_bw(base_size = 24) +
-  theme(axis.title = element_text(size = 24, face = "bold"),
-        axis.text.x = element_text(size = 18, angle = 20, hjust = 1),
-        axis.text.y = element_text(size = 18),
+  theme_bw(base_size = 28) +
+  theme(axis.title = element_text(size = 26, face = "bold"),
+        axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+        axis.text.y = element_text(size = 22),
         legend.position = "right",
-        legend.text = element_text(size = 13),
-        legend.title = element_text(size = 15, face = "bold"),
-        legend.key.size = unit(0.5, "cm"),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = "bold"),
+        legend.key.size = unit(0.6, "cm"),
         legend.spacing.y = unit(0.1, "cm"),
         legend.margin = margin(0, 5, 0, 0),
         plot.margin = margin(15, 10, 10, 15),
@@ -339,12 +340,12 @@ p05_demo <- ggplot(df_demo, aes(x = disease_category, y = age, color = study, sh
   scale_color_manual(values = dataset_colors, name = "Dataset") +
   scale_shape_manual(values = c("Female" = 17, "Male" = 16, "NA" = 4), name = "Sex") +
   labs(x = "Disease Category", y = "Age") +
-  theme_bw(base_size = 24) +
-  theme(axis.title = element_text(size = 24, face = "bold"),
-        axis.text.x = element_text(size = 18, angle = 20, hjust = 1),
-        axis.text.y = element_text(size = 18),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 18, face = "bold"),
+  theme_bw(base_size = 28) +
+  theme(axis.title = element_text(size = 26, face = "bold"),
+        axis.text.x = element_text(size = 22, angle = 20, hjust = 1),
+        axis.text.y = element_text(size = 22),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 22, face = "bold"),
         plot.margin = margin(15, 15, 10, 15),
         plot.title = element_blank())
 ggsave(file.path(output_dir, "05_demographics_scatter.png"), p05_demo, width = 20, height = 11, dpi = 600)
@@ -359,7 +360,7 @@ p2a <- df %>%
   count(disease_category) %>%
   ggplot(aes(x = reorder(disease_category, -n), y = n, fill = disease_category)) +
   geom_col(show.legend = FALSE) +
-  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
   labs(x = "Disease Category", y = "# Subjects") +
   scale_fill_brewer(palette = "Set3")
 
@@ -371,7 +372,7 @@ p2b <- df %>%
   count(sex_clean) %>%
   ggplot(aes(x = sex_clean, y = n, fill = sex_clean)) +
   geom_col(show.legend = FALSE) +
-  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
   labs(x = "Sex", y = "# Subjects") +
   scale_fill_manual(values = c("Male" = "#4A90D9", "Female" = "#E85D75", "NA/Unknown" = "#AAAAAA"))
 
@@ -397,7 +398,7 @@ p2d <- df %>%
   count(age_group) %>%
   ggplot(aes(x = age_group, y = n, fill = age_group)) +
   geom_col(show.legend = FALSE) +
-  geom_text(aes(label = n), vjust = -0.3, size = 5, fontface = "bold") +
+  geom_text(aes(label = n), vjust = -0.3, size = 7, fontface = "bold") +
   labs(x = "Age Group", y = "# Subjects") +
   scale_fill_brewer(palette = "Blues")
 
@@ -413,7 +414,7 @@ p3a <- df %>%
   count(disease_category, sex_clean) %>%
   ggplot(aes(x = disease_category, y = n, fill = sex_clean)) +
   geom_col(position = "dodge") +
-  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 4.5) +
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 6) +
   labs(x = "Disease Category", y = "# Subjects", fill = "Sex") +
   scale_fill_manual(values = c("Male" = "#4A90D9", "Female" = "#E85D75", "NA/Unknown" = "#AAAAAA"))
 
@@ -426,7 +427,7 @@ p3b <- df %>%
   count(disease_category, age_group) %>%
   ggplot(aes(x = disease_category, y = n, fill = age_group)) +
   geom_col(position = "dodge") +
-  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 4) +
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.3, size = 6) +
   labs(x = "Disease Category", y = "# Subjects", fill = "Age Group") +
   scale_fill_brewer(palette = "YlOrRd")
 
@@ -461,13 +462,13 @@ p3e <- df %>%
   count(disease_category, sex_clean, age_group) %>%
   ggplot(aes(x = age_group, y = disease_category, fill = n)) +
   geom_tile(color = "white", linewidth = 0.5) +
-  geom_text(aes(label = n), size = 5, fontface = "bold") +
+  geom_text(aes(label = n), size = 7, fontface = "bold") +
   facet_wrap(~sex_clean) +
   labs(
     x = "Age Group", y = "Disease Category", fill = "Count"
   ) +
   scale_fill_gradient(low = "#FFF7BC", high = "#D95F0E") +
-  theme(strip.text = element_text(size = 14, face = "bold"))
+  theme(strip.text = element_text(size = 22, face = "bold"))
 
 ggsave(file.path(output_dir, "03e_heatmap_disease_age_sex.png"), p3e, width = 18, height = 10, dpi = 600)
 cat("Saved: 03e_heatmap_disease_age_sex.png\n")

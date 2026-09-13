@@ -98,10 +98,7 @@ for t in thresholds:
 # FIGURE: Clone count at different expansion thresholds
 # ============================================================
 fig, axes = plt.subplots(1, len(thresholds), figsize=(7 * len(thresholds), 7))
-fig.suptitle("Number of Expanded Clones by Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.98)
-fig.text(0.5, 0.93, "Clone count at different expansion thresholds (unique sequences)",
-         ha="center", fontsize=16, color="gray")
+# Title and subtitle removed for publication
 
 rng = np.random.default_rng(42)
 
@@ -121,7 +118,7 @@ for ti, t in enumerate(thresholds):
         vals = disease_counts[d]
         if vals:
             jitter = rng.uniform(-0.12, 0.12, len(vals))
-            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=25, alpha=0.7,
+            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=38, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
     # Annotate subjects with 0 expanded clones (show count inside the plot area)
@@ -129,19 +126,19 @@ for ti, t in enumerate(thresholds):
         vals = disease_counts[d]
         n_zero = sum(1 for v in vals if v == 0)
         if n_zero > 0:
-            ax.annotate(f"{n_zero} with 0", xy=(i, 0.8), fontsize=12, color="red",
+            ax.annotate(f"{n_zero} with 0", xy=(i, 0.8), fontsize=16, color="red",
                         fontweight="bold", ha="center", va="top",
                         bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="red", alpha=0.8))
 
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=16, fontweight="bold", rotation=35, ha="right")
+    ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=35, ha="right")
     total_subj = sum(len(v) for v in disease_counts.values())
     with_exp = sum(sum(1 for v in vals if v > 0) for vals in disease_counts.values())
     pct = 100 * with_exp / total_subj if total_subj > 0 else 0
     ax.set_title(f"Threshold > {t}\n({with_exp}/{total_subj} subjects = {pct:.0f}%)",
-                 fontsize=20, fontweight="bold")
-    ax.set_ylabel("# Expanded Clones", fontsize=18, fontweight="bold")
-    ax.tick_params(axis='y', labelsize=14)
+                 fontsize=24, fontweight="bold")
+    ax.set_ylabel("# Expanded Clones", fontsize=24, fontweight="bold")
+    ax.tick_params(axis='y', labelsize=20)
     ax.set_yscale("log")
     ax.set_ylim(bottom=0.8)
     ax.spines["top"].set_visible(False)
@@ -150,7 +147,7 @@ for ti, t in enumerate(thresholds):
     real_data = [disease_counts[d] for d in disease_order]
     add_significance(ax, real_data, disease_order, log_scale=True)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/19_expanded_clones_threshold.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("\nSaved: 19_expanded_clones_threshold.png")
