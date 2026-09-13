@@ -126,20 +126,21 @@ for panel_idx, (key, title) in enumerate(zip(keys, titles)):
         vals = disease_hills[d][key]
         if vals:
             jitter = rng.uniform(-0.12, 0.12, len(vals))
-            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=25, alpha=0.7,
+            ax.scatter([i + j for j in jitter], vals, color=colors[i], s=40, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=35, ha="right")
-    ax.set_title(title, fontsize=18, fontweight="bold", loc="left")
+    ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=35, ha="right")
+    ax.tick_params(axis='y', labelsize=16)
+    ax.set_title(title, fontsize=22, fontweight="bold", loc="left")
     ax.set_yscale("log")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
     if panel_idx == 0:
-        ax.set_ylabel("Number of Clones (log)", fontsize=16, fontweight="bold")
+        ax.set_ylabel("Number of Clones (log)", fontsize=20, fontweight="bold")
     else:
-        ax.set_ylabel("Effective Number of Clones (log)", fontsize=16, fontweight="bold")
+        ax.set_ylabel("Effective Number of Clones (log)", fontsize=20, fontweight="bold")
 
     real_data = [disease_hills[d][key] for d in disease_order]
     add_significance(ax, real_data, disease_order, log_scale=True)
@@ -174,11 +175,11 @@ for d in disease_order:
                 label=f"{d} (n={len(q0s)})", zorder=5)
 
 ax.set_xticks(x_pos)
-ax.set_xticklabels(["q=0\n(Richness)", "q=1\n(Shannon)", "q=2\n(Simpson)"], fontsize=16)
-ax.set_ylabel("Effective Number of Clones", fontsize=18, fontweight="bold")
+ax.set_xticklabels(["q=0\n(Richness)", "q=1\n(Shannon)", "q=2\n(Simpson)"], fontsize=20)
+ax.set_ylabel("Effective Number of Clones", fontsize=22, fontweight="bold")
 ax.set_yscale("log")
-ax.tick_params(axis='y', labelsize=14)
-ax.legend(fontsize=14, title="Disease Stage", title_fontsize=15, loc="upper right",
+ax.tick_params(axis='y', labelsize=18)
+ax.legend(fontsize=16, title="Disease Stage", title_fontsize=17, loc="upper right",
           framealpha=0.9, edgecolor="gray")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)

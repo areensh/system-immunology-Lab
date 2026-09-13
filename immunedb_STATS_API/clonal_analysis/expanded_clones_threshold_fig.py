@@ -99,9 +99,9 @@ for t in thresholds:
 # ============================================================
 fig, axes = plt.subplots(1, len(thresholds), figsize=(7 * len(thresholds), 7))
 fig.suptitle("Number of Expanded Clones by Disease Stage (Blood Only)",
-             fontsize=18, fontweight="bold", y=0.98)
+             fontsize=24, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Clone count at different expansion thresholds (unique sequences)",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=16, color="gray")
 
 rng = np.random.default_rng(42)
 
@@ -129,18 +129,19 @@ for ti, t in enumerate(thresholds):
         vals = disease_counts[d]
         n_zero = sum(1 for v in vals if v == 0)
         if n_zero > 0:
-            ax.annotate(f"{n_zero} with 0", xy=(i, 0.8), fontsize=7, color="red",
+            ax.annotate(f"{n_zero} with 0", xy=(i, 0.8), fontsize=12, color="red",
                         fontweight="bold", ha="center", va="top",
                         bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="red", alpha=0.8))
 
     ax.set_xticks(range(len(disease_order)))
-    ax.set_xticklabels(disease_order, fontsize=9, fontweight="bold", rotation=35, ha="right")
+    ax.set_xticklabels(disease_order, fontsize=16, fontweight="bold", rotation=35, ha="right")
     total_subj = sum(len(v) for v in disease_counts.values())
     with_exp = sum(sum(1 for v in vals if v > 0) for vals in disease_counts.values())
     pct = 100 * with_exp / total_subj if total_subj > 0 else 0
     ax.set_title(f"Threshold > {t}\n({with_exp}/{total_subj} subjects = {pct:.0f}%)",
-                 fontsize=13, fontweight="bold")
-    ax.set_ylabel("# Expanded Clones", fontsize=12, fontweight="bold")
+                 fontsize=20, fontweight="bold")
+    ax.set_ylabel("# Expanded Clones", fontsize=18, fontweight="bold")
+    ax.tick_params(axis='y', labelsize=14)
     ax.set_yscale("log")
     ax.set_ylim(bottom=0.8)
     ax.spines["top"].set_visible(False)
