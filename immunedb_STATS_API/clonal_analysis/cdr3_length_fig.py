@@ -129,7 +129,21 @@ for d in disease_order:
 
 rng = np.random.default_rng(42)
 
-def boxplot_panel(ax, data_dict, title, ylabel):
+# Compute shared y-axis limits across all clones and expanded clones
+def get_ylims(*data_dicts):
+    all_vals = []
+    for dd in data_dicts:
+        for d in disease_order:
+            all_vals.extend(dd.get(d, []))
+    if not all_vals:
+        return (0, 1)
+    margin = (max(all_vals) - min(all_vals)) * 0.05
+    return (min(all_vals) - margin, max(all_vals) + margin)
+
+shared_mean_ylim = get_ylims(all_mean, exp_mean)
+shared_sd_ylim = get_ylims(all_sd, exp_sd)
+
+def boxplot_panel(ax, data_dict, title, ylabel, ylim=None):
     bp_data = [data_dict.get(d, []) if data_dict.get(d, []) else [0] for d in disease_order]
     colors = [disease_colors[d] for d in disease_order]
     bp = ax.boxplot(bp_data, positions=range(len(disease_order)), widths=0.5, patch_artist=True,
@@ -150,6 +164,8 @@ def boxplot_panel(ax, data_dict, title, ylabel):
     ax.tick_params(axis='y', labelsize=15)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    if ylim:
+        ax.set_ylim(ylim)
     add_significance(ax, [data_dict.get(d, []) for d in disease_order], disease_order)
 
 # ============================================================
@@ -161,8 +177,8 @@ fig.suptitle("CDR3 Length Distribution — All Clones by Disease Stage (Blood On
 fig.text(0.5, 0.93, "Mean and variability of CDR3 amino acid length per subject",
          ha="center", fontsize=16, color="gray")
 
-boxplot_panel(axes[0], all_mean, "A. Mean CDR3 Length per Subject", "Mean CDR3 Length (AA)")
-boxplot_panel(axes[1], all_sd, "B. CDR3 Length Variability per Subject", "SD of CDR3 Length (AA)")
+boxplot_panel(axes[0], all_mean, "A. Mean CDR3 Length per Subject", "Mean CDR3 Length (AA)", ylim=shared_mean_ylim)
+boxplot_panel(axes[1], all_sd, "B. CDR3 Length Variability per Subject", "SD of CDR3 Length (AA)", ylim=shared_sd_ylim)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/22a_cdr3_length_all_clones.png", dpi=600, bbox_inches="tight", facecolor="white")
@@ -178,8 +194,8 @@ fig.suptitle("CDR3 Length Distribution — Expanded Clones by Disease Stage (Blo
 fig.text(0.5, 0.93, "Expanded clones (≥20 unique sequences) — CDR3 length per subject",
          ha="center", fontsize=16, color="gray")
 
-boxplot_panel(axes[0], exp_mean, "A. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)")
-boxplot_panel(axes[1], exp_sd, "B. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)")
+boxplot_panel(axes[0], exp_mean, "A. Mean CDR3 Length (Expanded Clones)", "Mean CDR3 Length (AA)", ylim=shared_mean_ylim)
+boxplot_panel(axes[1], exp_sd, "B. CDR3 Length Variability (Expanded Clones)", "SD of CDR3 Length (AA)", ylim=shared_sd_ylim)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
 plt.savefig("plots/22b_cdr3_length_expanded.png", dpi=600, bbox_inches="tight", facecolor="white")
