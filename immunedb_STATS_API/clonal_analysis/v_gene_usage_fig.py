@@ -37,7 +37,6 @@ def get_study(rid):
             return short
     return None
 
-# Collect V gene counts per subject (blood only)
 subj_vgenes = {}
 for entry in data["Result"]:
     rep = entry["repertoire"]
@@ -75,28 +74,23 @@ disease_colors = {
     "Recovered": "#43a047", "Healthy": "#1565c0", "COVID Naive": "#42a5f5",
 }
 
-# Filter subjects to disease categories we care about
 subjects_in_order = {rid: info for rid, info in subj_vgenes.items()
                      if info["disease"] in disease_order}
 n_subjects = len(subjects_in_order)
 print(f"Total blood subjects: {n_subjects}")
 
-# Step 1: Find V genes >= 1% in each person who has them
-# Step 2: Keep V genes present in >= threshold% of people
 all_genes = set()
 for info in subjects_in_order.values():
     for g, freq in info["freq"].items():
         if freq >= 1.0:
             all_genes.add(g)
 
-# Count how many subjects have each gene at >= 1%
 gene_subject_count = defaultdict(int)
 for info in subjects_in_order.values():
     for g in all_genes:
         if info["freq"].get(g, 0) >= 1.0:
             gene_subject_count[g] += 1
 
-# Try both thresholds
 for threshold_pct in [100, 85]:
     threshold_n = n_subjects * threshold_pct / 100
     selected = sorted([g for g, c in gene_subject_count.items() if c >= threshold_n])
@@ -106,7 +100,6 @@ for threshold_pct in [100, 85]:
         pct_present = gene_subject_count[g] / n_subjects * 100
         print(f"  {g}: present in {gene_subject_count[g]}/{n_subjects} ({pct_present:.0f}%)")
 
-# Use 85% threshold (fall back to 100% if list is reasonable)
 threshold_100 = sorted([g for g, c in gene_subject_count.items()
                         if c >= n_subjects])
 threshold_85 = sorted([g for g, c in gene_subject_count.items()
@@ -121,43 +114,29 @@ else:
 
 print(f"\nUsing {used_threshold} threshold: {len(selected_genes)} V genes")
 
-# Sort subjects by disease group
-sorted_subjects = []
-for d in disease_order:
-    group = [(rid, info) for rid, info in subjects_in_order.items() if info["disease"] == d]
-    group.sort(key=lambda x: x[0])
-    sorted_subjects.extend(group)
+# Build list of subjects (unsorted — clustering will determine order)
+subject_list = list(subjects_in_order.items())
 
-# Build heatmap matrix (genes × subjects)
-matrix = np.zeros((len(selected_genes), len(sorted_subjects)))
-for j, (rid, info) in enumerate(sorted_subjects):
+# Build matrix (genes × subjects)
+matrix = np.zeros((len(selected_genes), len(subject_list)))
+for j, (rid, info) in enumerate(subject_list):
     for i, gene in enumerate(selected_genes):
         matrix[i, j] = info["freq"].get(gene, 0)
 
-# Disease group boundaries for annotation
-group_boundaries = []
-group_centers = []
-idx = 0
-for d in disease_order:
-    n = sum(1 for _, info in sorted_subjects if info["disease"] == d)
-    if n > 0:
-        group_boundaries.append(idx + n)
-        group_centers.append((idx + idx + n) / 2)
-    idx += n
-
 # ============================================================
-# Hierarchical clustering of V genes
+# Hierarchical clustering of INDIVIDUALS (columns) by V gene usage
 # ============================================================
-# Compute mean frequency per disease group for clustering
-disease_mean_matrix = np.zeros((len(selected_genes), len(disease_order)))
-for di, d in enumerate(disease_order):
-    cols = [j for j, (_, info) in enumerate(sorted_subjects) if info["disease"] == d]
-    if cols:
-        disease_mean_matrix[:, di] = matrix[:, cols].mean(axis=1)
+if len(subject_list) > 2:
+    col_dist = pdist(matrix.T, metric="euclidean")
+    col_linkage = linkage(col_dist, method="ward")
+    col_order = leaves_list(col_linkage)
+else:
+    col_order = np.arange(len(subject_list))
+    col_linkage = None
 
-# Cluster V genes by their usage profile across disease groups
+# Hierarchical clustering of V genes (rows)
 if len(selected_genes) > 1:
-    row_dist = pdist(disease_mean_matrix, metric="euclidean")
+    row_dist = pdist(matrix, metric="euclidean")
     row_linkage = linkage(row_dist, method="ward")
     row_order = leaves_list(row_linkage)
 else:
@@ -165,66 +144,91 @@ else:
     row_linkage = None
 
 clustered_genes = [selected_genes[i] for i in row_order]
-clustered_matrix = matrix[row_order, :]
+clustered_subjects = [subject_list[i] for i in col_order]
+clustered_matrix = matrix[np.ix_(row_order, col_order)]
+
+# Check clustering vs disease
+print("\nClustering order of individuals:")
+for rid, info in clustered_subjects:
+    print(f"  {info['study']}:{rid[:30]:30s} -> {info['disease']}")
 
 # ============================================================
-# FIGURE: V Gene Usage Heatmap with Dendrogram
+# FIGURE: V Gene Usage Heatmap — Individuals Clustered
 # ============================================================
 fig_height = max(14, len(selected_genes) * 0.85 + 5)
-fig = plt.figure(figsize=(24, fig_height))
+fig = plt.figure(figsize=(26, fig_height))
 
-# Gridspec: dendrogram left, heatmap center, colorbar bottom
-gs = fig.add_gridspec(2, 2, width_ratios=[0.10, 1], height_ratios=[1, 0.02],
-                      hspace=0.20, wspace=0.01,
-                      top=0.90, bottom=0.06, left=0.03, right=0.95)
-ax_dendro = fig.add_subplot(gs[0, 0])
-ax = fig.add_subplot(gs[0, 1])
-cax = fig.add_subplot(gs[1, 1])
+gs = fig.add_gridspec(3, 3,
+                      width_ratios=[0.08, 0.08, 1],
+                      height_ratios=[0.03, 1, 0.02],
+                      hspace=0.03, wspace=0.01,
+                      top=0.90, bottom=0.10, left=0.03, right=0.95)
 
-fig.suptitle("V Gene Usage Heatmap by Disease Stage (Blood Only)",
+ax_colorbar_top = fig.add_subplot(gs[0, 2])
+ax_dendro_row = fig.add_subplot(gs[1, 0])
+ax_dendro_col_placeholder = fig.add_subplot(gs[1, 1])
+ax = fig.add_subplot(gs[1, 2])
+cax = fig.add_subplot(gs[2, 2])
+
+fig.suptitle("V Gene Usage Heatmap — Individuals Clustered by V Gene Profile (Blood Only)",
              fontsize=24, fontweight="bold", y=0.97)
 fig.text(0.5, 0.935,
-         f"V genes present at ≥1% frequency in ≥{used_threshold} of subjects (n={n_subjects}), "
-         f"hierarchically clustered by usage profile",
+         f"Hierarchical clustering (Ward linkage, Euclidean distance) of {n_subjects} individuals "
+         f"using {len(selected_genes)} V genes (≥1% in ≥{used_threshold} of subjects)",
          ha="center", fontsize=16, color="gray")
 
-# Draw dendrogram
-if row_linkage is not None:
-    dendro = dendrogram(row_linkage, orientation="left", ax=ax_dendro,
-                        no_labels=True, color_threshold=0,
-                        above_threshold_color="#555555", leaf_rotation=0)
-ax_dendro.set_xticks([])
-ax_dendro.set_yticks([])
-ax_dendro.spines["top"].set_visible(False)
-ax_dendro.spines["right"].set_visible(False)
-ax_dendro.spines["bottom"].set_visible(False)
-ax_dendro.spines["left"].set_visible(False)
-ax_dendro.invert_yaxis()
+# Disease color bar at top
+disease_colors_arr = [disease_colors[info["disease"]] for _, info in clustered_subjects]
+ax_colorbar_top.imshow([range(len(clustered_subjects))], aspect="auto",
+                       cmap=matplotlib.colors.ListedColormap(disease_colors_arr),
+                       interpolation="nearest")
+ax_colorbar_top.set_xticks([])
+ax_colorbar_top.set_yticks([])
+ax_colorbar_top.set_ylabel("Disease", fontsize=12, fontweight="bold", rotation=0,
+                           ha="right", va="center")
+for spine in ax_colorbar_top.spines.values():
+    spine.set_visible(False)
 
-# Draw heatmap with clustered rows
+# Row dendrogram (V genes)
+if row_linkage is not None:
+    dendrogram(row_linkage, orientation="left", ax=ax_dendro_row,
+               no_labels=True, color_threshold=0,
+               above_threshold_color="#555555", leaf_rotation=0)
+ax_dendro_row.set_xticks([])
+ax_dendro_row.set_yticks([])
+for spine in ax_dendro_row.spines.values():
+    spine.set_visible(False)
+ax_dendro_row.invert_yaxis()
+
+# Hide the placeholder axis for column dendrogram space
+ax_dendro_col_placeholder.set_visible(False)
+
+# Heatmap
 im = ax.imshow(clustered_matrix, aspect="auto", cmap="YlOrRd", interpolation="nearest")
 
-# Y-axis: clustered gene names — on the RIGHT to avoid overlapping with dendrogram
+# Y-axis: V gene names on the right
 ax.yaxis.tick_right()
 ax.set_yticks(range(len(clustered_genes)))
 ax.set_yticklabels(clustered_genes, fontsize=15, fontweight="bold")
 ax.tick_params(axis='y', length=0, pad=8)
 
-# X-axis: disease group labels
-ax.set_xticks([c for c in group_centers])
-ax.set_xticklabels([d for d in disease_order
-                    if sum(1 for _, info in sorted_subjects if info["disease"] == d) > 0],
-                   fontsize=16, fontweight="bold", rotation=0, ha="center")
+# X-axis: no individual labels (too many), clustering order is the point
+ax.set_xticks([])
+ax.set_xlabel(f"Individuals (n={n_subjects}), ordered by hierarchical clustering",
+              fontsize=16, fontweight="bold", labelpad=8)
 
-# Draw vertical lines at group boundaries
-for b in group_boundaries[:-1]:
-    ax.axvline(x=b - 0.5, color="white", linewidth=2.5)
-
-# Horizontal colorbar below
-cax.set_position([0.25, cax.get_position().y0, 0.45, cax.get_position().height])
+# Frequency colorbar — position manually below heatmap
+cax.set_position([0.45, 0.04, 0.30, 0.012])
 cbar = plt.colorbar(im, cax=cax, orientation="horizontal")
 cbar.set_label("V Gene Frequency (%)", fontsize=14, fontweight="bold")
 cbar.ax.tick_params(labelsize=12)
+
+# Disease legend (bottom left)
+from matplotlib.patches import Patch
+legend_elements = [Patch(facecolor=disease_colors[d], label=d) for d in disease_order]
+fig.legend(handles=legend_elements, loc="lower left", bbox_to_anchor=(0.03, 0.015),
+           ncol=len(disease_order), fontsize=13, frameon=True, framealpha=0.9,
+           edgecolor="black", handlelength=1.5, handleheight=1.2)
 
 plt.savefig("plots/23_v_gene_usage_heatmap.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
