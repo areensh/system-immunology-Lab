@@ -118,11 +118,22 @@ for d in disease_order:
 # ============================================================
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 fig.suptitle("Mutation Analysis: NS/S Ratio by Region and Disease Stage (Blood Only)",
-             fontsize=24, fontweight="bold", y=0.98)
+             fontsize=28, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Non-synonymous vs synonymous mutations in CDR and FW regions",
-         ha="center", fontsize=16, color="gray")
+         ha="center", fontsize=20, color="gray")
 
 rng = np.random.default_rng(42)
+
+# Compute shared y-axis for panels A and B
+all_ratio_vals = []
+for d in disease_order:
+    all_ratio_vals.extend(disease_data[d]["cdr_ratio"])
+    all_ratio_vals.extend(disease_data[d]["fw_ratio"])
+if all_ratio_vals:
+    ratio_margin = (max(all_ratio_vals) - min(all_ratio_vals)) * 0.15
+    shared_ratio_ylim = (min(all_ratio_vals) - ratio_margin, max(all_ratio_vals) + ratio_margin)
+else:
+    shared_ratio_ylim = None
 
 # Panel A: CDR R/S ratio
 ax = axes[0]
@@ -143,11 +154,14 @@ for i, d in enumerate(disease_order):
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=16, fontweight="bold")
-ax.set_title("A. CDR NS/S Ratio", fontsize=18, fontweight="bold", loc="left")
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("NS/S Ratio", fontsize=22, fontweight="bold")
+ax.set_title("A. CDR NS/S Ratio", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=18)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+if shared_ratio_ylim:
+    ax.set_ylim(shared_ratio_ylim)
 add_significance(ax, [disease_data[d]["cdr_ratio"] for d in disease_order], disease_order)
 
 # Panel B: FW R/S ratio
@@ -168,11 +182,14 @@ for i, d in enumerate(disease_order):
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=16, fontweight="bold")
-ax.set_title("B. FW NS/S Ratio", fontsize=18, fontweight="bold", loc="left")
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("NS/S Ratio", fontsize=22, fontweight="bold")
+ax.set_title("B. FW NS/S Ratio", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=18)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
+if shared_ratio_ylim:
+    ax.set_ylim(shared_ratio_ylim)
 add_significance(ax, [disease_data[d]["fw_ratio"] for d in disease_order], disease_order)
 
 # Panel C: Stacked bar — avg NS vs S per region per disease
@@ -192,14 +209,15 @@ bars3 = ax.bar(x + w/2, fw_r_means, w, label="FW Replacement", color="#1565c0", 
 ax.bar(x + w/2, fw_s_means, w, bottom=fw_r_means, label="FW Synonymous", color="#90caf9", alpha=0.85)
 
 ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Avg Mutation Count", fontsize=16, fontweight="bold")
-ax.set_title("C. Mutation Counts by Region & Type", fontsize=18, fontweight="bold", loc="left")
-ax.legend(fontsize=12, loc="upper right")
+ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Avg Mutation Count", fontsize=22, fontweight="bold")
+ax.set_title("C. Mutation Counts by Region & Type", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=18)
+ax.legend(fontsize=16, loc="upper right")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 plt.tight_layout(rect=[0, 0, 1, 0.90])
-plt.savefig("plots/21_mutations_rs_ratio.png", dpi=600, bbox_inches="tight", facecolor="white")
+plt.savefig("plots/21a_mutations_all_clones.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
-print("Saved: 21_mutations_rs_ratio.png")
+print("Saved: 21a_mutations_all_clones.png")

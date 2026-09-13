@@ -88,60 +88,16 @@ for d in disease_order:
 # FIGURE: Expanded vs Rest NS/S Ratio Comparison
 # ============================================================
 fig, axes = plt.subplots(2, 2, figsize=(22, 18))
-fig.suptitle("Mutation NS/S Ratio: Expanded (≥20) vs Rest Clones by Disease Stage (Blood Only)",
-             fontsize=22, fontweight="bold", y=0.97)
-fig.text(0.5, 0.935, "Per-clone NS/S ratios compared between expanded (≥20 unique sequences) and unexpanded clones",
-         ha="center", fontsize=15, color="gray")
 
 rng = np.random.default_rng(42)
 
-# Panel A: CDR NS/S — Expanded vs Rest side by side
-ax = axes[0, 0]
-positions_exp = np.arange(len(disease_order)) * 2.5
-positions_rest = positions_exp + 0.8
-colors = [disease_colors[d] for d in disease_order]
-
+# Collect data for panels A and B
 exp_cdr = [[s.get("expanded_cdr_nss_ratio") for s in disease_groups[d]
             if s.get("expanded_cdr_nss_ratio") is not None and s.get("expanded_n", 0) > 0]
            or [0] for d in disease_order]
 rest_cdr = [[s.get("rest_cdr_nss_ratio") for s in disease_groups[d]
              if s.get("rest_cdr_nss_ratio") is not None and s.get("rest_n", 0) > 0]
             or [0] for d in disease_order]
-
-bp1 = ax.boxplot(exp_cdr, positions=positions_exp, widths=0.6, patch_artist=True,
-                 showfliers=False, medianprops=dict(color="black", linewidth=2))
-bp2 = ax.boxplot(rest_cdr, positions=positions_rest, widths=0.6, patch_artist=True,
-                 showfliers=False, medianprops=dict(color="black", linewidth=2))
-for i, patch in enumerate(bp1["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.85)
-for i, patch in enumerate(bp2["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.35)
-for i, d in enumerate(disease_order):
-    vals_e = exp_cdr[i]
-    if vals_e and vals_e != [0]:
-        jitter = rng.uniform(-0.12, 0.12, len(vals_e))
-        ax.scatter(positions_exp[i] + jitter, vals_e, color=colors[i], s=25, alpha=0.7,
-                   zorder=3, edgecolors="white", linewidth=0.5)
-    vals_r = rest_cdr[i]
-    if vals_r and vals_r != [0]:
-        jitter = rng.uniform(-0.12, 0.12, len(vals_r))
-        ax.scatter(positions_rest[i] + jitter, vals_r, color=colors[i], s=25, alpha=0.4,
-                   zorder=3, edgecolors="white", linewidth=0.5)
-
-ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
-ax.set_xticks(positions_exp + 0.4)
-ax.set_xticklabels(disease_order, fontsize=13, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=15, fontweight="bold")
-ax.set_title("A. CDR NS/S Ratio", fontsize=17, fontweight="bold", loc="left")
-ax.legend([bp1["boxes"][0], bp2["boxes"][0]], ["Expanded (≥20)", "Rest"],
-          fontsize=12, loc="upper right")
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-# Panel B: FW NS/S — Expanded vs Rest side by side
-ax = axes[0, 1]
 exp_fw = [[s.get("expanded_fw_nss_ratio") for s in disease_groups[d]
            if s.get("expanded_fw_nss_ratio") is not None and s.get("expanded_n", 0) > 0]
           or [0] for d in disease_order]
@@ -149,37 +105,52 @@ rest_fw = [[s.get("rest_fw_nss_ratio") for s in disease_groups[d]
             if s.get("rest_fw_nss_ratio") is not None and s.get("rest_n", 0) > 0]
            or [0] for d in disease_order]
 
-bp1 = ax.boxplot(exp_fw, positions=positions_exp, widths=0.6, patch_artist=True,
-                 showfliers=False, medianprops=dict(color="black", linewidth=2))
-bp2 = ax.boxplot(rest_fw, positions=positions_rest, widths=0.6, patch_artist=True,
-                 showfliers=False, medianprops=dict(color="black", linewidth=2))
-for i, patch in enumerate(bp1["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.85)
-for i, patch in enumerate(bp2["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.35)
-for i, d in enumerate(disease_order):
-    vals_e = exp_fw[i]
-    if vals_e and vals_e != [0]:
-        jitter = rng.uniform(-0.12, 0.12, len(vals_e))
-        ax.scatter(positions_exp[i] + jitter, vals_e, color=colors[i], s=25, alpha=0.7,
-                   zorder=3, edgecolors="white", linewidth=0.5)
-    vals_r = rest_fw[i]
-    if vals_r and vals_r != [0]:
-        jitter = rng.uniform(-0.12, 0.12, len(vals_r))
-        ax.scatter(positions_rest[i] + jitter, vals_r, color=colors[i], s=25, alpha=0.4,
-                   zorder=3, edgecolors="white", linewidth=0.5)
+positions_exp = np.arange(len(disease_order)) * 2.5
+positions_rest = positions_exp + 0.8
+colors = [disease_colors[d] for d in disease_order]
 
-ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
-ax.set_xticks(positions_exp + 0.4)
-ax.set_xticklabels(disease_order, fontsize=13, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("NS/S Ratio", fontsize=15, fontweight="bold")
-ax.set_title("B. FW NS/S Ratio", fontsize=17, fontweight="bold", loc="left")
-ax.legend([bp1["boxes"][0], bp2["boxes"][0]], ["Expanded (≥20)", "Rest"],
-          fontsize=12, loc="upper right")
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
+def plot_expanded_vs_rest_panel(ax, exp_data, rest_data, title):
+    bp1 = ax.boxplot(exp_data, positions=positions_exp, widths=0.6, patch_artist=True,
+                     showfliers=False, medianprops=dict(color="black", linewidth=2))
+    bp2 = ax.boxplot(rest_data, positions=positions_rest, widths=0.6, patch_artist=True,
+                     showfliers=False, medianprops=dict(color="black", linewidth=2))
+    for i, patch in enumerate(bp1["boxes"]):
+        patch.set_facecolor(colors[i])
+        patch.set_alpha(0.9)
+    for i, patch in enumerate(bp2["boxes"]):
+        patch.set_facecolor(colors[i])
+        patch.set_alpha(0.3)
+        patch.set_linestyle("--")
+    for i, d in enumerate(disease_order):
+        vals_e = exp_data[i]
+        if vals_e and vals_e != [0]:
+            jitter = rng.uniform(-0.12, 0.12, len(vals_e))
+            ax.scatter(positions_exp[i] + jitter, vals_e, color=colors[i], s=35, alpha=0.8,
+                       zorder=3, edgecolors="white", linewidth=0.5)
+        vals_r = rest_data[i]
+        if vals_r and vals_r != [0]:
+            jitter = rng.uniform(-0.12, 0.12, len(vals_r))
+            ax.scatter(positions_rest[i] + jitter, vals_r, color=colors[i], s=35, alpha=0.4,
+                       zorder=3, edgecolors="white", linewidth=0.5)
+
+    ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+    ax.set_xticks(positions_exp + 0.4)
+    ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, ha="right")
+    ax.set_ylabel("NS/S Ratio", fontsize=20, fontweight="bold")
+    ax.set_title(title, fontsize=22, fontweight="bold", loc="left")
+    ax.tick_params(axis='y', labelsize=16)
+    ax.legend([bp1["boxes"][0], bp2["boxes"][0]],
+              ["Expanded (≥20 seq)", "Unexpanded (<20 seq)"],
+              fontsize=16, loc="upper right",
+              framealpha=0.9, edgecolor="black")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+# Panel A: CDR NS/S
+plot_expanded_vs_rest_panel(axes[0, 0], exp_cdr, rest_cdr, "A. CDR NS/S Ratio")
+
+# Panel B: FW NS/S
+plot_expanded_vs_rest_panel(axes[0, 1], exp_fw, rest_fw, "B. FW NS/S Ratio")
 
 # Panel C: Paired comparison — CDR expanded vs rest per disease
 ax = axes[1, 0]
@@ -190,25 +161,26 @@ exp_cdr_medians = [np.median(exp_cdr[i]) if exp_cdr[i] != [0] else 0 for i in ra
 rest_cdr_medians = [np.median(rest_cdr[i]) if rest_cdr[i] != [0] else 0 for i in range(len(disease_order))]
 
 bars1 = ax.bar(x - w/2, exp_cdr_medians, w, label="Expanded CDR NS/S", color="#c62828", alpha=0.85)
-bars2 = ax.bar(x + w/2, rest_cdr_medians, w, label="Rest CDR NS/S", color="#ef9a9a", alpha=0.85)
+bars2 = ax.bar(x + w/2, rest_cdr_medians, w, label="Unexpanded CDR NS/S", color="#ef9a9a", alpha=0.85)
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=13, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median NS/S Ratio", fontsize=15, fontweight="bold")
-ax.set_title("C. CDR NS/S: Expanded vs Rest (Medians)", fontsize=17, fontweight="bold", loc="left")
-ax.legend(fontsize=12, loc="upper right")
+ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Median NS/S Ratio", fontsize=20, fontweight="bold")
+ax.set_title("C. CDR NS/S: Expanded vs Unexpanded (Medians)", fontsize=22, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=16)
+ax.legend(fontsize=16, loc="lower right", framealpha=0.9, edgecolor="black")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 for bar in bars1:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=10, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
 for bar in bars2:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=10, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
 
 # Panel D: Paired comparison — FW expanded vs rest per disease
 ax = axes[1, 1]
@@ -216,27 +188,28 @@ exp_fw_medians = [np.median(exp_fw[i]) if exp_fw[i] != [0] else 0 for i in range
 rest_fw_medians = [np.median(rest_fw[i]) if rest_fw[i] != [0] else 0 for i in range(len(disease_order))]
 
 bars1 = ax.bar(x - w/2, exp_fw_medians, w, label="Expanded FW NS/S", color="#1565c0", alpha=0.85)
-bars2 = ax.bar(x + w/2, rest_fw_medians, w, label="Rest FW NS/S", color="#90caf9", alpha=0.85)
+bars2 = ax.bar(x + w/2, rest_fw_medians, w, label="Unexpanded FW NS/S", color="#90caf9", alpha=0.85)
 
 ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=13, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median NS/S Ratio", fontsize=15, fontweight="bold")
-ax.set_title("D. FW NS/S: Expanded vs Rest (Medians)", fontsize=17, fontweight="bold", loc="left")
-ax.legend(fontsize=12, loc="upper right")
+ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, ha="right")
+ax.set_ylabel("Median NS/S Ratio", fontsize=20, fontweight="bold")
+ax.set_title("D. FW NS/S: Expanded vs Unexpanded (Medians)", fontsize=22, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=16)
+ax.legend(fontsize=16, loc="lower right", framealpha=0.9, edgecolor="black")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 for bar in bars1:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=10, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
 for bar in bars2:
     if bar.get_height() > 0:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=10, fontweight="bold")
+                f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/21b_mutations_expanded_vs_rest.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 21b_mutations_expanded_vs_rest.png")
