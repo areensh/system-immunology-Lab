@@ -125,9 +125,9 @@ study_colors = {
 # FIGURE: Multi-panel sampling depth overview
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(20, 10))
-fig.suptitle("Sampling Depth Across Studies", fontsize=20, fontweight="bold", y=0.98)
+fig.suptitle("Sampling Depth Across Studies", fontsize=28, fontweight="bold", y=0.98)
 fig.text(0.5, 0.93, "Number of individuals and sequencing depth (total sequences per subject)",
-         ha="center", fontsize=13, color="gray")
+         ha="center", fontsize=18, color="gray")
 
 # Panel A: Subjects per study
 ax = axes[0]
@@ -137,11 +137,12 @@ colors = [study_colors.get(s, "#999") for s in x_studies]
 bars = ax.bar(range(len(x_studies)), n_subjects, color=colors, edgecolor="white", linewidth=0.5)
 for bar, n in zip(bars, n_subjects):
     ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.5,
-            str(n), ha="center", va="bottom", fontsize=11, fontweight="bold")
+            str(n), ha="center", va="bottom", fontsize=16, fontweight="bold")
 ax.set_xticks(range(len(x_studies)))
-ax.set_xticklabels(x_studies, fontsize=12, fontweight="bold")
-ax.set_ylabel("Number of Subjects", fontsize=13, fontweight="bold")
-ax.set_title("A. Subjects per Study", fontsize=15, fontweight="bold", loc="left")
+ax.set_xticklabels(x_studies, fontsize=18, fontweight="bold")
+ax.set_ylabel("Number of Subjects", fontsize=20, fontweight="bold")
+ax.set_title("A. Subjects per Study", fontsize=22, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=16)
 ax.set_ylim(0, max(n_subjects) * 1.15)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
@@ -164,9 +165,10 @@ for i, s in enumerate(x_studies):
 
 ax.set_yscale("log")
 ax.set_xticks(range(len(x_studies)))
-ax.set_xticklabels(x_studies, fontsize=12, fontweight="bold")
-ax.set_ylabel("Total Sequences per Subject (log)", fontsize=13, fontweight="bold")
-ax.set_title("B. Sequencing Depth", fontsize=15, fontweight="bold", loc="left")
+ax.set_xticklabels(x_studies, fontsize=18, fontweight="bold")
+ax.set_ylabel("Total Sequences per Subject (log)", fontsize=20, fontweight="bold")
+ax.set_title("B. Sequencing Depth", fontsize=22, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=16)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 

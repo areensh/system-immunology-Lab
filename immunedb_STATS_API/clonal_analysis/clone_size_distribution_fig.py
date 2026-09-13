@@ -112,14 +112,14 @@ ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
 ax.set_ylabel("Clone Size (log₁₀ unique sequences)", fontsize=16, fontweight="bold")
 ax.set_title("A. Clone Size Distribution (all clones)", fontsize=18, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=13)
+ax.tick_params(axis='y', labelsize=16)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 # Add n= labels
 for i, d in enumerate(disease_order):
     ax.text(i, ax.get_ylim()[0] + 0.02, f"n={len(disease_sizes[d])}",
-            ha="center", va="bottom", fontsize=11, color="gray")
+            ha="center", va="bottom", fontsize=14, color="gray")
 
 # Panel B: Median clone size per subject
 ax = axes[1]
@@ -143,13 +143,13 @@ ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=14, fontweight="bold", rotation=25, ha="right")
 ax.set_ylabel("Median Clone Size per Subject (log)", fontsize=16, fontweight="bold")
 ax.set_title("B. Median Clone Size per Subject", fontsize=18, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=13)
+ax.tick_params(axis='y', labelsize=16)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
 for i, d in enumerate(disease_order):
     ax.text(i, ax.get_ylim()[0] * 1.1, f"n={len(disease_medians[d])}",
-            ha="center", va="bottom", fontsize=11, color="gray")
+            ha="center", va="bottom", fontsize=14, color="gray")
 
 add_significance(ax, bp_data2, disease_order, log_scale=True)
 
