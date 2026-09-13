@@ -17,7 +17,7 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
     kw_stat, kw_p = stats.kruskal(*valid_data)
 
     kw_text = f"Kruskal-Wallis p={'<0.001' if kw_p < 0.001 else f'{kw_p:.3f}'}"
-    ax.text(0.02, 0.98, kw_text, transform=ax.transAxes, fontsize=8,
+    ax.text(0.02, 0.98, kw_text, transform=ax.transAxes, fontsize=14,
             verticalalignment='top', fontstyle='italic',
             bbox=dict(boxstyle='round,pad=0.3', facecolor='lightyellow', alpha=0.8))
 
@@ -59,7 +59,7 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
                 sig_text = "*"
             ax.plot([i, i, j, j], [y_tick, y, y, y_tick], color='black', linewidth=0.8)
             ax.text((i + j) / 2, y, sig_text, ha='center', va='bottom',
-                    fontsize=9, fontweight='bold')
+                    fontsize=16, fontweight='bold')
 
         new_top = 10 ** (log_max + 0.02 * log_range + len(significant) * step + step * 0.5)
         ax.set_ylim(top=new_top)
@@ -80,7 +80,7 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
             ax.plot([i, i, j, j], [y - step * 0.15, y, y, y - step * 0.15],
                     color='black', linewidth=0.8)
             ax.text((i + j) / 2, y, sig_text, ha='center', va='bottom',
-                    fontsize=9, fontweight='bold')
+                    fontsize=16, fontweight='bold')
 
         new_top = bracket_y + len(significant) * step + step
         ax.set_ylim(top=new_top)
