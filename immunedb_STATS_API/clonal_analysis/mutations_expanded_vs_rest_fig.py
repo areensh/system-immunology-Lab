@@ -88,10 +88,6 @@ for d in disease_order:
 # FIGURE: Expanded vs Rest NS/S Ratio Comparison
 # ============================================================
 fig, axes = plt.subplots(2, 2, figsize=(22, 18))
-fig.suptitle("Mutation NS/S Ratio: Expanded (≥20) vs Rest Clones by Disease Stage (Blood Only)",
-             fontsize=26, fontweight="bold", y=0.97)
-fig.text(0.5, 0.935, "Per-clone NS/S ratios compared between expanded (≥20 unique sequences) and unexpanded clones",
-         ha="center", fontsize=18, color="gray")
 
 rng = np.random.default_rng(42)
 
@@ -173,7 +169,7 @@ ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, h
 ax.set_ylabel("Median NS/S Ratio", fontsize=20, fontweight="bold")
 ax.set_title("C. CDR NS/S: Expanded vs Unexpanded (Medians)", fontsize=22, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=16)
-ax.legend(fontsize=16, loc="upper right", framealpha=0.9, edgecolor="black")
+ax.legend(fontsize=16, loc="lower right", framealpha=0.9, edgecolor="black")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
@@ -200,7 +196,7 @@ ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=25, h
 ax.set_ylabel("Median NS/S Ratio", fontsize=20, fontweight="bold")
 ax.set_title("D. FW NS/S: Expanded vs Unexpanded (Medians)", fontsize=22, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=16)
-ax.legend(fontsize=16, loc="upper right", framealpha=0.9, edgecolor="black")
+ax.legend(fontsize=16, loc="lower right", framealpha=0.9, edgecolor="black")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
@@ -213,7 +209,7 @@ for bar in bars2:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
                 f"{bar.get_height():.2f}", ha="center", fontsize=14, fontweight="bold")
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout()
 plt.savefig("plots/21b_mutations_expanded_vs_rest.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 21b_mutations_expanded_vs_rest.png")

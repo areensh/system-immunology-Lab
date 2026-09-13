@@ -9,20 +9,15 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
 
     valid = [(i, d) for i, d in enumerate(data_by_group) if len(d) >= 3]
     if len(valid) < 2:
-        return
+        return None
 
     valid_data = [d for _, d in valid]
     valid_idx = [i for i, _ in valid]
 
     kw_stat, kw_p = stats.kruskal(*valid_data)
 
-    kw_text = f"Kruskal-Wallis p={'<0.001' if kw_p < 0.001 else f'{kw_p:.3f}'}"
-    ax.text(0.02, 0.98, kw_text, transform=ax.transAxes, fontsize=14,
-            verticalalignment='top', fontstyle='italic',
-            bbox=dict(boxstyle='round,pad=0.3', facecolor='lightyellow', alpha=0.8))
-
     if kw_p >= 0.05:
-        return
+        return kw_p
 
     pairs = list(combinations(range(len(valid_idx)), 2))
     p_values = []
@@ -84,3 +79,5 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
 
         new_top = bracket_y + len(significant) * step + step
         ax.set_ylim(top=new_top)
+
+    return kw_p
