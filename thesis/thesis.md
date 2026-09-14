@@ -108,9 +108,9 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 **Figure 13.** Clonal metrics by gender and disease stage.
 
-**Figure 14.** Mutation level in top 10 clones stratified by sex and disease stage.
+**Figure 14.** CDR NS/S ratio — all clones by sex and disease stage.
 
-**Figure 15.** CDR3 length in top 10 clones stratified by sex and disease stage.
+**Figure 15.** CDR NS/S ratio — expanded clones by sex and disease stage.
 
 **Figure 16.** Within-individual clone count across tissues.
 
@@ -500,11 +500,13 @@ To assess whether age or gender could confound the disease-stage comparisons, we
 
 ## Sex-Stratified Analysis
 
-By combining disease_stage and sex metadata filters in a single query, IS-API enabled examination of mutation levels (**Figure 14**) and CDR3 lengths (**Figure 15**) in the top 10 clones, stratified by both sex and disease category. This demonstrates the API's ability to perform intersectional queries across multiple metadata dimensions.
+By combining disease_stage and sex metadata filters in a single query, IS-API enabled examination of CDR NS/S ratios stratified by sex within each disease category. We examined this metric separately for all clones (**Figure 14**) and for expanded clones only (**Figure 15**), demonstrating the API's ability to perform intersectional queries across multiple metadata dimensions.
 
-![Figure 14. Mutation level in top 10 clones stratified by sex and disease stage. Y-axis: average mutation count per clone. Male (blue) and female (red) individuals compared within each disease category. Each dot represents one individual; boxplots show median and IQR. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/12_mutation_top10_by_sex_disease.png){ width=100% }
+Across all clones (**Figure 14**), the CDR NS/S ratio showed no systematic differences between male and female individuals within any disease category, consistent with the gender analysis in **Figure 13**. When restricted to expanded clones (**Figure 15**), the same pattern held — no consistent sex-based differences in selection pressure were observed. The expanded-clone ratios were generally higher and more variable than all-clone ratios (compare y-axis ranges), reflecting the stronger selection signal in clones that have undergone substantial expansion. The absence of sex-based differences in both views reinforces the conclusion that disease stage, rather than sex, is the primary driver of NS/S ratio variation in this dataset.
 
-![Figure 15. CDR3 length in top 10 clones stratified by sex and disease stage. Y-axis: mean CDR3 amino acid length (AA). Male (blue) and female (red) individuals compared within each disease category. Each dot represents one individual; boxplots show median and IQR. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/13_cdr3_top10_by_sex_disease.png){ width=100% }
+![Figure 14. CDR NS/S ratio — all clones by sex and disease stage. Male (solid) and female (hatched) individuals compared within each disease category. Each dot represents one individual; boxplots show median and IQR. Dashed line marks NS/S = 1.0. Blood samples only. Three CD3 healthy individuals (H3, H4, H8) excluded due to missing sex metadata.](../immunedb_STATS_API/clonal_analysis/plots/28_nss_all_clones_by_sex.png){ width=100% }
+
+![Figure 15. CDR NS/S ratio — expanded clones (≥20 unique sequences) by sex and disease stage. Male (solid) and female (hatched) individuals compared within each disease category. Each dot represents one individual; boxplots show median and IQR. Dashed line marks NS/S = 1.0. Blood samples only.](../immunedb_STATS_API/clonal_analysis/plots/29_nss_expanded_by_sex.png){ width=100% }
 
 ## Within-Individual Cross-Tissue Analysis
 
