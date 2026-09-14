@@ -384,7 +384,7 @@ Examining the metadata completeness across datasets (**Metadata Figure 3**) reve
 
 ![Metadata Figure 3. Raw disease stage labels across studies. Bar chart showing the 13 original disease stage annotations as recorded in the source databases before harmonization. Each bar represents one label; colors indicate the contributing study. The Healthy group appears last.](../immunedb_STATS_API/metadata/plots/02_disease_stage_raw.png){ width=100% }
 
-We harmonized these into six categories (**Table 4**). The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
+We harmonized these into six categories (**Table 4**). The COVID Naive category refers specifically to vaccinated individuals who were never infected with SARS-CoV-2 (all from CVX1), distinguishing them from the Healthy group who are both unvaccinated and uninfected. We retain the label "COVID Naive" rather than "Vaccinated" to stay consistent with the terminology used in the original study and to avoid confusion with other naming conventions. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
 
 **Table 4.** Disease stage harmonization. Original labels from each study mapped to unified categories.
 
