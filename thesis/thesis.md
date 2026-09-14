@@ -510,7 +510,7 @@ Across all clones (**Figure 14**), neither CDR (A) nor FW (B) NS/S ratios showed
 
 ## Within-Individual Cross-Tissue Analysis
 
-IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in GT1), we compared clone counts (**Figure 16**), clone sizes (**Figure 17**), and paired tissue measurements (**Figure 18**) within the same individual.
+IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. The HC1 healthy donor study includes seven tissue types: PBL (peripheral blood), BM (bone marrow), SPL (spleen), Lung, Colon, Ileum, and MLN (mesenteric lymph node). The GT1 gut transplant study provides a broader tissue panel including PBMC (peripheral blood mononuclear cells), Bone Marrow, Spleen, Lung, Colon, Ileum, Jejunum, Duodenum, Rectum, MLN, AxLN (axillary lymph node), and corresponding allograft tissues. Using these multi-tissue datasets, we compared clone counts (**Figure 16**), clone sizes (**Figure 17**), and paired tissue measurements (**Figure 18**) within the same individual.
 
 ![Figure 16. Within-individual clone count across tissues. Y-axis: number of distinct clones. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in GT1), clone counts are compared across tissue types within the same individual. Colors indicate disease category (colors as in Figure 1).](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
 
