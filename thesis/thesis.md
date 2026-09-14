@@ -74,9 +74,11 @@ To demonstrate the power of IS-API, I present here a cross-study analysis of COV
 
 **Metadata Figure 4.** Disease stage harmonization mapping from raw annotations to unified categories.
 
-**Metadata Figure 5.** Demographics scatter plot: age by disease category, colored by dataset, shaped by sex.
+**Metadata Figure 5.** Sequencing method composition by disease category.
 
-**Metadata Figure 6.** Heatmap of individual counts across disease category, age group, and sex.
+**Metadata Figure 6.** Demographics scatter plot: age by disease category, colored by dataset, shaped by sex.
+
+**Metadata Figure 7.** Heatmap of individual counts across disease category, age group, and sex.
 
 ## Results Figures
 
@@ -413,18 +415,22 @@ The final cohort composition is shown in **Table 5**.
 
 ![Metadata Figure 4. Disease stage harmonization mapping. Stacked bar chart showing how the 13 raw disease labels were mapped to six harmonized categories (Severe, Moderate, Mild, Recovered, COVID Naive, Healthy). Colors represent original study labels; bar height shows the number of individuals per harmonized category. NA/Unknown individuals (n=15) shown separately.](../immunedb_STATS_API/metadata/plots/04_disease_harmonized_with_labels.png){ width=100% }
 
-**Demographics.** To assess whether age and gender could be examined alongside disease stage, we queried these metadata fields simultaneously. The demographics scatter plot (**Metadata Figure 5**) displays each individual by their disease category and age, colored by dataset and shaped by sex (circle = male, triangle = female, X = missing). This figure immediately reveals several important features of the data:
+**Sequencing method composition.** Because the six datasets used different library preparation protocols, the harmonized disease categories are not uniformly composed with respect to sequencing method. **Metadata Figure 5** shows how individuals in each disease category are divided between 5'RACE + UMI (CD1, CVX1, CVX2) and multiplex PCR (CD2, CD3, HC1). Moderate is entirely 5'RACE + UMI (all from CD1), COVID Naive is entirely 5'RACE + UMI (all from CVX1), and Healthy is entirely multiplex PCR (CD3 and HC1). Severe and Mild contain individuals from both methods, while Recovered is predominantly 5'RACE + UMI with a small multiplex PCR contribution. This uneven distribution means that apparent disease-stage differences could partly reflect technical biases introduced by the sequencing protocol — particularly the presence or absence of UMI-based error correction, which affects clone size quantification. This confound should be kept in mind when interpreting downstream clonal analyses.
+
+![Metadata Figure 5. Sequencing method composition by disease category. Stacked bar chart showing the number of individuals sequenced with 5'RACE + UMI (blue) versus multiplex PCR (orange) within each harmonized disease category. Numbers inside bars indicate individual counts per method; totals are shown above each bar.](../immunedb_STATS_API/metadata/plots/04b_disease_by_seq_method.png){ width=100% }
+
+**Demographics.** To assess whether age and gender could be examined alongside disease stage, we queried these metadata fields simultaneously. The demographics scatter plot (**Metadata Figure 6**) displays each individual by their disease category and age, colored by dataset and shaped by sex (circle = male, triangle = female, X = missing). This figure immediately reveals several important features of the data:
 
 - Severe and Mild individuals span a wide age range (20-88 years), while Recovered and COVID Naive individuals tend to be younger (20-50 years).
 - The Healthy group has a moderate age range (23-58 years).
 - Sex data is missing for several individuals in CD3 (shown as X markers), limiting sex-stratified analyses in those disease categories.
 - The dataset of origin is not uniformly distributed across disease categories — CD1 dominates the Severe and Mild groups, while CVX1 and CVX2 dominate the Recovered and COVID Naive groups.
 
-![Metadata Figure 5. Demographics scatter plot. Each dot represents one individual, positioned by disease category (x-axis) and age (y-axis). Colors indicate the source dataset; shapes indicate sex (circle = male, triangle = female, X = missing). Jitter applied to avoid overlap.](../immunedb_STATS_API/metadata/plots/05_demographics_scatter.png){ width=100% }
+![Metadata Figure 6. Demographics scatter plot. Each dot represents one individual, positioned by disease category (x-axis) and age (y-axis). Colors indicate the source dataset; shapes indicate sex (circle = male, triangle = female, X = missing). Jitter applied to avoid overlap.](../immunedb_STATS_API/metadata/plots/05_demographics_scatter.png){ width=100% }
 
-**Cross-stratification: disease, age, and sex.** The heatmap of individual counts across disease category, age group, and sex (**Metadata Figure 6**) provides a comprehensive view of which comparisons are statistically feasible. The Mild group has the most balanced distribution across age and sex, while the Moderate group has only females aged 66+ and males spanning all age groups. The Healthy group has predominantly males aged 31-65, and the COVID Naive group consists entirely of young adults (18-30). These imbalances must be considered when interpreting disease-stage comparisons, as they could confound biological differences with demographic ones — a point we address directly in the Confounder Analysis section (see Age and Gender Analysis in Results).
+**Cross-stratification: disease, age, and sex.** The heatmap of individual counts across disease category, age group, and sex (**Metadata Figure 7**) provides a comprehensive view of which comparisons are statistically feasible. The Mild group has the most balanced distribution across age and sex, while the Moderate group has only females aged 66+ and males spanning all age groups. The Healthy group has predominantly males aged 31-65, and the COVID Naive group consists entirely of young adults (18-30). These imbalances must be considered when interpreting disease-stage comparisons, as they could confound biological differences with demographic ones — a point we address directly in the Confounder Analysis section (see Age and Gender Analysis in Results).
 
-![Metadata Figure 6. Heatmap of individual counts across disease category, age group, and sex. Cell values show the number of individuals in each combination. Age groups: 18–30, 31–50, 51–65, 66+. Darker cells indicate more individuals. Empty cells represent combinations with no data, highlighting gaps that limit statistical power for stratified analyses.](../immunedb_STATS_API/metadata/plots/03e_heatmap_disease_age_sex.png){ width=100% }
+![Metadata Figure 7. Heatmap of individual counts across disease category, age group, and sex. Cell values show the number of individuals in each combination. Age groups: 18–30, 31–50, 51–65, 66+. Darker cells indicate more individuals. Empty cells represent combinations with no data, highlighting gaps that limit statistical power for stratified analyses.](../immunedb_STATS_API/metadata/plots/03e_heatmap_disease_age_sex.png){ width=100% }
 
 ## Clonal Diversity and Clone Count
 
