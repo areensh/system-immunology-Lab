@@ -518,7 +518,7 @@ We first examined clone counts across the seven HC1 tissues for each healthy don
 
 ![Figure 17. Comparison of tissue clone size in healthy (green, HC1 donor D207) and post-transplant (grey, GT1 donor Pt20_R) gut tissue (Colon, Jejunum, and Mesenteric Lymph Node). Clone size is the number of unique sequences per clone within each tissue. Red diamonds indicate the mean of each distribution; n = number of clones.](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png){ width=100% }
 
-![Figure 18. Within-individual tissue comparison using paired line plots. Lines connect measurements from different tissues within the same individual, illustrating tissue-specific repertoire differences. Each line represents one individual sampled from multiple tissues.](../immunedb_STATS_API/clonal_analysis/plots/16_within_subject_tissue_lines.png){ width=100% }
+![Figure 18. Median clone size per subject by tissue — HC1 (green, healthy) vs. GT1 (grey, gut transplant). Each dot represents one individual's median clone size in that tissue. Horizontal bars indicate the group median across subjects. Only tissues present in both studies are shown. Y-axis: log scale.](../immunedb_STATS_API/clonal_analysis/plots/16_within_subject_tissue_lines.png){ width=100% }
 
 This within-individual comparison revealed that clone counts and sizes can differ substantially between tissues in the same individual, highlighting the importance of specifying tissue type when making cross-study comparisons. The observation that bone marrow and blood repertoires from the same individual can have different clonal profiles is consistent with the known compartmentalization of B cell populations [34, 41].
 
