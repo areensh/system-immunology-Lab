@@ -228,3 +228,48 @@ fig.legend(handles=legend_elements, loc="lower left", bbox_to_anchor=(0.03, 0.01
 plt.savefig("plots/23_v_gene_usage_heatmap.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print(f"\nSaved: 23_v_gene_usage_heatmap.png")
+
+# ============================================================
+# FIGURE: Dendrogram of individuals clustered by V gene usage
+# ============================================================
+if col_linkage is not None:
+    fig, ax = plt.subplots(figsize=(24, 10))
+
+    leaf_colors = {}
+    for idx, (rid, info) in enumerate(subject_list):
+        leaf_colors[idx] = disease_colors[info["disease"]]
+
+    def color_func(k):
+        if k < len(subject_list):
+            return leaf_colors.get(k, "#333333")
+        return "#333333"
+
+    from scipy.cluster.hierarchy import set_link_color_palette
+    set_link_color_palette(["#333333"])
+
+    dend = dendrogram(col_linkage, ax=ax, labels=[info["disease"] for _, info in subject_list],
+                      leaf_rotation=90, leaf_font_size=14,
+                      color_threshold=0, above_threshold_color="#333333")
+
+    xlbls = ax.get_xticklabels()
+    for lbl in xlbls:
+        disease_name = lbl.get_text()
+        lbl.set_color(disease_colors.get(disease_name, "#333333"))
+        lbl.set_fontweight("bold")
+
+    ax.set_ylabel("Distance (Ward linkage)", fontsize=24, fontweight="bold")
+    ax.tick_params(axis='y', labelsize=20)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    legend_elements = [Patch(facecolor=disease_colors[d], label=d) for d in disease_order]
+    ax.legend(handles=legend_elements, fontsize=20, title="Disease Stage",
+              title_fontsize=22, loc="upper right", framealpha=0.9, edgecolor="gray")
+
+    plt.tight_layout()
+    plt.savefig("plots/23b_v_gene_individual_dendrogram.png", dpi=600,
+                bbox_inches="tight", facecolor="white")
+    plt.close()
+    print("Saved: 23b_v_gene_individual_dendrogram.png")
+
+    set_link_color_palette(None)
