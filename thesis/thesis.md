@@ -358,37 +358,6 @@ From the six studies, we identified 94 unique individuals with blood-derived sam
 
 Blood-derived tissues were defined as: blood, Peripheral blood, PBL (peripheral blood lymphocytes), and PBMC (peripheral blood mononuclear cells). Non-blood tissues (bone marrow, lymph node, lung, gut) were excluded from the cross-study comparison to ensure tissue homogeneity.
 
-## Disease Stage Harmonization
-
-Different studies used different terminology for disease stages. We harmonized these into six categories (**Table 4**).
-
-**Table 4.** Disease stage harmonization. Original labels from each study mapped to unified categories.
-
-| Harmonized Category | Original Labels | Source Studies |
-|---|---|---|
-| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
-| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
-| Mild | "mild", "non-severe" | CD1, CD2 |
-| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
-| COVID Naive | "COVID Naive" | CVX1 |
-| Healthy | "healthy" | CD3, HC1 |
-
-The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
-
-The final cohort composition is shown in **Table 5**.
-
-**Table 5.** Individual counts per harmonized disease category.
-
-| Disease Category | N | Contributing Studies | Notes |
-|---|---|---|---|
-| Severe | 26 | CD1, CD2, CD3 | |
-| Moderate | 9 | CD1 | |
-| Mild | 30 | CD1, CD2 | |
-| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
-| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
-| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
-| **Total** | **94** | | |
-
 \newpage
 
 # Results
@@ -409,11 +378,38 @@ Examining the metadata completeness across datasets (**Metadata Figure 3**) reve
 
 **Study selection and exclusions.** Based on the metadata overview, we excluded GT1 (pediatric gut transplant, n=15) from further analysis because it does not include COVID-19 disease stage metadata and represents a fundamentally different clinical context (pediatric transplant recipients). This left six COVID-19-related and healthy control datasets with 106 individuals.
 
-**Disease category distribution.** Querying the disease_stage metadata field revealed 13 different raw disease labels across the six studies (**Metadata Figure 3**).
+**Disease category distribution.** Querying the disease_stage metadata field revealed 13 different raw disease labels across the six studies (**Metadata Figure 3**). Different studies used different terminology for disease stages, highlighting the need for harmonization before any cross-study comparison.
 
 ![Metadata Figure 3. Raw disease stage labels across studies. Bar chart showing the 13 original disease stage annotations as recorded in the source databases before harmonization. Each bar represents one label; colors indicate the contributing study. The Healthy group appears last.](../immunedb_STATS_API/metadata/plots/02_disease_stage_raw.png){ width=100% }
 
-These were harmonized into six categories as described in Methods. The harmonized distribution (**Metadata Figure 4**) shows that the cohort is dominated by Mild (n=41) and Severe (n=27) individuals, with smaller groups of NA/Unknown (n=15), Recovered (n=12), Healthy (n=9), Moderate (n=9), and COVID Naive (n=8). The stacked bar visualization also shows the contribution of each original study and label to the harmonized categories — for example, the Severe group includes individuals labeled "severe" from CD2 and "Early phase hypoxaemia" from CD1, while the Recovered group spans four different original labels across three studies (CD1, CD2, CVX1, CVX2). The 15 individuals with NA/Unknown disease stage (from GT1 and some CD3 individuals) were excluded from the disease-stage analysis.
+We harmonized these into six categories (**Table 4**). The COVID Naive category refers to vaccinated individuals with no history of COVID-19 infection. The Healthy category refers to individuals with no history of COVID-19 infection or vaccination.
+
+**Table 4.** Disease stage harmonization. Original labels from each study mapped to unified categories.
+
+| Harmonized Category | Original Labels | Source Studies |
+|---|---|---|
+| Severe | "severe", "Early phase hypoxaemia" | CD1, CD2, CD3 |
+| Moderate | "Early phase-Stable", "Early phase-Improving" | CD1 |
+| Mild | "mild", "non-severe" | CD1, CD2 |
+| Recovered | "Recovering without ICU-Improving", "Recovering post-ICU -Improving", "Recovering post-ICU", "Recovered", "COVID recovered" | CD1, CD2, CVX1, CVX2 |
+| COVID Naive | "COVID Naive" | CVX1 |
+| Healthy | "healthy" | CD3, HC1 |
+
+The harmonized distribution (**Metadata Figure 4**) shows that the cohort is dominated by Mild (n=41) and Severe (n=27) individuals, with smaller groups of NA/Unknown (n=15), Recovered (n=12), Healthy (n=9), Moderate (n=9), and COVID Naive (n=8). The stacked bar visualization also shows the contribution of each original study and label to the harmonized categories — for example, the Severe group includes individuals labeled "severe" from CD2 and "Early phase hypoxaemia" from CD1, while the Recovered group spans four different original labels across three studies (CD1, CD2, CVX1, CVX2). The 15 individuals with NA/Unknown disease stage (from GT1 and some CD3 individuals) were excluded from the disease-stage analysis.
+
+The final cohort composition is shown in **Table 5**.
+
+**Table 5.** Individual counts per harmonized disease category.
+
+| Disease Category | N | Contributing Studies | Notes |
+|---|---|---|---|
+| Severe | 26 | CD1, CD2, CD3 | |
+| Moderate | 9 | CD1 | |
+| Mild | 30 | CD1, CD2 | |
+| Recovered | 12 | CD2, CVX1, CVX2 | Includes naturally recovered (3 from CD2) and vaccine-recovered (5 from CVX2, 4 from CVX1) |
+| COVID Naive | 8 | CVX1 | Vaccinated, never infected with SARS-CoV-2 |
+| Healthy | 9 | CD3, HC1 | No COVID-19 history, no vaccination (3 from CD3, 6 from HC1) |
+| **Total** | **94** | | |
 
 ![Metadata Figure 4. Disease stage harmonization mapping. Stacked bar chart showing how the 13 raw disease labels were mapped to six harmonized categories (Severe, Moderate, Mild, Recovered, COVID Naive, Healthy). Colors represent original study labels; bar height shows the number of individuals per harmonized category. NA/Unknown individuals (n=15) shown separately.](../immunedb_STATS_API/metadata/plots/04_disease_harmonized_with_labels.png){ width=100% }
 
