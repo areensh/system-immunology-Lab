@@ -135,10 +135,14 @@ for entry in mutation_data["Result"]:
     if not sv:
         continue
     vals_dict = {item["clone_id"]: item["count"] for item in sv}
-    r = vals_dict.get("CDR_replacement")
-    s = vals_dict.get("CDR_synonymous")
-    if r is not None and s is not None and s > 0:
-        cdr_nss[rid] = {"disease": disease, "value": r / s}
+    ratio = vals_dict.get("CDR_nss_ratio")
+    if ratio is not None and ratio > 0:
+        cdr_nss[rid] = {"disease": disease, "value": ratio}
+    else:
+        r = vals_dict.get("CDR_replacement")
+        s = vals_dict.get("CDR_synonymous")
+        if r is not None and s is not None and s > 0:
+            cdr_nss[rid] = {"disease": disease, "value": r / s}
 
 print("Data availability:")
 print(f"  Sex: {len(sex_map)}, Age: {len(age_map)}")
