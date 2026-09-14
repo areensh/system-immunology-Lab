@@ -77,8 +77,9 @@ for entry in sex_data["Result"]:
     if sex in ("Male", "Female"):
         sex_map[rid] = sex
 
-# Extract all-clones CDR NS/S ratio per subject
-all_nss = {}
+# Extract all-clones CDR and FW NS/S ratios per subject
+all_cdr_nss = {}
+all_fw_nss = {}
 for entry in all_data["Result"]:
     rid, disease, meta = parse_entry(entry)
     if not rid:
@@ -87,17 +88,26 @@ for entry in all_data["Result"]:
     if not sv:
         continue
     vals_dict = {item["clone_id"]: item["count"] for item in sv}
-    ratio = vals_dict.get("CDR_nss_ratio")
-    if ratio is not None and ratio > 0:
-        all_nss[rid] = {"disease": disease, "value": ratio}
+    cdr_ratio = vals_dict.get("CDR_nss_ratio")
+    if cdr_ratio is not None and cdr_ratio > 0:
+        all_cdr_nss[rid] = {"disease": disease, "value": cdr_ratio}
     else:
         r = vals_dict.get("CDR_replacement")
         s = vals_dict.get("CDR_synonymous")
         if r is not None and s is not None and s > 0:
-            all_nss[rid] = {"disease": disease, "value": r / s}
+            all_cdr_nss[rid] = {"disease": disease, "value": r / s}
+    fw_ratio = vals_dict.get("FW_nss_ratio")
+    if fw_ratio is not None and fw_ratio > 0:
+        all_fw_nss[rid] = {"disease": disease, "value": fw_ratio}
+    else:
+        r = vals_dict.get("FW_replacement")
+        s = vals_dict.get("FW_synonymous")
+        if r is not None and s is not None and s > 0:
+            all_fw_nss[rid] = {"disease": disease, "value": r / s}
 
-# Extract expanded-clones CDR NS/S ratio per subject
-exp_nss = {}
+# Extract expanded-clones CDR and FW NS/S ratios per subject
+exp_cdr_nss = {}
+exp_fw_nss = {}
 for entry in exp_data["Result"]:
     rid, disease, meta = parse_entry(entry)
     if not rid:
@@ -107,19 +117,33 @@ for entry in exp_data["Result"]:
         continue
     vals_dict = {item["clone_id"]: item["count"] for item in sv}
     n_exp = vals_dict.get("expanded_n", 0)
-    ratio = vals_dict.get("expanded_cdr_nss_ratio")
-    if n_exp > 0 and ratio is not None and ratio > 0:
-        exp_nss[rid] = {"disease": disease, "value": ratio}
+    if n_exp > 0:
+        cdr_ratio = vals_dict.get("expanded_cdr_nss_ratio")
+        if cdr_ratio is not None and cdr_ratio > 0:
+            exp_cdr_nss[rid] = {"disease": disease, "value": cdr_ratio}
+        fw_ratio = vals_dict.get("expanded_fw_nss_ratio")
+        if fw_ratio is not None and fw_ratio > 0:
+            exp_fw_nss[rid] = {"disease": disease, "value": fw_ratio}
 
 print(f"Sex map: {len(sex_map)} individuals")
-print(f"All clones NS/S: {len(all_nss)} individuals")
-print(f"Expanded NS/S: {len(exp_nss)} individuals")
-print(f"All with sex: {sum(1 for r in all_nss if r in sex_map)}")
-print(f"Expanded with sex: {sum(1 for r in exp_nss if r in sex_map)}")
+print(f"All CDR NS/S: {len(all_cdr_nss)}, All FW NS/S: {len(all_fw_nss)}")
+print(f"Exp CDR NS/S: {len(exp_cdr_nss)}, Exp FW NS/S: {len(exp_fw_nss)}")
 
 rng = np.random.default_rng(42)
 
-def plot_sex_stratified(ax, metric_dict, disease_order, disease_colors, sex_map, rng):
+# Compute shared y-axis limits across all four datasets
+def get_shared_ylim(*dicts):
+    all_vals = []
+    for d in dicts:
+        all_vals.extend(info["value"] for info in d.values())
+    if not all_vals:
+        return (0, 1)
+    margin = (max(all_vals) - min(all_vals)) * 0.15
+    return (min(all_vals) - margin, max(all_vals) + margin)
+
+shared_ylim = get_shared_ylim(all_cdr_nss, all_fw_nss, exp_cdr_nss, exp_fw_nss)
+
+def plot_sex_stratified(ax, metric_dict, disease_order, disease_colors, sex_map, rng, ylabel, title, ylim=None):
     positions = []
     bp_data = []
     tick_positions = []
@@ -161,34 +185,39 @@ def plot_sex_stratified(ax, metric_dict, disease_order, disease_colors, sex_map,
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels, fontsize=20, fontweight="bold", rotation=25, ha="right")
     ax.tick_params(axis='y', labelsize=20)
-    ax.set_ylabel("CDR NS/S Ratio", fontsize=24, fontweight="bold")
+    ax.set_ylabel(ylabel, fontsize=24, fontweight="bold")
+    ax.set_title(title, fontsize=24, fontweight="bold", loc="left")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.axhline(y=1.0, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+    if ylim:
+        ax.set_ylim(ylim)
 
 from matplotlib.patches import Patch
 
-# Figure 1: All clones NS/S by sex
-fig, ax = plt.subplots(figsize=(14, 9))
-plot_sex_stratified(ax, all_nss, disease_order, disease_colors, sex_map, rng)
-ax.set_title("CDR NS/S Ratio — All Clones by Sex and Disease Stage",
-             fontsize=24, fontweight="bold", pad=15)
+# Figure 14: All clones — CDR + FW NS/S by sex
+fig, axes = plt.subplots(1, 2, figsize=(24, 10))
+plot_sex_stratified(axes[0], all_cdr_nss, disease_order, disease_colors, sex_map, rng,
+                    "CDR NS/S Ratio", "(A) CDR NS/S Ratio", ylim=shared_ylim)
+plot_sex_stratified(axes[1], all_fw_nss, disease_order, disease_colors, sex_map, rng,
+                    "FW NS/S Ratio", "(B) FW NS/S Ratio (same y-axis scale as A)", ylim=shared_ylim)
 legend_elements = [Patch(facecolor="gray", alpha=0.8, label="Male"),
                    Patch(facecolor="gray", alpha=0.6, hatch="///", label="Female")]
-ax.legend(handles=legend_elements, fontsize=20, loc="upper right")
+axes[1].legend(handles=legend_elements, fontsize=20, loc="upper right")
 plt.tight_layout()
 plt.savefig("plots/28_nss_all_clones_by_sex.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: plots/28_nss_all_clones_by_sex.png")
 
-# Figure 2: Expanded clones NS/S by sex
-fig, ax = plt.subplots(figsize=(14, 9))
-plot_sex_stratified(ax, exp_nss, disease_order, disease_colors, sex_map, rng)
-ax.set_title("CDR NS/S Ratio — Expanded Clones by Sex and Disease Stage",
-             fontsize=24, fontweight="bold", pad=15)
+# Figure 15: Expanded clones — CDR + FW NS/S by sex
+fig, axes = plt.subplots(1, 2, figsize=(24, 10))
+plot_sex_stratified(axes[0], exp_cdr_nss, disease_order, disease_colors, sex_map, rng,
+                    "CDR NS/S Ratio", "(A) CDR NS/S Ratio", ylim=shared_ylim)
+plot_sex_stratified(axes[1], exp_fw_nss, disease_order, disease_colors, sex_map, rng,
+                    "FW NS/S Ratio", "(B) FW NS/S Ratio (same y-axis scale as A)", ylim=shared_ylim)
 legend_elements = [Patch(facecolor="gray", alpha=0.8, label="Male"),
                    Patch(facecolor="gray", alpha=0.6, hatch="///", label="Female")]
-ax.legend(handles=legend_elements, fontsize=20, loc="upper right")
+axes[1].legend(handles=legend_elements, fontsize=20, loc="upper right")
 plt.tight_layout()
 plt.savefig("plots/29_nss_expanded_by_sex.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
