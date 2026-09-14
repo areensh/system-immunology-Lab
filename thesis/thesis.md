@@ -510,9 +510,9 @@ Across all clones (**Figure 14**), the CDR NS/S ratio showed no systematic diffe
 
 ## Within-Individual Cross-Tissue Analysis
 
-IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in CD1), we compared clone counts (**Figure 16**), clone sizes (**Figure 17**), and paired tissue measurements (**Figure 18**) within the same individual.
+IS-API's ability to query across multiple tissue types within the same individual provides a unique capability for studying tissue-specific repertoire characteristics. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, or blood and lung in GT1), we compared clone counts (**Figure 16**), clone sizes (**Figure 17**), and paired tissue measurements (**Figure 18**) within the same individual.
 
-![Figure 16. Within-individual clone count across tissues. Y-axis: number of distinct clones. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in CD1), clone counts are compared across tissue types within the same individual. Colors indicate disease category (colors as in Figure 1).](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
+![Figure 16. Within-individual clone count across tissues. Y-axis: number of distinct clones. For individuals with samples from multiple tissues (e.g., blood and bone marrow in HC1, blood and lung in GT1), clone counts are compared across tissue types within the same individual. Colors indicate disease category (colors as in Figure 1).](../immunedb_STATS_API/clonal_analysis/plots/14_within_subject_clone_count.png){ width=100% }
 
 ![Figure 17. Within-individual clone size across tissues. Y-axis: clone size (number of unique sequences per clone). Clone size distributions compared between different tissue types within the same individual across studies. Colors indicate disease category.](../immunedb_STATS_API/clonal_analysis/plots/15_within_subject_clone_size_cross_study.png){ width=100% }
 
