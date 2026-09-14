@@ -135,10 +135,14 @@ for entry in mutation_data["Result"]:
     if not sv:
         continue
     vals_dict = {item["clone_id"]: item["count"] for item in sv}
-    r = vals_dict.get("CDR_replacement")
-    s = vals_dict.get("CDR_synonymous")
-    if r is not None and s is not None and s > 0:
-        cdr_nss[rid] = {"disease": disease, "value": r / s}
+    ratio = vals_dict.get("CDR_nss_ratio")
+    if ratio is not None and ratio > 0:
+        cdr_nss[rid] = {"disease": disease, "value": ratio}
+    else:
+        r = vals_dict.get("CDR_replacement")
+        s = vals_dict.get("CDR_synonymous")
+        if r is not None and s is not None and s > 0:
+            cdr_nss[rid] = {"disease": disease, "value": r / s}
 
 print("Data availability:")
 print(f"  Sex: {len(sex_map)}, Age: {len(age_map)}")
@@ -153,7 +157,7 @@ metrics = [
 # ============================================================
 # FIGURE A: Metrics vs Age (scatter, colored by disease)
 # ============================================================
-fig, axes = plt.subplots(1, 3, figsize=(24, 9))
+fig, axes = plt.subplots(1, 3, figsize=(24, 11))
 # Title and subtitle removed for publication
 
 disease_counts = defaultdict(int)
@@ -183,13 +187,14 @@ for idx, (metric_name, metric_dict) in enumerate(metrics):
 
 from matplotlib.lines import Line2D
 legend_elements = [Line2D([0], [0], marker='o', color='w', markerfacecolor=disease_colors[d],
-                          markersize=10, label=f"{d} (n={disease_counts.get(d, 0)})")
+                          markersize=16, label=f"{d} (n={disease_counts.get(d, 0)})")
                    for d in disease_order if disease_counts.get(d, 0) > 0]
-fig.legend(handles=legend_elements, loc="upper center", bbox_to_anchor=(0.5, 0.97),
-           ncol=len(legend_elements), fontsize=20, frameon=True, framealpha=0.9,
-           edgecolor="black", handletextpad=0.3, columnspacing=1.0)
+fig.legend(handles=legend_elements, loc="upper center", bbox_to_anchor=(0.5, 1.0),
+           ncol=3, fontsize=22, frameon=True, framealpha=0.95,
+           edgecolor="gray", handletextpad=0.5, columnspacing=1.5,
+           markerscale=1.0, borderpad=0.8)
 
-plt.tight_layout(rect=[0, 0, 1, 0.90])
+plt.tight_layout(rect=[0, 0, 1, 0.82])
 plt.savefig("plots/24_metrics_vs_age.png", dpi=600, bbox_inches="tight", facecolor="white")
 plt.close()
 print("Saved: 24_metrics_vs_age.png")

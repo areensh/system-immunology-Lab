@@ -133,7 +133,7 @@ def plot_expanded_vs_rest_panel(ax, exp_data, rest_data, title):
             ax.scatter(positions_rest[i] + jitter, vals_r, color=colors[i], s=53, alpha=0.4,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
-    ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+    ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
     ax.set_xticks(positions_exp + 0.4)
     ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
     ax.set_ylabel("NS/S Ratio", fontsize=24, fontweight="bold")
@@ -163,7 +163,7 @@ rest_cdr_medians = [np.median(rest_cdr[i]) if rest_cdr[i] != [0] else 0 for i in
 bars1 = ax.bar(x - w/2, exp_cdr_medians, w, label="Expanded CDR NS/S", color="#c62828", alpha=0.85)
 bars2 = ax.bar(x + w/2, rest_cdr_medians, w, label="Unexpanded CDR NS/S", color="#ef9a9a", alpha=0.85)
 
-ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(x)
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
 ax.set_ylabel("Median NS/S Ratio", fontsize=24, fontweight="bold")
@@ -190,7 +190,7 @@ rest_fw_medians = [np.median(rest_fw[i]) if rest_fw[i] != [0] else 0 for i in ra
 bars1 = ax.bar(x - w/2, exp_fw_medians, w, label="Expanded FW NS/S", color="#1565c0", alpha=0.85)
 bars2 = ax.bar(x + w/2, rest_fw_medians, w, label="Unexpanded FW NS/S", color="#90caf9", alpha=0.85)
 
-ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(x)
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
 ax.set_ylabel("Median NS/S Ratio", fontsize=24, fontweight="bold")

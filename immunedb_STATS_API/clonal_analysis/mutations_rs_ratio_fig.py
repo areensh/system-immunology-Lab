@@ -149,7 +149,7 @@ for i, d in enumerate(disease_order):
         ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
                    zorder=3, edgecolors="white", linewidth=0.5)
 
-ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
 ax.set_ylabel("NS/S Ratio", fontsize=24, fontweight="bold")
@@ -177,7 +177,7 @@ for i, d in enumerate(disease_order):
         ax.scatter([i + j for j in jitter], vals, color=colors[i], s=45, alpha=0.7,
                    zorder=3, edgecolors="white", linewidth=0.5)
 
-ax.axhline(y=1, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(disease_order)))
 ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
 ax.set_ylabel("NS/S Ratio", fontsize=24, fontweight="bold")
