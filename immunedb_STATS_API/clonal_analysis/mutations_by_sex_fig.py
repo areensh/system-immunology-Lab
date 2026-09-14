@@ -189,7 +189,7 @@ def plot_sex_stratified(ax, metric_dict, disease_order, disease_colors, sex_map,
     ax.set_title(title, fontsize=24, fontweight="bold", loc="left")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.axhline(y=1.0, color="gray", linestyle="--", linewidth=1, alpha=0.5)
+    ax.axhline(y=2.0, color="gray", linestyle="--", linewidth=1, alpha=0.5)
     if ylim:
         ax.set_ylim(ylim)
 
