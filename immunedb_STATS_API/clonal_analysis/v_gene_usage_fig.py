@@ -134,16 +134,11 @@ else:
     col_order = np.arange(len(subject_list))
     col_linkage = None
 
-# Hierarchical clustering of V genes (rows)
-if len(selected_genes) > 1:
-    row_dist = pdist(matrix, metric="euclidean")
-    row_linkage = linkage(row_dist, method="ward")
-    row_order = leaves_list(row_linkage)
-else:
-    row_order = np.arange(len(selected_genes))
-    row_linkage = None
+# V genes sorted alphanumerically (no row clustering)
+sorted_genes = sorted(selected_genes)
+gene_index_map = {g: i for i, g in enumerate(selected_genes)}
+row_order = [gene_index_map[g] for g in sorted_genes]
 
-clustered_genes = [selected_genes[i] for i in row_order]
 clustered_subjects = [subject_list[i] for i in col_order]
 clustered_matrix = matrix[np.ix_(row_order, col_order)]
 
@@ -158,19 +153,14 @@ for rid, info in clustered_subjects:
 fig_height = max(14, len(selected_genes) * 0.85 + 5)
 fig = plt.figure(figsize=(26, fig_height))
 
-gs = fig.add_gridspec(3, 3,
-                      width_ratios=[0.08, 0.08, 1],
+gs = fig.add_gridspec(3, 1,
                       height_ratios=[0.03, 1, 0.02],
-                      hspace=0.03, wspace=0.01,
-                      top=0.90, bottom=0.10, left=0.03, right=0.95)
+                      hspace=0.03,
+                      top=0.90, bottom=0.10, left=0.12, right=0.95)
 
-ax_colorbar_top = fig.add_subplot(gs[0, 2])
-ax_dendro_row = fig.add_subplot(gs[1, 0])
-ax_dendro_col_placeholder = fig.add_subplot(gs[1, 1])
-ax = fig.add_subplot(gs[1, 2])
-cax = fig.add_subplot(gs[2, 2])
-
-# Title and subtitle removed for publication
+ax_colorbar_top = fig.add_subplot(gs[0, 0])
+ax = fig.add_subplot(gs[1, 0])
+cax = fig.add_subplot(gs[2, 0])
 
 # Disease color bar at top
 disease_colors_arr = [disease_colors[info["disease"]] for _, info in clustered_subjects]
@@ -184,44 +174,29 @@ ax_colorbar_top.set_ylabel("Disease", fontsize=20, fontweight="bold", rotation=0
 for spine in ax_colorbar_top.spines.values():
     spine.set_visible(False)
 
-# Row dendrogram (V genes)
-if row_linkage is not None:
-    dendrogram(row_linkage, orientation="left", ax=ax_dendro_row,
-               no_labels=True, color_threshold=0,
-               above_threshold_color="#555555", leaf_rotation=0)
-ax_dendro_row.set_xticks([])
-ax_dendro_row.set_yticks([])
-for spine in ax_dendro_row.spines.values():
-    spine.set_visible(False)
-ax_dendro_row.invert_yaxis()
-
-# Hide the placeholder axis for column dendrogram space
-ax_dendro_col_placeholder.set_visible(False)
-
 # Heatmap
 im = ax.imshow(clustered_matrix, aspect="auto", cmap="YlOrRd", interpolation="nearest")
 
-# Y-axis: V gene names on the right
-ax.yaxis.tick_right()
-ax.set_yticks(range(len(clustered_genes)))
-ax.set_yticklabels(clustered_genes, fontsize=20, fontweight="bold")
+# Y-axis: V gene names on the left
+ax.set_yticks(range(len(sorted_genes)))
+ax.set_yticklabels(sorted_genes, fontsize=20, fontweight="bold")
 ax.tick_params(axis='y', length=0, pad=8)
 
-# X-axis: no individual labels (too many), clustering order is the point
+# X-axis
 ax.set_xticks([])
 ax.set_xlabel(f"Individuals (n={n_subjects}), ordered by hierarchical clustering",
               fontsize=24, fontweight="bold", labelpad=8)
 
-# Frequency colorbar — position manually below heatmap
+# Frequency colorbar — centered below heatmap
 cax.set_position([0.45, 0.04, 0.30, 0.012])
 cbar = plt.colorbar(im, cax=cax, orientation="horizontal")
 cbar.set_label("V Gene Frequency (%)", fontsize=20, fontweight="bold")
 cbar.ax.tick_params(labelsize=18)
 
-# Disease legend (bottom left)
+# Disease legend (bottom left, positioned above the colorbar to avoid overlap)
 from matplotlib.patches import Patch
 legend_elements = [Patch(facecolor=disease_colors[d], label=d) for d in disease_order]
-fig.legend(handles=legend_elements, loc="lower left", bbox_to_anchor=(0.03, 0.015),
+fig.legend(handles=legend_elements, loc="lower left", bbox_to_anchor=(0.03, 0.06),
            ncol=len(disease_order), fontsize=20, frameon=True, framealpha=0.9,
            edgecolor="black", handlelength=1.5, handleheight=1.2)
 

@@ -121,7 +121,7 @@ fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 
 rng = np.random.default_rng(42)
 
-# Compute shared y-axis for panels A and B
+# Compute shared y-axis limits for panels A and B
 all_ratio_vals = []
 for d in disease_order:
     all_ratio_vals.extend(disease_data[d]["cdr_ratio"])
@@ -157,9 +157,8 @@ ax.set_title("A. CDR NS/S Ratio", fontsize=24, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-if shared_ratio_ylim:
-    ax.set_ylim(shared_ratio_ylim)
 add_significance(ax, [disease_data[d]["cdr_ratio"] for d in disease_order], disease_order)
+ax_cdr = ax
 
 # Panel B: FW R/S ratio
 ax = axes[1]
@@ -185,9 +184,17 @@ ax.set_title("B. FW NS/S Ratio", fontsize=24, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-if shared_ratio_ylim:
-    ax.set_ylim(shared_ratio_ylim)
 add_significance(ax, [disease_data[d]["fw_ratio"] for d in disease_order], disease_order)
+
+# Force shared y-axis on both panels AFTER significance brackets are drawn
+if shared_ratio_ylim:
+    # Get the max y that either panel reached (including significance brackets)
+    cdr_top = ax_cdr.get_ylim()[1]
+    fw_top = ax.get_ylim()[1]
+    final_top = max(cdr_top, fw_top, shared_ratio_ylim[1])
+    final_bottom = min(shared_ratio_ylim[0], ax_cdr.get_ylim()[0], ax.get_ylim()[0])
+    ax_cdr.set_ylim(final_bottom, final_top)
+    ax.set_ylim(final_bottom, final_top)
 
 # Panel C: Stacked bar — avg NS vs S per region per disease
 ax = axes[2]
