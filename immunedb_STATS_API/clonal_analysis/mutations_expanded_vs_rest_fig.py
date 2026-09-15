@@ -85,9 +85,9 @@ for d in disease_order:
         print(f"  {d}: n=0")
 
 # ============================================================
-# FIGURE: Expanded vs Rest NS/S Ratio Comparison
+# FIGURE: Expanded vs Unexpanded NS/S Ratio Comparison
 # ============================================================
-fig, axes = plt.subplots(2, 2, figsize=(22, 18))
+fig, axes = plt.subplots(1, 2, figsize=(22, 10))
 
 rng = np.random.default_rng(42)
 
@@ -147,67 +147,17 @@ def plot_expanded_vs_rest_panel(ax, exp_data, rest_data, title):
     ax.spines["right"].set_visible(False)
 
 # Panel A: CDR NS/S
-plot_expanded_vs_rest_panel(axes[0, 0], exp_cdr, rest_cdr, "A. CDR NS/S Ratio")
+plot_expanded_vs_rest_panel(axes[0], exp_cdr, rest_cdr, "A. CDR NS/S Ratio")
 
 # Panel B: FW NS/S
-plot_expanded_vs_rest_panel(axes[0, 1], exp_fw, rest_fw, "B. FW NS/S Ratio")
+plot_expanded_vs_rest_panel(axes[1], exp_fw, rest_fw, "B. FW NS/S Ratio")
 
-# Panel C: Paired comparison — CDR expanded vs rest per disease
-ax = axes[1, 0]
-x = np.arange(len(disease_order))
-w = 0.35
-
-exp_cdr_medians = [np.median(exp_cdr[i]) if exp_cdr[i] != [0] else 0 for i in range(len(disease_order))]
-rest_cdr_medians = [np.median(rest_cdr[i]) if rest_cdr[i] != [0] else 0 for i in range(len(disease_order))]
-
-bars1 = ax.bar(x - w/2, exp_cdr_medians, w, label="Expanded CDR NS/S", color="#c62828", alpha=0.85)
-bars2 = ax.bar(x + w/2, rest_cdr_medians, w, label="Unexpanded CDR NS/S", color="#ef9a9a", alpha=0.85)
-
-ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
-ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median NS/S Ratio", fontsize=24, fontweight="bold")
-ax.set_title("C. CDR NS/S: Expanded vs Unexpanded (Medians)", fontsize=24, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=20)
-ax.legend(fontsize=20, loc="lower right", framealpha=0.9, edgecolor="black")
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-for bar in bars1:
-    if bar.get_height() > 0:
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
-for bar in bars2:
-    if bar.get_height() > 0:
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
-
-# Panel D: Paired comparison — FW expanded vs rest per disease
-ax = axes[1, 1]
-exp_fw_medians = [np.median(exp_fw[i]) if exp_fw[i] != [0] else 0 for i in range(len(disease_order))]
-rest_fw_medians = [np.median(rest_fw[i]) if rest_fw[i] != [0] else 0 for i in range(len(disease_order))]
-
-bars1 = ax.bar(x - w/2, exp_fw_medians, w, label="Expanded FW NS/S", color="#1565c0", alpha=0.85)
-bars2 = ax.bar(x + w/2, rest_fw_medians, w, label="Unexpanded FW NS/S", color="#90caf9", alpha=0.85)
-
-ax.axhline(y=2, color="gray", linestyle="--", linewidth=1, alpha=0.5)
-ax.set_xticks(x)
-ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=25, ha="right")
-ax.set_ylabel("Median NS/S Ratio", fontsize=24, fontweight="bold")
-ax.set_title("D. FW NS/S: Expanded vs Unexpanded (Medians)", fontsize=24, fontweight="bold", loc="left")
-ax.tick_params(axis='y', labelsize=20)
-ax.legend(fontsize=20, loc="lower right", framealpha=0.9, edgecolor="black")
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-for bar in bars1:
-    if bar.get_height() > 0:
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
-for bar in bars2:
-    if bar.get_height() > 0:
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.2f}", ha="center", fontsize=16, fontweight="bold")
+# Force shared y-axis scale across both panels
+ylims = [axes[0].get_ylim(), axes[1].get_ylim()]
+shared_bottom = min(y[0] for y in ylims)
+shared_top = max(y[1] for y in ylims)
+axes[0].set_ylim(shared_bottom, shared_top)
+axes[1].set_ylim(shared_bottom, shared_top)
 
 plt.tight_layout()
 plt.savefig("plots/21b_mutations_expanded_vs_rest.png", dpi=600, bbox_inches="tight", facecolor="white")
