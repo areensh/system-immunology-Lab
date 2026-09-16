@@ -1,4 +1,5 @@
 import json
+import csv
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -89,6 +90,13 @@ tissue_colors = {
 
 study_colors = {"HC1": "#2e7d32", "GT1": "#78909c"}
 
+# Load HC1 sample counts per tissue
+hc1_sample_counts = {}
+with open("clone_size/data/hc1_samples_per_tissue.csv") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        hc1_sample_counts[(row["subject_name"], row["tissue"])] = int(row["num_samples"])
+
 # Group by study, subject, tissue
 subj_tissue_clones = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 for r in records:
@@ -101,13 +109,14 @@ hc1_subjects = sorted(subj_tissue_clones["HC1"].keys())
 ncols = 3
 nrows = (len(hc1_subjects) + ncols - 1) // ncols
 
-# Find global max for uniform y-axis
+# Find global max for uniform y-axis (normalized by sample count)
 global_max = 0
 for subj in hc1_subjects:
     td = subj_tissue_clones["HC1"][subj]
     for t in hc1_key_tissues:
         if t in td:
-            global_max = max(global_max, len(td[t]))
+            n_samples = hc1_sample_counts.get((subj, t), 1)
+            global_max = max(global_max, len(td[t]) / n_samples)
 
 fig, axes = plt.subplots(nrows, ncols, figsize=(20, 6 * nrows))
 if nrows == 1:
@@ -118,20 +127,20 @@ for idx, subj in enumerate(hc1_subjects):
     ax = axes[idx // ncols][idx % ncols]
     td = subj_tissue_clones["HC1"][subj]
     tissues = [t for t in hc1_key_tissues if t in td]
-    counts = [len(td[t]) for t in tissues]
+    normalized = [len(td[t]) / hc1_sample_counts.get((subj, t), 1) for t in tissues]
     colors = [tissue_colors.get(t, "#999") for t in tissues]
-    bars = ax.bar(range(len(tissues)), counts, color=colors, edgecolor="white", linewidth=0.5)
+    bars = ax.bar(range(len(tissues)), normalized, color=colors, edgecolor="white", linewidth=0.5)
     ax.set_xticks(range(len(tissues)))
     ax.set_xticklabels(tissues, rotation=30, ha="right", fontsize=20)
     ax.set_title(subj, fontsize=24, fontweight="bold")
-    ax.set_ylabel("# Clones", fontsize=24, fontweight="bold")
+    ax.set_ylabel("Clones / Sample", fontsize=24, fontweight="bold")
     ax.tick_params(axis='y', labelsize=20)
     ax.set_ylim(0, global_max * 1.12)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    for bar, c in zip(bars, counts):
+    for bar, val in zip(bars, normalized):
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + global_max*0.02,
-                str(c), ha="center", va="bottom", fontsize=16, fontweight="bold")
+                f"{val:.0f}", ha="center", va="bottom", fontsize=16, fontweight="bold")
 
 # Hide empty subplots
 for idx in range(len(hc1_subjects), nrows * ncols):
