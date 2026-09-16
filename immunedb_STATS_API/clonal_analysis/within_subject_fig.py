@@ -60,7 +60,7 @@ print(f"GT1 tissues: {sorted(gt1_tissues)}")
 print(f"Shared tissues: {shared_tissues}")
 
 # Key tissues for HC1 (original set)
-hc1_key_tissues = ["PBL", "BM", "SPL", "Lung", "Colon", "Ileum", "MLN"]
+hc1_key_tissues = ["PBL", "BM", "SPL", "Lung", "Colon", "Ileum", "Jejunum", "MLN"]
 # Key tissues for GT1 — use tissues with multiple subjects
 gt1_tissue_subjs = defaultdict(set)
 for r in records:
