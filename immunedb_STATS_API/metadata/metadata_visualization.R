@@ -214,27 +214,29 @@ cat("Saved: 01_subjects_per_dataset.png\n")
 # ============================================================
 raw_disease_colors <- c(
   "severe"                           = "#b71c1c",
-  "Early phase hypoxaemia"           = "#e53935",
-  "non-severe"                       = "#e65100",
-  "mild"                             = "#ff9800",
-  "Early phase-Stable"               = "#f9a825",
-  "Early phase-Improving"            = "#fdd835",
-  "Recovering post-ICU"              = "#ffee58",
-  "Recovering post-ICU -Improving"   = "#fff59d",
-  "Recovering without ICU-Improving" = "#fff9c4",
-  "Recovered"                        = "#81c784",
-  "COVID recovered"                  = "#a5d6a7",
-  "COVID Naive"                      = "#7e57c2",
-  "healthy"                          = "#2e7d32"
+  "Early phase hypoxaemia"           = "#b71c1c",
+  "Early phase-Stable"               = "#e65100",
+  "Early phase-Improving"            = "#e65100",
+  "non-severe"                       = "#ff7043",
+  "mild"                             = "#ff7043",
+  "Recovering post-ICU"              = "#43a047",
+  "Recovering post-ICU -Improving"   = "#43a047",
+  "Recovering without ICU-Improving" = "#43a047",
+  "Recovered"                        = "#43a047",
+  "COVID recovered"                  = "#43a047",
+  "COVID Naive"                      = "#42a5f5",
+  "healthy"                          = "#1565c0"
 )
 
 raw_disease_order <- c(
-  "severe", "Early phase hypoxaemia", "non-severe",
-  "mild", "Early phase-Stable", "Early phase-Improving",
+  "severe", "Early phase hypoxaemia",
+  "Early phase-Stable", "Early phase-Improving",
+  "non-severe", "mild",
   "Recovering post-ICU", "Recovering post-ICU -Improving",
   "Recovering without ICU-Improving",
   "Recovered", "COVID recovered",
-  "healthy", "COVID Naive"
+  "COVID Naive",
+  "healthy"
 )
 
 df_raw_disease <- df %>%
@@ -272,7 +274,7 @@ cat("Saved: 02_disease_stage_raw.png\n")
 # ============================================================
 # Harmonized Disease with Original Labels in Legend
 # ============================================================
-harmonized_order <- c("Severe", "Mild", "Moderate", "Recovered", "Healthy", "COVID Naive")
+harmonized_order <- c("Severe", "Moderate", "Mild", "Recovered", "COVID Naive", "Healthy")
 
 df_harmonized <- df %>%
   filter(!is.na(ds_trimmed), ds_trimmed != "NA", disease_category != "NA/Unknown") %>%
