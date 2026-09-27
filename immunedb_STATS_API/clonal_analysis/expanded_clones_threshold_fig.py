@@ -97,7 +97,7 @@ for t in thresholds:
 # ============================================================
 # FIGURE: Clone count at different expansion thresholds
 # ============================================================
-fig, axes = plt.subplots(1, len(thresholds), figsize=(7 * len(thresholds), 7))
+fig, axes = plt.subplots(1, len(thresholds), figsize=(8 * len(thresholds), 8))
 # Title and subtitle removed for publication
 
 rng = np.random.default_rng(42)
@@ -121,14 +121,18 @@ for ti, t in enumerate(thresholds):
             ax.scatter([i + j for j in jitter], vals, color=colors[i], s=38, alpha=0.7,
                        zorder=3, edgecolors="white", linewidth=0.5)
 
-    # Annotate subjects with 0 expanded clones (show count inside the plot area)
+    # Collect zero-count annotations and place them below this subplot
+    zero_annotations = []
     for i, d in enumerate(disease_order):
         vals = disease_counts[d]
         n_zero = sum(1 for v in vals if v == 0)
         if n_zero > 0:
-            ax.annotate(f"{n_zero} with 0", xy=(i, 0.8), fontsize=16, color="red",
-                        fontweight="bold", ha="center", va="top",
-                        bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="red", alpha=0.8))
+            zero_annotations.append(f"{d}: {n_zero}")
+    if zero_annotations:
+        ax.text(0.5, -0.38, "0 expanded clones\n" + ",  ".join(zero_annotations),
+                transform=ax.transAxes, fontsize=12, color="red",
+                fontweight="bold", ha="center", va="top",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.8))
 
     ax.set_xticks(range(len(disease_order)))
     ax.set_xticklabels(disease_order, fontsize=20, fontweight="bold", rotation=35, ha="right")
@@ -147,8 +151,8 @@ for ti, t in enumerate(thresholds):
     real_data = [disease_counts[d] for d in disease_order]
     add_significance(ax, real_data, disease_order, log_scale=True)
 
-plt.tight_layout()
-plt.savefig("plots/19_expanded_clones_threshold.png", dpi=600, bbox_inches="tight", facecolor="white")
+plt.tight_layout(rect=[0, 0.08, 1, 1])
+plt.savefig("plots/19_expanded_clones_threshold.png", dpi=600, bbox_inches="tight", pad_inches=0.5, facecolor="white")
 plt.close()
 print("\nSaved: 19_expanded_clones_threshold.png")
 
