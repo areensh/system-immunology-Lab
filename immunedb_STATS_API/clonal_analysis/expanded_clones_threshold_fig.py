@@ -130,7 +130,7 @@ for ti, t in enumerate(thresholds):
             zero_parts.append(f"{d}: {n_zero}")
     if zero_parts:
         label = "0 expanded clones\n" + ",  ".join(zero_parts)
-        ax.text(0.5, -0.45, label,
+        ax.text(0.5, -0.70, label,
                 transform=ax.transAxes, fontsize=15, color="red",
                 fontweight="bold", ha="center", va="top", linespacing=1.4,
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.85))
@@ -153,7 +153,7 @@ for ti, t in enumerate(thresholds):
     real_data = [disease_counts[d] for d in disease_order]
     add_significance(ax, real_data, disease_order, log_scale=True)
 
-plt.tight_layout(rect=[0, 0.12, 1, 1])
+plt.tight_layout(rect=[0, 0.18, 1, 1])
 plt.savefig("plots/19_expanded_clones_threshold.png", dpi=600, bbox_inches="tight", pad_inches=0.5, facecolor="white")
 plt.close()
 print("\nSaved: 19_expanded_clones_threshold.png")
