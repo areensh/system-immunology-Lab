@@ -147,7 +147,7 @@ ax.set_xlabel("Clone Size (unique sequences)", fontsize=24, fontweight="bold")
 ax.set_ylabel("Clone Size (copies / raw reads)", fontsize=24, fontweight="bold")
 ax.set_title("A. Copies vs Unique Sequences per Clone", fontsize=24, fontweight="bold", loc="left")
 ax.legend(fontsize=20, title="Disease Stage", title_fontsize=22,
-          loc="upper left", framealpha=0.9, edgecolor="gray", markerscale=3)
+          loc="lower right", framealpha=0.9, edgecolor="gray", markerscale=3)
 ax.tick_params(axis="both", labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
@@ -171,7 +171,7 @@ ax.set_xlabel("Median Unique Sequences per Subject", fontsize=24, fontweight="bo
 ax.set_ylabel("Median Copies per Subject", fontsize=24, fontweight="bold")
 ax.set_title("B. Per-Subject Median: Copies vs Unique", fontsize=24, fontweight="bold", loc="left")
 ax.legend(fontsize=20, title="Disease Stage", title_fontsize=22,
-          loc="upper left", framealpha=0.9, edgecolor="gray")
+          loc="lower right", framealpha=0.9, edgecolor="gray")
 ax.tick_params(axis="both", labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
