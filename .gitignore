@@ -1,2 +1,5 @@
 node_modules/
 __pycache__/
+immunedb_STATS_API/clonal_analysis/clone_size/data/clone_size_only_lp16_all.json
+immunedb_STATS_API/clonal_analysis/clone_size/data/clone_size_without_lp16_all.json
+immunedb_STATS_API/clonal_analysis/clone_size/data/clone_size_all_clones_blood.json
