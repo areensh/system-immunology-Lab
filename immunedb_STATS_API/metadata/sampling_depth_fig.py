@@ -138,7 +138,7 @@ for study_code, fpath in SAMPLE_FILES.items():
     with open(fpath) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            c = row["count(id)"].strip()
+            c = row.get("count(id)", "").strip()
             if c:
                 counts.append(int(c))
     samples_per_subj[study_code] = counts
