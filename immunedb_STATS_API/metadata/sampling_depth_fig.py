@@ -1,4 +1,5 @@
 import json
+import csv
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -121,10 +122,31 @@ study_colors = {
     "HC1": "#2e7d32", "GT1": "#78909c",
 }
 
+# ---- Load samples per individual from CSV files ----
+SAMPLE_FILES = {
+    "CD1": "metadata/data/samples_per_subject/covid19_db3.csv",
+    "CD2": "metadata/data/samples_per_subject/covid_db2.csv",
+    "CD3": "metadata/data/samples_per_subject/covid19.csv",
+    "CVX1": "metadata/data/samples_per_subject/vaccine2.csv",
+    "CVX2": "metadata/data/samples_per_subject/covid_vaccine_new.csv",
+    "HC1": "metadata/data/samples_per_subject/lp16_Igblast.csv",
+    "GT1": "metadata/data/samples_per_subject/sykesIgblast2020.csv",
+}
+samples_per_subj = {}
+for study_code, fpath in SAMPLE_FILES.items():
+    counts = []
+    with open(fpath) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            c = row["count(id)"].strip()
+            if c:
+                counts.append(int(c))
+    samples_per_subj[study_code] = counts
+
 # ============================================================
 # FIGURE: Multi-panel sampling depth overview
 # ============================================================
-fig, axes = plt.subplots(1, 2, figsize=(20, 10))
+fig, axes = plt.subplots(1, 3, figsize=(30, 10))
 # Title and subtitle removed for publication
 
 # Panel A: Subjects per study
@@ -166,6 +188,33 @@ ax.set_xticks(range(len(x_studies)))
 ax.set_xticklabels(x_studies, fontsize=20, fontweight="bold")
 ax.set_ylabel("Total Sequences per Subject (log)", fontsize=24, fontweight="bold")
 ax.set_title("B. Sequencing Depth", fontsize=24, fontweight="bold", loc="left")
+ax.tick_params(axis='y', labelsize=20)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+# Panel C: Samples per individual
+ax = axes[2]
+bp_data_c = [samples_per_subj.get(s, [0]) for s in x_studies]
+bp_c = ax.boxplot(bp_data_c, positions=range(len(x_studies)), widths=0.5, patch_artist=True,
+                  showfliers=True, flierprops=dict(marker="o", markersize=4, alpha=0.5),
+                  medianprops=dict(color="black", linewidth=2))
+for i, patch in enumerate(bp_c["boxes"]):
+    patch.set_facecolor(colors[i])
+    patch.set_alpha(0.7)
+
+rng_c = np.random.default_rng(42)
+for i, s in enumerate(x_studies):
+    vals = samples_per_subj.get(s, [])
+    if vals:
+        jitter = rng_c.uniform(-0.12, 0.12, len(vals))
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.6, zorder=3,
+                   edgecolors="white", linewidth=0.3)
+
+ax.set_yscale("log")
+ax.set_xticks(range(len(x_studies)))
+ax.set_xticklabels(x_studies, fontsize=20, fontweight="bold")
+ax.set_ylabel("Samples per Individual (log)", fontsize=24, fontweight="bold")
+ax.set_title("C. Samples per Individual", fontsize=24, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
