@@ -152,7 +152,48 @@ plt.close()
 print("Saved: 14_within_subject_clone_count.png")
 
 # ============================================================
-# FIGURE 15: Same-tissue comparison between HC1 D207 and GT1 subject
+# FIGURE 15: Median clone size per tissue — HC1 subjects (faceted)
+# ============================================================
+fig2, axes2 = plt.subplots(nrows, ncols, figsize=(20, 6 * nrows))
+if nrows == 1:
+    axes2 = [axes2]
+
+global_max_median = 0
+for subj in hc1_subjects:
+    td = subj_tissue_clones["HC1"][subj]
+    for t in hc1_key_tissues:
+        if t in td and td[t]:
+            global_max_median = max(global_max_median, np.median(td[t]))
+
+for idx, subj in enumerate(hc1_subjects):
+    ax = axes2[idx // ncols][idx % ncols]
+    td = subj_tissue_clones["HC1"][subj]
+    tissues = [t for t in hc1_key_tissues if t in td]
+    medians = [np.median(td[t]) for t in tissues]
+    colors = [tissue_colors.get(t, "#999") for t in tissues]
+    bars = ax.bar(range(len(tissues)), medians, color=colors, edgecolor="white", linewidth=0.5)
+    ax.set_xticks(range(len(tissues)))
+    ax.set_xticklabels(tissues, rotation=30, ha="right", fontsize=20)
+    ax.set_title(subj, fontsize=24, fontweight="bold")
+    ax.set_ylabel("Median Clone Size", fontsize=24, fontweight="bold")
+    ax.tick_params(axis='y', labelsize=20)
+    ax.set_ylim(0, global_max_median * 1.2)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    for bar, val in zip(bars, medians):
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + global_max_median*0.02,
+                f"{val:.0f}", ha="center", va="bottom", fontsize=16, fontweight="bold")
+
+for idx in range(len(hc1_subjects), nrows * ncols):
+    axes2[idx // ncols][idx % ncols].set_visible(False)
+
+plt.tight_layout()
+plt.savefig("plots/15_within_subject_median_clone_size.png", dpi=600, bbox_inches="tight", facecolor="white")
+plt.close()
+print("Saved: 15_within_subject_median_clone_size.png")
+
+# ============================================================
+# OLD FIGURE 15 (removed): Same-tissue comparison between HC1 D207 and GT1 subject
 # ============================================================
 # Find GT1 subject with most overlap in shared tissues
 shared_tissues = ["Colon", "Ileum", "Jejunum", "MLN"]
