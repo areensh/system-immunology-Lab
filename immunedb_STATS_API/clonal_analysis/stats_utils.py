@@ -46,12 +46,7 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
             log_y = log_max + 0.02 * log_range + k * step
             y = 10 ** log_y
             y_tick = 10 ** (log_y - step * 0.15)
-            if p_adj < 0.001:
-                sig_text = "***"
-            elif p_adj < 0.01:
-                sig_text = "**"
-            else:
-                sig_text = "*"
+            sig_text = "*"
             ax.plot([i, i, j, j], [y_tick, y, y, y_tick], color='black', linewidth=0.8)
             ax.text((i + j) / 2, y, sig_text, ha='center', va='bottom',
                     fontsize=16, fontweight='bold')
@@ -66,12 +61,7 @@ def add_significance(ax, data_by_group, group_labels, max_pairs=None, log_scale=
 
         for k, (i, j, p_adj) in enumerate(significant):
             y = bracket_y + k * step
-            if p_adj < 0.001:
-                sig_text = "***"
-            elif p_adj < 0.01:
-                sig_text = "**"
-            else:
-                sig_text = "*"
+            sig_text = "*"
             ax.plot([i, i, j, j], [y - step * 0.15, y, y, y - step * 0.15],
                     color='black', linewidth=0.8)
             ax.text((i + j) / 2, y, sig_text, ha='center', va='bottom',

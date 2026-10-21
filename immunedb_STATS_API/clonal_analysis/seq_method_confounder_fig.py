@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
 
-with open("clone_size/data/clone_size_disease_stage_CTE.json") as f:
-    clone_data = json.load(f)
+with open("clone_size/data/clone_size_all_clones_blood_compact.json") as f:
+    compact_clone_data = json.load(f)
 with open("cdr3/data/CDR3_length_distribution.json") as f:
     cdr3_data = json.load(f)
 with open("mutation/data/mutations_rs_ratio_disease_tissue.json") as f:
@@ -70,24 +70,13 @@ def parse_entry(entry):
     return rid, disease_group, meta, study
 
 method_map = {}
-
 clone_count = {}
-subj_clones = defaultdict(lambda: {"disease": "", "sizes": []})
-for entry in clone_data["Result"]:
-    rid, disease, meta, study = parse_entry(entry)
-    if not rid:
-        continue
+for rid, info in compact_clone_data.items():
+    study = info["study"]
     if study in RACE_UMI_STUDIES:
         method_map[rid] = "5'RACE+UMI"
     elif study in PCR_STUDIES:
         method_map[rid] = "Multiplex PCR"
-    sv = entry["statistics"][0]["stats_value"]
-    if not sv:
-        continue
-    subj_clones[rid]["disease"] = disease
-    subj_clones[rid]["sizes"].append(sv[0]["count"])
-
-for rid, info in subj_clones.items():
     if info["sizes"]:
         clone_count[rid] = {"disease": info["disease"], "value": len(info["sizes"])}
 
