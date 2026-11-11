@@ -41,14 +41,10 @@ for i, d in enumerate(disease_order):
         ax.scatter([i + j for j in jitter], vals, color=colors[i], s=60, alpha=0.85,
                    zorder=3, edgecolors="white", linewidth=0.5)
 
-# Add sample sizes below x-axis
-for i, d in enumerate(disease_order):
-    n = len(clone_counts.get(d, []))
-    ax.text(i, ax.get_ylim()[0], f"n={n}", ha="center", va="top", fontsize=14, color="gray")
-
 ax.set_yscale("log")
 ax.set_xticks(range(len(disease_order)))
-ax.set_xticklabels(disease_order, fontsize=18, fontweight="bold", rotation=15, ha="right")
+labels = [f"{d}\n(n={len(clone_counts.get(d, []))})" for d in disease_order]
+ax.set_xticklabels(labels, fontsize=18, fontweight="bold", rotation=15, ha="right")
 ax.set_ylabel("Clone Count (unique clones)", fontsize=22, fontweight="bold")
 ax.tick_params(axis='y', labelsize=18)
 ax.spines["top"].set_visible(False)
