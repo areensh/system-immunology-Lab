@@ -167,53 +167,37 @@ ax.set_ylim(0, max(n_subjects) * 1.15)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-# Panel B: Sequencing depth (box plot of seqs per subject)
+# Panel B: Sequencing depth (scatter plot)
 ax = axes[1]
-bp_data = [study_depth[s]["seqs_per_subj"] if study_depth[s]["seqs_per_subj"] else [0] for s in x_studies]
-bp = ax.boxplot(bp_data, positions=range(len(x_studies)), widths=0.5, patch_artist=True,
-                showfliers=True, flierprops=dict(marker="o", markersize=4, alpha=0.5),
-                medianprops=dict(color="black", linewidth=2))
-for i, patch in enumerate(bp["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.7)
-
-# Overlay individual points
+rng_b = np.random.default_rng(42)
 for i, s in enumerate(x_studies):
     vals = study_depth[s]["seqs_per_subj"]
-    jitter = np.random.default_rng(42).uniform(-0.12, 0.12, len(vals))
-    ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.6, zorder=3, edgecolors="white", linewidth=0.3)
+    if vals:
+        jitter = rng_b.uniform(-0.2, 0.2, len(vals))
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=80, alpha=0.7, zorder=3, edgecolors="white", linewidth=0.5)
 
 ax.set_yscale("log")
 ax.set_xticks(range(len(x_studies)))
 ax.set_xticklabels(x_studies, fontsize=20, fontweight="bold")
-ax.set_ylabel("Total Sequences per Subject (log)", fontsize=24, fontweight="bold")
+ax.set_ylabel("Total Sequences per Individual (log)", fontsize=24, fontweight="bold")
 ax.set_title("B. Sequencing Depth", fontsize=24, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-# Panel C: Samples per individual
+# Panel C: Samples per individual (scatter plot, linear scale)
 ax = axes[2]
-bp_data_c = [samples_per_subj.get(s, [0]) for s in x_studies]
-bp_c = ax.boxplot(bp_data_c, positions=range(len(x_studies)), widths=0.5, patch_artist=True,
-                  showfliers=True, flierprops=dict(marker="o", markersize=4, alpha=0.5),
-                  medianprops=dict(color="black", linewidth=2))
-for i, patch in enumerate(bp_c["boxes"]):
-    patch.set_facecolor(colors[i])
-    patch.set_alpha(0.7)
-
 rng_c = np.random.default_rng(42)
 for i, s in enumerate(x_studies):
     vals = samples_per_subj.get(s, [])
     if vals:
-        jitter = rng_c.uniform(-0.12, 0.12, len(vals))
-        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=30, alpha=0.6, zorder=3,
-                   edgecolors="white", linewidth=0.3)
+        jitter = rng_c.uniform(-0.2, 0.2, len(vals))
+        ax.scatter([i + j for j in jitter], vals, color=colors[i], s=80, alpha=0.7, zorder=3,
+                   edgecolors="white", linewidth=0.5)
 
-ax.set_yscale("log")
 ax.set_xticks(range(len(x_studies)))
 ax.set_xticklabels(x_studies, fontsize=20, fontweight="bold")
-ax.set_ylabel("Samples per Individual (log)", fontsize=24, fontweight="bold")
+ax.set_ylabel("Samples per Individual", fontsize=24, fontweight="bold")
 ax.set_title("C. Samples per Individual", fontsize=24, fontweight="bold", loc="left")
 ax.tick_params(axis='y', labelsize=20)
 ax.spines["top"].set_visible(False)
