@@ -3,68 +3,25 @@ import csv
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
-from collections import defaultdict
 from matplotlib.lines import Line2D
 
-with open("clone_size/data/clone_size_ALL_tissue.json") as f:
+# All clones (no threshold) per tissue per HC1 subject
+with open("clone_size/data/hc1_all_clones_by_tissue.json") as f:
     data = json.load(f)
 
-STUDY_MAP = [
-    ("lp16", "HC1"), ("sykesIgblast2020", "GT1"),
-]
-
-EXCLUDE = {"lp16_Igblast-D159", "lp16_Igblast-D154", "lp16_Igblast-Hu-1"}
-
-def get_study(rid):
-    for prefix, short in STUDY_MAP:
-        if prefix in rid:
-            return short
-    return None
-
-records = []
-for entry in data["Result"]:
-    rep = entry["repertoire"]
-    rid = rep["repertoire_id"]
-    study = get_study(rid)
-    if not study:
-        continue
-    if rid in EXCLUDE:
-        continue
-    keys = rep["meta_key"]
-    vals = rep["meta_value"]
-    if isinstance(keys, list):
-        meta = dict(zip(keys, vals))
-    else:
-        meta = {keys: vals}
-    tissue = meta.get("tissue")
-    if not tissue:
-        continue
-    sv = entry["statistics"][0]["stats_value"]
-    if not sv:
-        continue
-    subj_name = rid.split("-", 1)[1] if "-" in rid else rid
-    records.append({
-        "subject": subj_name,
-        "study": study,
-        "tissue": tissue,
-        "clone_id": sv[0]["clone_id"],
-        "clone_size": sv[0]["count"],
-    })
-
+hc1_subjects = sorted(data.keys())
 hc1_key_tissues = ["PBL", "BM", "SPL", "Lung", "Colon", "Ileum", "Jejunum", "MLN"]
 
-# NBT-style tissue colors: blood/lymphoid in reds/warm, gut in blues/cool
 tissue_colors = {
-    "PBL": "#c62828",       # blood — deep red
-    "BM": "#e53935",        # bone marrow — red
-    "SPL": "#AB47BC",       # spleen — purple
-    "Lung": "#66BB6A",      # lung — green
-    "Colon": "#1565C0",     # colon — dark blue
-    "Ileum": "#1E88E5",     # ileum — blue
-    "Jejunum": "#42A5F5",   # jejunum — light blue
-    "MLN": "#78909c",       # mesenteric lymph node — grey
+    "PBL": "#c62828",
+    "BM": "#e53935",
+    "SPL": "#AB47BC",
+    "Lung": "#66BB6A",
+    "Colon": "#1565C0",
+    "Ileum": "#1E88E5",
+    "Jejunum": "#42A5F5",
+    "MLN": "#78909c",
 }
 
 tissue_markers = {
@@ -79,26 +36,17 @@ with open("clone_size/data/hc1_samples_per_tissue.csv") as f:
     for row in reader:
         hc1_sample_counts[(row["subject_name"], row["tissue"])] = int(row["num_samples"])
 
-# Group by study, subject, tissue
-subj_tissue_clones = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-for r in records:
-    subj_tissue_clones[r["study"]][r["subject"]][r["tissue"]].append(r["clone_size"])
-
-hc1_subjects = sorted(subj_tissue_clones["HC1"].keys())
-print(f"HC1 subjects: {hc1_subjects}")
-
 # ============================================================
-# FIGURE 14: Clone count per tissue — all HC1 donors as columns
+# FIGURE 14: Clone count per tissue (normalized by samples)
 # ============================================================
 fig, ax = plt.subplots(figsize=(14, 8))
 
 rng = np.random.default_rng(42)
 for i, subj in enumerate(hc1_subjects):
-    td = subj_tissue_clones["HC1"][subj]
     for t in hc1_key_tissues:
-        if t in td:
+        if t in data[subj]:
             n_samples = hc1_sample_counts.get((subj, t), 1)
-            val = len(td[t]) / n_samples
+            val = len(data[subj][t]) / n_samples
             jitter = rng.uniform(-0.08, 0.08)
             ax.scatter(i + jitter, val,
                        color=tissue_colors.get(t, "#999"),
@@ -126,15 +74,14 @@ plt.close()
 print("Saved: 14_within_subject_clone_count.png")
 
 # ============================================================
-# FIGURE 15: Median clone size per tissue — all HC1 donors as columns
+# FIGURE 15: Median clone size per tissue
 # ============================================================
 fig, ax = plt.subplots(figsize=(14, 8))
 
 for i, subj in enumerate(hc1_subjects):
-    td = subj_tissue_clones["HC1"][subj]
     for t in hc1_key_tissues:
-        if t in td and td[t]:
-            val = np.median(td[t])
+        if t in data[subj] and data[subj][t]:
+            val = np.median(data[subj][t])
             jitter = rng.uniform(-0.08, 0.08)
             ax.scatter(i + jitter, val,
                        color=tissue_colors.get(t, "#999"),
@@ -162,8 +109,6 @@ plt.close()
 print("Saved: 15_within_subject_median_clone_size.png")
 
 # Summary
-hc1_recs = [r for r in records if r["study"] == "HC1"]
-gt1_recs = [r for r in records if r["study"] == "GT1"]
-print(f"\nSummary:")
-print(f"  HC1: {len(set(r['subject'] for r in hc1_recs))} subjects, {len(hc1_recs)} clones")
-print(f"  GT1: {len(set(r['subject'] for r in gt1_recs))} subjects, {len(gt1_recs)} clones")
+for subj in hc1_subjects:
+    total = sum(len(data[subj].get(t, [])) for t in hc1_key_tissues)
+    print(f"  {subj}: {total} total clones across key tissues")
