@@ -14,14 +14,14 @@ hc1_subjects = sorted(data.keys())
 hc1_key_tissues = ["PBL", "BM", "SPL", "Lung", "Colon", "Ileum", "Jejunum", "MLN"]
 
 tissue_colors = {
-    "PBL": "#c62828",
-    "BM": "#e53935",
-    "SPL": "#AB47BC",
-    "Lung": "#66BB6A",
-    "Colon": "#1565C0",
-    "Ileum": "#1E88E5",
-    "Jejunum": "#42A5F5",
-    "MLN": "#78909c",
+    "PBL": "#c62828",       # blood — dark red
+    "BM": "#e57373",        # bone marrow — light red
+    "SPL": "#ff8a80",       # spleen — pale red/salmon
+    "Lung": "#e65100",      # lung — orange
+    "Colon": "#1565C0",     # colon — dark blue
+    "Ileum": "#42A5F5",     # ileum — medium blue
+    "Jejunum": "#90CAF9",   # jejunum — light blue
+    "MLN": "#212121",       # mesenteric lymph node — black
 }
 
 tissue_markers = {
@@ -47,11 +47,11 @@ for i, subj in enumerate(hc1_subjects):
         if t in data[subj]:
             n_samples = hc1_sample_counts.get((subj, t), 1)
             val = len(data[subj][t]) / n_samples
-            jitter = rng.uniform(-0.08, 0.08)
+            jitter = rng.uniform(-0.25, 0.25)
             ax.scatter(i + jitter, val,
                        color=tissue_colors.get(t, "#999"),
                        marker=tissue_markers.get(t, "o"),
-                       s=100, alpha=0.85, zorder=3,
+                       s=120, alpha=0.85, zorder=3,
                        edgecolors="white", linewidth=0.5)
 
 ax.set_xticks(range(len(hc1_subjects)))
@@ -82,11 +82,11 @@ for i, subj in enumerate(hc1_subjects):
     for t in hc1_key_tissues:
         if t in data[subj] and data[subj][t]:
             val = np.median(data[subj][t])
-            jitter = rng.uniform(-0.08, 0.08)
+            jitter = rng.uniform(-0.25, 0.25)
             ax.scatter(i + jitter, val,
                        color=tissue_colors.get(t, "#999"),
                        marker=tissue_markers.get(t, "o"),
-                       s=100, alpha=0.85, zorder=3,
+                       s=120, alpha=0.85, zorder=3,
                        edgecolors="white", linewidth=0.5)
 
 ax.set_xticks(range(len(hc1_subjects)))
